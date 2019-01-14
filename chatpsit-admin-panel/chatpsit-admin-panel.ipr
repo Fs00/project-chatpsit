@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <bytecodeTargetLevel>
+      <module name="chatpsit-admin-panel_main" target="1.8" />
+      <module name="chatpsit-admin-panel_test" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="GradleSettings">
+    <option name="linkedExternalProjectsSettings">
+      <GradleProjectSettings>
+        <option name="distributionType" value="DEFAULT_WRAPPED" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="modules">
+          <set>
+            <option value="/mnt/dati/home/francesco/Programmazione/Scuola/Java/project-chatpsit/chatpsit-admin-panel" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+    </option>
+  </component>
+  <component name="InspectionProjectProfileManager">
+    <profile version="1.0">
+      <option name="myName" value="Project Default" />
+      <inspection_tool class="StringConcatenationInLoops" enabled="false" level="WARNING" enabled_by_default="false" />
+    </profile>
+    <version value="1.0" />
+  </component>
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/-67224464/Java-project-chatpsit-chatpsit-admin-panel.iml" filepath="$PROJECT_DIR$/-67224464/Java-project-chatpsit-chatpsit-admin-panel.iml" />
+      <module fileurl="file://$PROJECT_DIR$/chatpsit-admin-panel.iml" filepath="$PROJECT_DIR$/chatpsit-admin-panel.iml" />
+      <module fileurl="file://$PROJECT_DIR$/-67224464/chatpsit-admin-panel_main.iml" filepath="$PROJECT_DIR$/-67224464/chatpsit-admin-panel_main.iml" group="chatpsit-admin-panel" />
+      <module fileurl="file://$PROJECT_DIR$/-67224464/chatpsit-admin-panel_test.iml" filepath="$PROJECT_DIR$/-67224464/chatpsit-admin-panel_test.iml" group="chatpsit-admin-panel" />
+    </modules>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/out" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Gluon" />
+  </component>
+  <component name="VcsDirectoryMappings">
+    <mapping directory="$PROJECT_DIR$/.." vcs="Git" />
+  </component>
+  <component name="libraryTable">
+    <library name="Gradle: com.gluonhq:particle:1.1.3">
+      <CLASSES>
+        <root url="jar:///mnt/dati/home/francesco/.gradle/caches/modules-2/files-2.1/com.gluonhq/particle/1.1.3/e037c245e69dca51cca9ec5e51535766c7cf39c/particle-1.1.3.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES />
+    </library>
+    <library name="Gradle: eu.infomas:annotation-detector:3.0.4">
+      <CLASSES>
+        <root url="jar:///mnt/dati/home/francesco/.gradle/caches/modules-2/files-2.1/eu.infomas/annotation-detector/3.0.4/9dacddd19f848bea5e7ba4dfadce37e0f710cd1b/annotation-detector-3.0.4.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES>
+        <root url="jar:///mnt/dati/home/francesco/.gradle/caches/modules-2/files-2.1/eu.infomas/annotation-detector/3.0.4/e7b4972b54b1ad25166db551a68f375c550a5ab4/annotation-detector-3.0.4-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Gradle: javax.inject:javax.inject:1">
+      <CLASSES>
+        <root url="jar:///mnt/dati/home/francesco/.gradle/caches/modules-2/files-2.1/javax.inject/javax.inject/1/6975da39a7040257bd51d21a231b76c915872d38/javax.inject-1.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES>
+        <root url="jar:///mnt/dati/home/francesco/.gradle/caches/modules-2/files-2.1/javax.inject/javax.inject/1/a00123f261762a7c5e0ec916a2c7c8298d29c400/javax.inject-1-sources.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="Gradle: org.controlsfx:controlsfx:8.40.12">
+      <CLASSES>
+        <root url="jar:///mnt/dati/home/francesco/.gradle/caches/modules-2/files-2.1/org.controlsfx/controlsfx/8.40.12/68ea3c6a97296e77c843473dd74636b075b0b654/controlsfx-8.40.12.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES>
+        <root url="jar:///mnt/dati/home/francesco/.gradle/caches/modules-2/files-2.1/org.controlsfx/controlsfx/8.40.12/b8622ac50c18f25ed0546dc6f271de28ce5f433/controlsfx-8.40.12-sources.jar!/" />
+      </SOURCES>
+    </library>
+  </component>
+</project>
