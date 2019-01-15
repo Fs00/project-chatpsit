@@ -7,6 +7,7 @@ import java.net.SocketException;
 
 public class Server implements Runnable
 {
+    // Il server può essere eseguito in locale o su server remoto
     public enum Mode {
         Remote,
         Local
@@ -14,7 +15,7 @@ public class Server implements Runnable
 
     public Server(Server.Mode mode)
     {
-        Logger.initialize(mode);
+        Logger.setMode(mode);
     }
 
     private ServerSocket serverSocket;
@@ -26,11 +27,11 @@ public class Server implements Runnable
         try
         {
             serverSocket = new ServerSocket(SERVER_PORT);
-            Logger.logEvent(LogEventType.Info, "Server started");
+            Logger.logEvent(Logger.EventType.Info, "Server avviato");
         }
         catch (Exception exc)
         {
-            Logger.logEvent(LogEventType.Error, "Errore nell'apertura del socket del server: " + exc.getMessage());
+            Logger.logEvent(Logger.EventType.Error, "Errore nell'apertura del socket del server: " + exc.getMessage());
         }
 
         while (true)
@@ -42,11 +43,11 @@ public class Server implements Runnable
             }
             catch (SocketException exc)
             {
-                Logger.logEvent(LogEventType.Info, "Richiesta chiusura del server");
+                Logger.logEvent(Logger.EventType.Info, "Richiesta chiusura del server");
             }
             catch (IOException exc)
             {
-                Logger.logEvent(LogEventType.Error, "Errore nel creare il socket per un client: " + exc.getMessage());
+                Logger.logEvent(Logger.EventType.Error, "Errore nel creare il socket per un client: " + exc.getMessage());
             }
         }
     }
@@ -56,6 +57,10 @@ public class Server implements Runnable
         // TODO
     }
 
+    /**
+     * Decodifica il messaggio ricevuto dal nuovo client
+     * @param clientSocket il socket del client
+     */
     private void handleClientConnection(Socket clientSocket)
     {
         // TODO
