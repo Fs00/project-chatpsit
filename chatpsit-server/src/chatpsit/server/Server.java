@@ -5,8 +5,18 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 
-public class ServerThread extends Thread
+public class Server implements Runnable
 {
+    public enum Mode {
+        Remote,
+        Local
+    }
+
+    public Server(Server.Mode mode)
+    {
+        Logger.initialize(mode);
+    }
+
     private ServerSocket serverSocket;
     private final int SERVER_PORT = 7777;
 
@@ -16,10 +26,11 @@ public class ServerThread extends Thread
         try
         {
             serverSocket = new ServerSocket(SERVER_PORT);
+            Logger.logEvent(LogEventType.Info, "Server started");
         }
         catch (Exception exc)
         {
-            System.out.println("Errore nell'apertura del socket del server: " + exc.getMessage()); // TODO: replace with generic log function
+            Logger.logEvent(LogEventType.Error, "Errore nell'apertura del socket del server: " + exc.getMessage());
         }
 
         while (true)
@@ -31,11 +42,11 @@ public class ServerThread extends Thread
             }
             catch (SocketException exc)
             {
-                System.out.println("Richiesta chiusura del server");  // TODO: replace with generic log function
+                Logger.logEvent(LogEventType.Info, "Richiesta chiusura del server");
             }
             catch (IOException exc)
             {
-                System.out.println("Errore nel creare il socket per un client: " + exc.getMessage()); // TODO: replace with generic log function
+                Logger.logEvent(LogEventType.Error, "Errore nel creare il socket per un client: " + exc.getMessage());
             }
         }
     }

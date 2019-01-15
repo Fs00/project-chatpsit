@@ -4,6 +4,6 @@ public class Main
 {
     public static void main(String[] args)
     {
-        new ServerThread().run();
+        new Thread(new Server(Server.Mode.Local)).run();
     }
 }
