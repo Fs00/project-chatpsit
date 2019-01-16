@@ -1,10 +1,11 @@
 package chatpsit.server;
 
+import java.net.Socket;
 import java.util.Date;
 
 public class User
 {
     private String username;
-    private String clientSocket;
+    private Socket clientSocket;
     private Date lastActivity;
 }
