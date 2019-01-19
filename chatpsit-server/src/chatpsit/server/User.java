@@ -6,6 +6,5 @@ import java.util.Date;
 public class User
 {
     private String username;
-    private Socket clientSocket;
-    private Date lastActivity;
+    private String displayName;
 }
