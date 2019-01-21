@@ -1,6 +1,6 @@
-package chatpsit.client;
+package chatpsit.common.gui;
 
-import chatpsit.client.model.Message;
+import chatpsit.common.Message;
 
 public interface IController
 {

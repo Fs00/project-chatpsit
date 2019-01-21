@@ -1,4 +1,4 @@
-package chatpsit.server;
+package chatpsit.common;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -55,7 +55,7 @@ public class Message
                 }
                 else
                 {
-                     throw new IllegalArgumentException("Campi non rispettati.");
+                    throw new IllegalArgumentException("Campi non rispettati.");
                 }
                 break;
             case PrivateMessage:
@@ -194,7 +194,7 @@ public class Message
                 }
                 else
                 {
-                       throw new IllegalArgumentException("Formato del pacchetto errato.");
+                    throw new IllegalArgumentException("Formato del pacchetto errato.");
                 }
                 break;
             case "PRMSG":
@@ -338,7 +338,7 @@ public class Message
     {
         if (pairs.length % 2 != 0)
             throw new IllegalArgumentException("Non c'è un valore corrispondente ad ogni campo, il numero di " +
-                                               "parametri è dispari.");
+                    "parametri è dispari.");
 
         Map<String, String> fieldsMap = new HashMap<>();
         for (int i = 0; i < pairs.length; i=i+2)

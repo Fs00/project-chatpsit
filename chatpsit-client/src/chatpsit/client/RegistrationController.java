@@ -1,6 +1,7 @@
 package chatpsit.client;
 
-import chatpsit.client.model.Message;
+import chatpsit.common.Message;
+import chatpsit.common.gui.IController;
 
 public class RegistrationController implements IController
 {

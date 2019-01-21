@@ -22,7 +22,12 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
-.gradle/
+# Keep only misc.xml and modules.xml in .idea folders (contain modules and JDK version info)
+/.idea/
+**/.idea/*
+!**/.idea/misc.xml
+!**/.idea/modules.xml
+
 build/
 out/
-**/.idea/workspace.xml
+

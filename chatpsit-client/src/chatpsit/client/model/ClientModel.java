@@ -1,7 +1,5 @@
 package chatpsit.client.model;
 
-import chatpsit.client.IController;
-
 import java.util.ArrayList;
 import java.util.List;
 
