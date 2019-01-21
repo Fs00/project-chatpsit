@@ -44,7 +44,7 @@ public class Message
     {
 
         //Assegno i parametri a campi della classe dopo aver controllato che fields abbia tutti i campi specificati
-        //in messageFormatDefiniotns per il tipo passato
+        //in messageTypeFields per il tipo passato
         switch(type)
         {
             case Login:
@@ -156,7 +156,7 @@ public class Message
     {
         /*
           deve formare la stringa concatenando i fields nell'ordine specificato dall'array corrispondente
-          al tipo del messaggio in messageFormatDefinitions
+          al tipo del messaggio in messageTypeFields
          */
         String message = messageTypeStrings.get(type.toString());
         for(Map.Entry<String, String> entry: fields.entrySet())
@@ -170,152 +170,46 @@ public class Message
      * Crea una nuova istanza della classe partendo da una stringa trasmessa
      * @param rawMessage stringa prodotta dal metodo serialize()
      */
-
     public static Message deserialize(String rawMessage)
     {
-        /*
-         deve controllare che:
-         - la stringa del tipo di messaggio esista tra i valori di typeProtocolStrings
-         - il numero dei campi corrisponda a quello dell'array relativo al tipo in messageFormatDefinitions
-         e infine creare una Map che abbia come chiavi i nomi dei campi forniti in messageFormatDefinitions
-         e passarla al costruttore di message
-         */
-        Map<String, String> messageFields;
-        Type typeMessage;
-        String[] parts = rawMessage.split(";");
-        switch(parts[0])
+        String[] rawMessageFields = rawMessage.split(";");
+        Type rawMessageType = getMessageTypeFromString(rawMessageFields[0]);
+        if (rawMessageType == null)
+            throw new IllegalArgumentException("Il tipo di messaggio " + rawMessageFields[0] + " non esiste.");
+
+        // Ottengo i nomi dei campi corrispondenti al tipo di messaggio dato
+        String[] rawMessageTypeFieldNames = messageTypeFields.get(rawMessageType);
+        // Si ricorda che rawMessageFields ha un campo in più rispetto all'array in messageTypeFields, che è il tipo di messaggio
+        if (rawMessageTypeFieldNames.length == (rawMessageFields.length - 1))
         {
-            case "LOGIN":
-                if((parts.length - 1) == messageFormatDefinitions.get("LOGIN").length)
-                {
-                    typeMessage = Type.Login;
-                    messageFields = createFieldsMap(messageFormatDefinitions.get(Type.Login)[0], parts[1],
-                            messageFormatDefinitions.get(Type.Login)[1], parts[2]);
-                }
-                else
-                {
-                    throw new IllegalArgumentException("Formato del pacchetto errato.");
-                }
-                break;
-            case "PRMSG":
-                if((parts.length - 1) == messageFormatDefinitions.get("PRMSG").length)
-                {
-                    typeMessage = Type.PrivateMessage;
-                    messageFields = createFieldsMap(messageFormatDefinitions.get(Type.PrivateMessage)[0], parts[1],
-                            messageFormatDefinitions.get(Type.PrivateMessage)[1], parts[2],
-                            messageFormatDefinitions.get(Type.PrivateMessage)[2], parts[3]);
-                }
-                else
-                {
-                    throw new IllegalArgumentException("Formato del pacchetto errato.");
-                }
-                break;
-            case "GLMSG":
-                if((parts.length - 1) == messageFormatDefinitions.get("GLMSG").length)
-                {
-                    typeMessage = Type.GlobalMessage;
-                    messageFields = createFieldsMap(messageFormatDefinitions.get(Type.GlobalMessage)[0], parts[1],
-                            messageFormatDefinitions.get(Type.GlobalMessage)[1], parts[2]);
-                }
-                else
-                {
-                    throw new IllegalArgumentException("Formato del pacchetto errato.");
-                }
-                break;
-            case "REPRT":
-                if((parts.length - 1) == messageFormatDefinitions.get("REPRT").length)
-                {
-                    typeMessage = Type.Report;
-                    messageFields = createFieldsMap(messageFormatDefinitions.get(Type.Report)[0], parts[1],
-                            messageFormatDefinitions.get(Type.Report)[1], parts[2]);
-                }
-                else
-                {
-                    throw new IllegalArgumentException("Formato del pacchetto errato.");
-                }
-                break;
-            case "RGSTR":
-                if((parts.length - 1) == messageFormatDefinitions.get("RGSTR").length)
-                {
-                    typeMessage = Type.Register;
-                    messageFields = createFieldsMap(messageFormatDefinitions.get(Type.Register)[0], parts[1],
-                            messageFormatDefinitions.get(Type.Register)[1], parts[2],
-                            messageFormatDefinitions.get(Type.Register)[2], parts[3]);
-                }
-                else
-                {
-                    throw new IllegalArgumentException("Formato del pacchetto errato.");
-                }
-                break;
-            case "LGOUT":
-                if((parts.length - 1) == messageFormatDefinitions.get("LGOUT").length)
-                {
-                    typeMessage = Type.Logout;
-                    messageFields = createFieldsMap(messageFormatDefinitions.get(Type.Logout)[0], parts[1]);
-                }
-                else
-                {
-                    throw new IllegalArgumentException("Formato del pacchetto errato.");
-                }
-                break;
-            case "NWMSG":
-                if((parts.length - 1) == messageFormatDefinitions.get("NWMSG").length)
-                {
-                    typeMessage = Type.NewMessage;
-                    messageFields = createFieldsMap(messageFormatDefinitions.get(Type.NewMessage)[0], parts[1],
-                            messageFormatDefinitions.get(Type.NewMessage)[1], parts[2]);
-                }
-                else
-                {
-                    throw new IllegalArgumentException("Formato del pacchetto errato.");
-                }
-                break;
-            case "SUCES":
-                if((parts.length - 1) == messageFormatDefinitions.get("SUCES").length)
-                {
-                    typeMessage = Type.NotifySuccess;
-                    messageFields = createFieldsMap(messageFormatDefinitions.get(Type.NotifySuccess)[0], parts[1]);
-                }
-                else
-                {
-                    throw new IllegalArgumentException("Formato del pacchetto errato.");
-                }
-                break;
-            case "ERROR":
-                if((parts.length - 1) == messageFormatDefinitions.get("ERROR").length)
-                {
-                    typeMessage = Type.NotifyError;
-                    messageFields = createFieldsMap(messageFormatDefinitions.get(Type.NotifyError)[0], parts[1]);
-                }
-                else
-                {
-                    throw new IllegalArgumentException("Formato del pacchetto errato.");
-                }
-                break;
-            default:
-                throw new IllegalArgumentException("Stringa del tipo di messaggio errata.");
+            Map<String, String> messageFieldsMap = new HashMap<>();
+            for (int i = 0; i < rawMessageTypeFieldNames.length; i++)
+                messageFieldsMap.put(rawMessageTypeFieldNames[i], rawMessageFields[i+1]);
+
+            return new Message(rawMessageType, messageFieldsMap);
         }
-        return new Message(typeMessage, messageFields);
+        else
+            throw new IllegalArgumentException("Il numero di campi del messaggio non è conforme al suo tipo.");
     }
 
     // Contiene le stringhe del protocollo corrispondenti al tipo di messaggio
     private static Map<Type, String> messageTypeStrings;
     // Contiene i nomi dei campi per ogni tipo di messaggio e il loro ordine
-    private static Map<Type, String[]> messageFormatDefinitions;
+    private static Map<Type, String[]> messageTypeFields;
     static {
-        messageFormatDefinitions = new HashMap<>();
-        messageFormatDefinitions.put(Type.Login, new String[] {"username", "password"});
-        messageFormatDefinitions.put(Type.PrivateMessage, new String[] {"sender", "recipient", "message"});
-        messageFormatDefinitions.put(Type.GlobalMessage, new  String[] {"sender", "message"});
+        messageTypeFields = new HashMap<>();
+        messageTypeFields.put(Type.Login, new String[] {"username", "password"});
+        messageTypeFields.put(Type.PrivateMessage, new String[] {"sender", "recipient", "message"});
+        messageTypeFields.put(Type.GlobalMessage, new String[] {"sender", "message"});
         //Volendo si potrebbe prevedere di inserire pure una morivazione al report
-        messageFormatDefinitions.put(Type.Report, new String[] {"sender", "reportedUser"});
-        messageFormatDefinitions.put(Type.Register, new String[] {"username", "password", "displayName"});
-        messageFormatDefinitions.put(Type.Logout, new String[] {"username"});
-        messageFormatDefinitions.put(Type.NewMessage, new String[]{"sender", "message"});
-        messageFormatDefinitions.put(Type.NotifySuccess, new String[] {"description"});
-        messageFormatDefinitions.put(Type.NotifyError, new String[]{ "description" });
+        messageTypeFields.put(Type.Report, new String[] {"sender", "reportedUser"});
+        messageTypeFields.put(Type.Register, new String[] {"username", "password", "displayName"});
+        messageTypeFields.put(Type.Logout, new String[] {"username"});
+        messageTypeFields.put(Type.NewMessage, new String[]{"sender", "message"});
+        messageTypeFields.put(Type.NotifySuccess, new String[] {"description"});
+        messageTypeFields.put(Type.NotifyError, new String[]{ "description" });
         // "blocca" la map in modo che non sia più modificabile
-        messageFormatDefinitions = Collections.unmodifiableMap(messageFormatDefinitions);
+        messageTypeFields = Collections.unmodifiableMap(messageTypeFields);
 
         messageTypeStrings = new HashMap<>();
         messageTypeStrings.put(Type.Login, "LOGIN");
@@ -325,7 +219,7 @@ public class Message
         messageTypeStrings.put(Type.Register, "RGSTR");
         messageTypeStrings.put(Type.Logout, "LGOUT");
         messageTypeStrings.put(Type.NewMessage, "NWMSG");
-        messageTypeStrings.put(Type.NotifySuccess, "SUCES");
+        messageTypeStrings.put(Type.NotifySuccess, "SUCSS");
         messageTypeStrings.put(Type.NotifyError, "ERROR");
         messageTypeStrings = Collections.unmodifiableMap(messageTypeStrings);
     }
@@ -345,5 +239,20 @@ public class Message
             fieldsMap.put(pairs[i], pairs[i+1]);
 
         return fieldsMap;
+    }
+
+    /**
+     * Data la rappresentazione in forma di stringa di un tipo di messaggio, restituisce il corrispondente valore
+     * dell'enumerazione Message.Type
+     * @param typeAsString stringa di 5 caratteri
+     */
+    private static Type getMessageTypeFromString(String typeAsString)
+    {
+        for (Map.Entry<Type, String> entry : messageTypeStrings.entrySet())
+        {
+            if (entry.getValue().equals(typeAsString))
+                return entry.getKey();
+        }
+        return null;
     }
 }
