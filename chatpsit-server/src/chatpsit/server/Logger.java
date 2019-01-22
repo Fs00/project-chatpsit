@@ -1,8 +1,10 @@
 package chatpsit.server;
 
+import chatpsit.common.Message;
+
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.function.Consumer;
 
 /**
  * Classe contenente funzioni di logging
@@ -18,14 +20,13 @@ public final class Logger
         Error
     }
 
-    // Funzioni utilizzate per il logging
-    private final static Consumer<String> localLoggingFunction = System.out::println;
-    private final static Consumer<String> remoteLoggingFunction = Logger::performRemoteLogging;
     // Utilizzato per creare una stringa partendo dalla data attuale
     private final static SimpleDateFormat dateFormatter = new SimpleDateFormat("[dd/MM/yyyy HH:mm:ss]");
 
     private static Server.Mode mode = Server.Mode.Local;
     private static Server server;
+    private static boolean logOnFile = false;
+    private static QueueFileWriter asyncLogFileWriter;
 
     /**
      * Modifica la modalità di logging (locale o remota)
@@ -35,6 +36,31 @@ public final class Logger
     {
         Logger.mode = mode;
         Logger.server = server;
+
+        if (mode == Server.Mode.Remote)
+            startLoggingOnFile();
+    }
+
+    public static void startLoggingOnFile()
+    {
+        try
+        {
+            String dateTime = new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss").format(new Date());
+            asyncLogFileWriter = new QueueFileWriter(Paths.get(System.getProperty("user.dir"), "server_" + dateTime + ".log"));
+            logOnFile = true;
+        }
+        catch (Exception exc)
+        {
+            logEvent(EventType.Error, "Impossibile aprire il file di log per la scrittura: " + exc.getMessage());
+        }
+    }
+
+    public static void closeLogFile()
+    {
+        if (asyncLogFileWriter != null)
+            asyncLogFileWriter.stopProcessingAndClose();
+
+        logOnFile = false;
     }
 
     /**
@@ -60,20 +86,12 @@ public final class Logger
         logString += message;
 
         if (mode == Server.Mode.Local)
-            localLoggingFunction.accept(logString);
-        else
-            remoteLoggingFunction.accept(logString);
-    }
+            System.out.println(logString);
+        else if (server != null)
+            server.sendToAdminsOnly(new Message(Message.Type.LogEvent, Message.createFieldsMap("text", logString)));
 
-    /**
-     * Accoda la stringa di log in un buffer di memoria e, se il pannello di amministrazione è connesso,
-     * la invia al relativo socket.
-     * @param message Stringa di logging preparata da logEvent
-     */
-    private static void performRemoteLogging(String message)
-    {
-        // TODO scrittura su file di log
-        // TODO invio agli admin panel
+        if (logOnFile)
+            asyncLogFileWriter.appendText(logString);
     }
 
     // Impedisce che il costruttore possa essere usato all'esterno

@@ -18,7 +18,8 @@ public class Message
         Logout,
         NotifySuccess,
         NotifyError,
-        Ban
+        Ban,
+        LogEvent
     }
 
     /**
@@ -118,6 +119,7 @@ public class Message
         messageTypeFields.put(Type.Logout, new String[] {"username"});
         messageTypeFields.put(Type.NotifySuccess, new String[] {"description"});
         messageTypeFields.put(Type.NotifyError, new String[]{ "description" });
+        messageTypeFields.put(Type.LogEvent, new String[] { "text" });
         // "blocca" la map in modo che non sia più modificabile
         messageTypeFields = Collections.unmodifiableMap(messageTypeFields);
 
@@ -131,6 +133,7 @@ public class Message
         messageTypeStrings.put(Type.Logout, "LGOUT");
         messageTypeStrings.put(Type.NotifySuccess, "SUCSS");
         messageTypeStrings.put(Type.NotifyError, "ERROR");
+        messageTypeStrings.put(Type.LogEvent, "LGEVT");
         messageTypeStrings = Collections.unmodifiableMap(messageTypeStrings);
     }
 

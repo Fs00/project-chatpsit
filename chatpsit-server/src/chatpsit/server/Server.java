@@ -27,6 +27,7 @@ public class Server implements Runnable
     public Server(Server.Mode mode) throws Exception
     {
         Logger.setMode(mode, this);
+        //Logger.startLoggingOnFile();
         loadUserData();
     }
 
