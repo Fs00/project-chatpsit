@@ -24,7 +24,7 @@ public class Server implements Runnable
 
     public Server(Server.Mode mode)
     {
-        Logger.setMode(mode);
+        Logger.setMode(mode, this);
         loadUserData();
     }
 

@@ -1,6 +1,5 @@
 package chatpsit.server;
 
-import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.function.Consumer;
@@ -26,25 +25,16 @@ public final class Logger
     private final static SimpleDateFormat dateFormatter = new SimpleDateFormat("[dd/MM/yyyy HH:mm:ss]");
 
     private static Server.Mode mode = Server.Mode.Local;
-    // Socket per comunicare con il client del pannello admin, quando questo è collegato
-    private static Socket adminPanelClientSocket = null;
+    private static Server server;
 
     /**
      * Modifica la modalità di logging (locale o remota)
      * @param mode la modalità scelta
      */
-    public static void setMode(Server.Mode mode)
+    public static void setMode(Server.Mode mode, Server server)
     {
         Logger.mode = mode;
-    }
-
-    public static void setAdminPanelSocket(Socket clientSocket)
-    {
-        if (clientSocket.isConnected())
-            Logger.adminPanelClientSocket = clientSocket;
-        else
-            logEvent(EventType.Error, "Il socket del pannello admin non è in grado di ricevere messaggi " +
-                                      "e pertanto non può essere utilizzato per il logging.");
+        Logger.server = server;
     }
 
     /**
@@ -82,7 +72,8 @@ public final class Logger
      */
     private static void performRemoteLogging(String message)
     {
-        // TODO
+        // TODO scrittura su file di log
+        // TODO invio agli admin panel
     }
 
     // Impedisce che il costruttore possa essere usato all'esterno
