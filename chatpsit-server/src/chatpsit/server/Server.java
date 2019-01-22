@@ -2,15 +2,13 @@ package chatpsit.server;
 
 import chatpsit.common.Message;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.io.File;
 
 public class Server implements Runnable
 {
@@ -78,6 +76,29 @@ public class Server implements Runnable
         // deve rispondere ai messaggi di login e registrazione
         // se il login va a buon fine deve essere eseguito UserConnection.run() in un nuovo thread
         // per tutti gli altri messaggi il server risponderà al client con un errore
+        try
+        {
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+
+            String message = bufferedReader.readLine();
+            Message mess = Message.deserialize(message);
+
+            if(mess.getType() == Message.Type.Login)
+            {
+                String username = mess.getFields().get("username");
+                String password = mess.getFields().get("password");
+
+                int i = 0;
+                while(registeredUsers.get(i).getUsername().equals(username) && registeredUsers.get(i).getHashedPassword().equals(password)){
+
+                }
+
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     /**
@@ -91,13 +112,6 @@ public class Server implements Runnable
 
     private void loadUserData() throws Exception
     {
-
-        /*
-         deve effettuare il parsing dei dati da un file chiamato usersdata.txt
-         posizionato nella stessa cartella dell'eseguibile.
-         I dati degli utenti vanno salvati nella lista registeredUsers.
-         Per la lettura da file è preferibile utilizzare la classe Scanner
-         */
         File file = new File(System.getProperty("user.dir"), "usersdata.txt");
         try{
             Scanner scanner = new Scanner(file);
