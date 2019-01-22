@@ -2,11 +2,15 @@ package chatpsit.server;
 
 import chatpsit.common.Message;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
+import java.io.File;
 
 public class Server implements Runnable
 {
@@ -19,10 +23,10 @@ public class Server implements Runnable
     private ServerSocket serverSocket;
     private final int SERVER_PORT = 7777;
 
-    private List<UserConnection> currentUserConnections;
-    private List<User> registeredUsers;
+    private final List<UserConnection> currentUserConnections = new ArrayList<>();
+    private final List<User> registeredUsers = new ArrayList<>();
 
-    public Server(Server.Mode mode)
+    public Server(Server.Mode mode) throws Exception
     {
         Logger.setMode(mode, this);
         loadUserData();
@@ -85,13 +89,39 @@ public class Server implements Runnable
         // TODO
     }
 
-    private void loadUserData()
+    private void loadUserData() throws Exception
     {
+
         /*
          deve effettuare il parsing dei dati da un file chiamato usersdata.txt
          posizionato nella stessa cartella dell'eseguibile.
          I dati degli utenti vanno salvati nella lista registeredUsers.
          Per la lettura da file è preferibile utilizzare la classe Scanner
          */
+        File file = new File(System.getProperty("user.dir"), "usersdata.txt");
+        try{
+            Scanner scanner = new Scanner(file);
+            while(scanner.hasNextLine())
+            {
+                String line = scanner.nextLine();
+                String[] split = line.split(";");
+                if (split[0].startsWith("@"))
+                {
+                    split[0] = split[0].substring(1);
+                    User user = new User(split[0], split[1], true);
+                    registeredUsers.add(user);
+                }
+                else
+                {
+                    User user = new User(split[0], split[1], false);
+                    registeredUsers.add(user);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Logger.logEvent(Logger.EventType.Error, "Impossibile leggere il file degli utenti: " + e.getMessage());
+            throw e;
+        }
     }
 }
