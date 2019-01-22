@@ -1,6 +1,7 @@
 package chatpsit.client;
 
 import chatpsit.client.model.ClientModel;
+import chatpsit.common.gui.IModel;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -13,7 +14,7 @@ public class ClientApp extends Application
 {
     private static Stage mainStage;
     private static Scene loginScene, registerScene;
-    private static ClientModel model;
+    private static final IModel model = new ClientModel();
 
     @Override
     public void start(Stage primaryStage) throws IOException
@@ -34,6 +35,7 @@ public class ClientApp extends Application
 
     static void showLoginScene()
     {
+        model.detachControllers();
         mainStage.setTitle("Login");
         mainStage.setScene(loginScene);
         mainStage.setResizable(false);
@@ -42,6 +44,7 @@ public class ClientApp extends Application
 
     static void showRegisterScene()
     {
+        model.detachControllers();
         mainStage.setTitle("Registrazione");
         mainStage.setScene(registerScene);
         mainStage.setResizable(false);
@@ -50,5 +53,9 @@ public class ClientApp extends Application
 
     public static void main(String[] args) {
         launch(args);
+    }
+
+    static IModel getModel() {
+        return model;
     }
 }

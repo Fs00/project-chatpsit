@@ -4,6 +4,7 @@ import chatpsit.client.model.ClientModel;
 import chatpsit.client.model.ServerConnection;
 import chatpsit.common.Message;
 import chatpsit.common.gui.IController;
+import chatpsit.common.gui.IModel;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -12,10 +13,9 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 
-import java.io.IOException;
-
 public class RegistrationController implements IController
 {
+    private IModel model;
     @FXML
     private Button showLoginButton;
     @FXML
@@ -26,6 +26,12 @@ public class RegistrationController implements IController
     private PasswordField fieldPasswd;
     @FXML
     private ChoiceBox<ServerConnection> serverChoiceBox;
+
+    public RegistrationController()
+    {
+        this.model = ClientApp.getModel();
+        bindToModel(this.model);
+    }
 
     public ObservableList<ServerConnection> getServerChoices()
     {

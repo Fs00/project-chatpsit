@@ -1,10 +1,12 @@
 package chatpsit.client.model;
 
 import chatpsit.common.gui.IController;
+import chatpsit.common.gui.IModel;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class ClientModel
+public class ClientModel implements IModel
 {
     private List<IController> attachedControllers;
 
@@ -21,5 +23,10 @@ public class ClientModel
     public void detachController(IController controller)
     {
         attachedControllers.remove(controller);
+    }
+
+    public void detachControllers()
+    {
+        attachedControllers.clear();
     }
 }

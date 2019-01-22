@@ -3,6 +3,7 @@ package chatpsit.client;
 import chatpsit.client.model.ServerConnection;
 import chatpsit.common.Message;
 import chatpsit.common.gui.IController;
+import chatpsit.common.gui.IModel;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -15,6 +16,7 @@ import java.io.IOException;
 
 public class LoginController implements IController
 {
+    private IModel model;
     @FXML
     private Button loginButton;
     @FXML
@@ -25,6 +27,12 @@ public class LoginController implements IController
     private PasswordField fieldPasswd;
     @FXML
     private ChoiceBox<ServerConnection> serverChoiceBox;
+
+    public LoginController()
+    {
+        this.model = ClientApp.getModel();
+        bindToModel(this.model);
+    }
 
     public ObservableList<ServerConnection> getServerChoices()
     {
