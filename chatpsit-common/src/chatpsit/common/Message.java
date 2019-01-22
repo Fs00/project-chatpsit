@@ -16,9 +16,9 @@ public class Message
         Report,
         Register,
         Logout,
-        NewMessage,
         NotifySuccess,
-        NotifyError
+        NotifyError,
+        Ban
     }
 
     /**
@@ -40,113 +40,26 @@ public class Message
         return fields;
     }
 
+    /**
+     * Il costruttore controlla che fields abbia tutti i campi specificati
+     * in messageTypeFields per il tipo passato
+     * @param type il tipo di messaggio
+     * @param fields una Map contenente i campi del messaggio
+     */
     public Message(Type type, Map<String, String> fields)
     {
+        String[] typeFields = messageTypeFields.get(type);
+        if (typeFields.length != fields.size())
+            throw new IllegalArgumentException("Il numero di campi del messaggio non è conforme al suo tipo.");
 
-        //Assegno i parametri a campi della classe dopo aver controllato che fields abbia tutti i campi specificati
-        //in messageTypeFields per il tipo passato
-        switch(type)
+        for (int i = 0; i < typeFields.length; i++)
         {
-            case Login:
-                if(fields.containsKey("username") && fields.containsKey("password"))
-                {
-                    this.type = type;
-                    this.fields = fields;
-                }
-                else
-                {
-                    throw new IllegalArgumentException("Campi non rispettati.");
-                }
-                break;
-            case PrivateMessage:
-                if(fields.containsKey("sender") && fields.containsKey("recipient") && fields.containsKey("message"))
-                {
-                    this.type = type;
-                    this.fields = fields;
-                }
-                else
-                {
-                    throw new IllegalArgumentException("Campi non rispettati.");
-                }
-                break;
-            case GlobalMessage:
-                if(fields.containsKey("sender") && fields.containsKey("message"))
-                {
-                    this.type = type;
-                    this.fields = fields;
-                }
-                else
-                {
-                    throw new IllegalArgumentException("Campi non rispettati.");
-                }
-                break;
-            case Report:
-                if(fields.containsKey("sender") && fields.containsKey("reportedUser"))
-                {
-                    this.type = type;
-                    this.fields = fields;
-                }
-                else
-                {
-                    throw new IllegalArgumentException("Campi non rispettati.");
-                }
-                break;
-            case Register:
-                if(fields.containsKey("username") && fields.containsKey("password") && fields.containsKey("displayName"))
-                {
-                    this.type = type;
-                    this.fields = fields;
-                }
-                else
-                {
-                    throw new IllegalArgumentException("Campi non rispettati.");
-                }
-                break;
-            case Logout:
-                if(fields.containsKey("username"))
-                {
-                    this.type = type;
-                    this.fields = fields;
-                }
-                else
-                {
-                    throw new IllegalArgumentException("Campi non rispettati.");
-                }
-                break;
-            case NewMessage:
-                if(fields.containsKey("sender") && fields.containsKey("message"))
-                {
-                    this.type = type;
-                    this.fields = fields;
-                }
-                else
-                {
-                    throw new IllegalArgumentException("Campi non rispettati.");
-                }
-                break;
-            case NotifySuccess:
-                if(fields.containsKey("description"))
-                {
-                    this.type = type;
-                    this.fields = fields;
-                }
-                else
-                {
-                    throw new IllegalArgumentException("Campi non rispettati.");
-                }
-                break;
-            case NotifyError:
-                if(fields.containsKey("description"))
-                {
-                    this.type = type;
-                    this.fields = fields;
-                }
-                else
-                {
-                    throw new IllegalArgumentException("Campi non rispettati.");
-                }
-                break;
+            if (!fields.containsKey(typeFields[i]))
+                throw new IllegalArgumentException("È presente un campo del messaggio non conforme al suo tipo.");
         }
+
+        this.fields = fields;
+        this.type = type;
     }
 
     /**
@@ -154,15 +67,12 @@ public class Message
      */
     public String serialize()
     {
-        /*
-          deve formare la stringa concatenando i fields nell'ordine specificato dall'array corrispondente
-          al tipo del messaggio in messageTypeFields
-         */
-        String message = messageTypeStrings.get(type.toString());
-        for(Map.Entry<String, String> entry: fields.entrySet())
-        {
-            message += ";" + entry.getValue();
-        }
+        String message = messageTypeStrings.get(type);
+        String[] typeFields = messageTypeFields.get(type);
+
+        for (int i = 0; i < typeFields.length; i++)
+            message += ";" + fields.get(typeFields[i]);
+
         return message;
     }
 
@@ -203,9 +113,9 @@ public class Message
         messageTypeFields.put(Type.GlobalMessage, new String[] {"sender", "message"});
         //Volendo si potrebbe prevedere di inserire pure una morivazione al report
         messageTypeFields.put(Type.Report, new String[] {"sender", "reportedUser"});
+        messageTypeFields.put(Type.Ban, new String[] {"bannedUser"});
         messageTypeFields.put(Type.Register, new String[] {"username", "password", "displayName"});
         messageTypeFields.put(Type.Logout, new String[] {"username"});
-        messageTypeFields.put(Type.NewMessage, new String[]{"sender", "message"});
         messageTypeFields.put(Type.NotifySuccess, new String[] {"description"});
         messageTypeFields.put(Type.NotifyError, new String[]{ "description" });
         // "blocca" la map in modo che non sia più modificabile
@@ -216,9 +126,9 @@ public class Message
         messageTypeStrings.put(Type.PrivateMessage, "PRMSG");
         messageTypeStrings.put(Type.GlobalMessage, "GLMSG");
         messageTypeStrings.put(Type.Report, "REPRT");
+        messageTypeStrings.put(Type.Ban, "BANHR");
         messageTypeStrings.put(Type.Register, "RGSTR");
         messageTypeStrings.put(Type.Logout, "LGOUT");
-        messageTypeStrings.put(Type.NewMessage, "NWMSG");
         messageTypeStrings.put(Type.NotifySuccess, "SUCSS");
         messageTypeStrings.put(Type.NotifyError, "ERROR");
         messageTypeStrings = Collections.unmodifiableMap(messageTypeStrings);
