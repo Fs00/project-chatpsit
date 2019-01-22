@@ -80,13 +80,13 @@ public class Server implements Runnable
         {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
-            String message = bufferedReader.readLine();
-            Message mess = Message.deserialize(message);
+            String rawMessage = bufferedReader.readLine();
+            Message message = Message.deserialize(rawMessage);
 
-            if(mess.getType() == Message.Type.Login)
+            if(message.getType() == Message.Type.Login)
             {
-                String username = mess.getFields().get("username");
-                String password = mess.getFields().get("password");
+                String username = message.getFields().get("username");
+                String password = message.getFields().get("password");
 
                 int i = 0;
                 while(registeredUsers.get(i).getUsername().equals(username) && registeredUsers.get(i).getHashedPassword().equals(password)){
@@ -110,31 +110,36 @@ public class Server implements Runnable
         // TODO
     }
 
+    /**
+     * Carica i dati degli utenti da un file locale chiamato usersdata.txt
+     * Gli utenti nel file sono salvati uno per riga, nel seguente formato:
+     *   [!@]username;hashedPassword
+     * dove ! indica un utente bannato, mentre @ indica un utente admin
+     * @throws Exception le eccezioni lanciate da questo metodo devono far saltare l'avvio del server
+     */
     private void loadUserData() throws Exception
     {
         File file = new File(System.getProperty("user.dir"), "usersdata.txt");
-        try{
+        try
+        {
             Scanner scanner = new Scanner(file);
-            while(scanner.hasNextLine())
+            while (scanner.hasNextLine())
             {
-                String line = scanner.nextLine();
-                String[] split = line.split(";");
-                if (split[0].startsWith("@"))
-                {
-                    split[0] = split[0].substring(1);
-                    User user = new User(split[0], split[1], true);
-                    registeredUsers.add(user);
-                }
-                else
-                {
-                    User user = new User(split[0], split[1], false);
-                    registeredUsers.add(user);
-                }
+                String[] splittedLine = scanner.nextLine().split(";");
+                boolean isAdmin = splittedLine[0].startsWith("@");
+                boolean isBanned = splittedLine[0].startsWith("!");
+
+                if (isAdmin || isBanned)
+                    splittedLine[0] = splittedLine[0].substring(1);
+
+                User user = new User(splittedLine[0], splittedLine[1], isAdmin, isBanned);
+                registeredUsers.add(user);
             }
         }
         catch (Exception e)
         {
-            Logger.logEvent(Logger.EventType.Error, "Impossibile leggere il file degli utenti: " + e.getMessage());
+            Logger.logEvent(Logger.EventType.Error, "Impossibile leggere i dati degli utenti: " + e.getMessage() +
+                            "\nIl server non può avviarsi.");
             throw e;
         }
     }
