@@ -7,14 +7,12 @@ public class User
 {
     private String username;
     private String hashedPassword;
-    private String displayName;     // nome che verrà mostrato in chat
     private boolean isAdmin;
 
-    public User(String username, String hashedPassword, String displayName, boolean isAdmin)
+    public User(String username, String hashedPassword, boolean isAdmin)
     {
         this.username = username;
         this.hashedPassword = hashedPassword;
-        this.displayName = displayName;
         this.isAdmin = isAdmin;
     }
 
@@ -26,11 +24,6 @@ public class User
     public String getHashedPassword()
     {
         return hashedPassword;
-    }
-
-    public String getDisplayName()
-    {
-        return displayName;
     }
 
     public boolean isAdmin()
