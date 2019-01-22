@@ -107,7 +107,11 @@ public class Server implements Runnable
      */
     public void sendToAdminsOnly(Message message)
     {
-        // TODO
+        for (UserConnection connection : currentUserConnections)
+        {
+            if (connection.getUser().isAdmin())
+                connection.sendMessage(message);
+        }
     }
 
     /**
