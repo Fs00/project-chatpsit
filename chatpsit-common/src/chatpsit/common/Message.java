@@ -72,7 +72,7 @@ public class Message
         String[] typeFields = messageTypeFields.get(type);
 
         for (int i = 0; i < typeFields.length; i++)
-            message += ";" + fields.get(typeFields[i]);
+            message += DELIMITER_CHAR + fields.get(typeFields[i]);
 
         return message;
     }
@@ -83,7 +83,7 @@ public class Message
      */
     public static Message deserialize(String rawMessage)
     {
-        String[] rawMessageFields = rawMessage.split(";");
+        String[] rawMessageFields = rawMessage.split(Character.toString(DELIMITER_CHAR));
         Type rawMessageType = getMessageTypeFromString(rawMessageFields[0]);
         if (rawMessageType == null)
             throw new IllegalArgumentException("Il tipo di messaggio " + rawMessageFields[0] + " non esiste.");
@@ -103,6 +103,7 @@ public class Message
             throw new IllegalArgumentException("Il numero di campi del messaggio non è conforme al suo tipo.");
     }
 
+    private static char DELIMITER_CHAR = 31;    // ASCII unit separator
     // Contiene le stringhe del protocollo corrispondenti al tipo di messaggio
     private static Map<Type, String> messageTypeStrings;
     // Contiene i nomi dei campi per ogni tipo di messaggio e il loro ordine
