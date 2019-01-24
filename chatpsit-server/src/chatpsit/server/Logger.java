@@ -88,7 +88,7 @@ public final class Logger
         if (mode == Server.Mode.Local)
             System.out.println(logString);
         else if (server != null)
-            server.sendToAdminsOnly(new Message(Message.Type.LogEvent, Message.createFieldsMap("text", logString)));
+            server.sendToAdminPanelsOnly(new Message(Message.Type.LogEvent, Message.createFieldsMap("text", logString)));
 
         if (logOnFile)
             asyncLogFileWriter.appendText(logString);

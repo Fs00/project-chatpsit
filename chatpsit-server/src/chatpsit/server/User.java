@@ -23,11 +23,6 @@ public class User
         return username;
     }
 
-    public String getHashedPassword()
-    {
-        return hashedPassword;
-    }
-
     public boolean isAdmin()
     {
         return isAdmin;
@@ -46,5 +41,30 @@ public class User
     public void unban()
     {
         isBanned = false;
+    }
+
+    public boolean passwordMatches(String plainPassword)
+    {
+        // TODO
+    }
+
+    public String serialize()
+    {
+        // TODO
+    }
+
+    public static User deserialize(String userAsString)
+    {
+        // TODO
+    }
+
+    public static boolean isValidUsername(String username)
+    {
+        // TODO
+    }
+
+    public static String hashPassword(String plainPassword)
+    {
+        // TODO
     }
 }

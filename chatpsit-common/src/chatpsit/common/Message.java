@@ -10,7 +10,8 @@ public class Message
      * Definisce i tipi possibili di messaggio
      */
     public enum Type {
-        Login,
+        UserLogin,
+        AdminPanelLogin,
         PrivateMessage,
         GlobalMessage,
         Report,
@@ -110,7 +111,8 @@ public class Message
     private static Map<Type, String[]> messageTypeFields;
     static {
         messageTypeFields = new HashMap<>();
-        messageTypeFields.put(Type.Login, new String[] {"username", "password"});
+        messageTypeFields.put(Type.UserLogin, new String[] {"username", "password"});
+        messageTypeFields.put(Type.AdminPanelLogin, new String[] {"username", "password"});
         messageTypeFields.put(Type.PrivateMessage, new String[] {"sender", "recipient", "message"});
         messageTypeFields.put(Type.GlobalMessage, new String[] {"sender", "message"});
         //Volendo si potrebbe prevedere di inserire pure una morivazione al report
@@ -125,7 +127,8 @@ public class Message
         messageTypeFields = Collections.unmodifiableMap(messageTypeFields);
 
         messageTypeStrings = new HashMap<>();
-        messageTypeStrings.put(Type.Login, "LOGIN");
+        messageTypeStrings.put(Type.UserLogin, "ULGIN");
+        messageTypeStrings.put(Type.AdminPanelLogin, "ALGIN");
         messageTypeStrings.put(Type.PrivateMessage, "PRMSG");
         messageTypeStrings.put(Type.GlobalMessage, "GLMSG");
         messageTypeStrings.put(Type.Report, "REPRT");

@@ -10,8 +10,18 @@ public class UserConnection implements Runnable
 {
     private User user;
     private Socket clientSocket;
+    private Server server;
     private Date lastActivity;
-    private LinkedBlockingQueue<Message> messageQueue;
+    private boolean isAdminPanelConnection;
+    private final LinkedBlockingQueue<Message> messageQueue = new LinkedBlockingQueue<>();
+
+    public UserConnection(User user, Socket clientSocket, Server server, boolean isAdminPanelConnection) {
+        this.user = user;
+        this.clientSocket = clientSocket;
+        this.server = server;
+        this.isAdminPanelConnection = isAdminPanelConnection;
+        this.lastActivity = new Date();
+    }
 
     @Override
     public void run()

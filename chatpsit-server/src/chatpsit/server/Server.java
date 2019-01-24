@@ -6,9 +6,7 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class Server implements Runnable
 {
@@ -21,8 +19,9 @@ public class Server implements Runnable
     private ServerSocket serverSocket;
     private final int SERVER_PORT = 7777;
 
-    private final List<UserConnection> currentUserConnections = new ArrayList<>();
-    private final List<User> registeredUsers = new ArrayList<>();
+    private final Map<String, UserConnection> currentUserClientConnections = Collections.synchronizedMap(new HashMap<>());
+    private final Map<String, UserConnection> currentAdminPanelConnections = Collections.synchronizedMap(new HashMap<>());
+    private final List<User> registeredUsers = Collections.synchronizedList(new ArrayList<>());
 
     public Server(Server.Mode mode) throws Exception
     {
@@ -64,7 +63,13 @@ public class Server implements Runnable
 
     private void shutdownServer()
     {
-        // TODO
+        /*
+         deve:
+         - scrivere i dati degli utenti aggiornati sul file
+         - mandare a tutti i client connessi un messaggio per segnalare la chiusura
+         - chiudere tutte le connessioni
+         - chiudere il file di log
+         */
     }
 
     /**
@@ -84,7 +89,7 @@ public class Server implements Runnable
             String rawMessage = bufferedReader.readLine();
             Message message = Message.deserialize(rawMessage);
 
-            if(message.getType() == Message.Type.Login)
+            if(message.getType() == Message.Type.UserLogin)
             {
                 String username = message.getFields().get("username");
                 String password = message.getFields().get("password");
@@ -103,14 +108,33 @@ public class Server implements Runnable
     }
 
     /**
-     * Invia il messaggio specificato a tutti gli utenti amministratori
+     * Recapita il messaggio privato al destinatario specificato all'interno del messaggio
+     * @param message messaggio di tipo PrivateMessage
+     */
+    public void deliverPrivateMessage(Message message)
+    {
+        // TODO
+    }
+
+    /**
+     * Invia il messaggio a tutti i client connessi, sia sessioni utente che pannelli di amministrazione
+     * @param message il messaggio da inviare
+     */
+    public void sendToAllClients(Message message)
+    {
+        // TODO
+        sendToAdminPanelsOnly(message);
+    }
+
+    /**
+     * Invia il messaggio specificato a tutte le sessioni attive del panello di amministrazione
      * Viene utilizzato da Logger
      */
-    public void sendToAdminsOnly(Message message)
+    public void sendToAdminPanelsOnly(Message message)
     {
-        for (UserConnection connection : currentUserConnections)
+        synchronized (currentAdminPanelConnections)
         {
-            if (connection.getUser().isAdmin())
+            for (UserConnection connection : currentAdminPanelConnections.values())
                 connection.sendMessage(message);
         }
     }
@@ -120,25 +144,29 @@ public class Server implements Runnable
      * Gli utenti nel file sono salvati uno per riga, nel seguente formato:
      *   [!@]username;hashedPassword
      * dove ! indica un utente bannato, mentre @ indica un utente admin
-     * @throws Exception le eccezioni lanciate da questo metodo devono far saltare l'avvio del server
+     * @throws Exception le eccezioni legate alla lettura del file devono far saltare l'avvio del server
      */
     private void loadUserData() throws Exception
     {
         File file = new File(System.getProperty("user.dir"), "usersdata.txt");
         try
         {
+            int currentLine = 0;
             Scanner scanner = new Scanner(file);
             while (scanner.hasNextLine())
             {
-                String[] splittedLine = scanner.nextLine().split(";");
-                boolean isAdmin = splittedLine[0].startsWith("@");
-                boolean isBanned = splittedLine[0].startsWith("!");
-
-                if (isAdmin || isBanned)
-                    splittedLine[0] = splittedLine[0].substring(1);
-
-                User user = new User(splittedLine[0], splittedLine[1], isAdmin, isBanned);
-                registeredUsers.add(user);
+                String userAsString = scanner.nextLine();
+                try
+                {
+                    User user = User.deserialize(userAsString);
+                    registeredUsers.add(user);
+                }
+                catch (Exception exc)
+                {
+                    Logger.logEvent(Logger.EventType.Error, "Dati dell'utente malformati alla riga " + currentLine +
+                                    ": " + exc.getMessage());
+                }
+                currentLine++;
             }
         }
         catch (Exception e)
