@@ -4,6 +4,8 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
@@ -13,6 +15,8 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public class QueueFileWriter
 {
+    private boolean isClosed = false;
+
     private BufferedWriter fileWriter;
     private Thread queueProcessingThread;
     private final LinkedBlockingQueue<String> textQueue = new LinkedBlockingQueue<>();
@@ -26,6 +30,9 @@ public class QueueFileWriter
 
     public void appendText(String text)
     {
+        if (isClosed)
+            throw new UnsupportedOperationException("Il file è già chiuso o in fase di chiusura.");
+
         try {
             textQueue.put(text);
         }
@@ -34,20 +41,34 @@ public class QueueFileWriter
         }
     }
 
-    public void processQueue()
+    private void processQueue()
     {
         while (!Thread.interrupted())
         {
             try {
                 String textToWrite = textQueue.take();
-                fileWriter.write(textToWrite);
-                fileWriter.newLine();
+                fileWriter.write(textToWrite + "\n");
             }
             catch (InterruptedException exc) {
                 exc.printStackTrace();
             }
             catch (IOException exc) {
-                System.out.println("Impossibile scrivere il messaggio di log su file.");
+                System.out.println("Impossibile scrivere il messaggio di log su file: " + exc.getMessage());
+            }
+        }
+
+        // Scrive gli elementi ancora presenti nella coda sul file
+        List<String> remainingElements = new ArrayList<>();
+        textQueue.drainTo(remainingElements);
+        if (remainingElements.size() > 0)
+        {
+            for (String remainingEntry : remainingElements)
+            {
+                try {
+                    fileWriter.write(remainingEntry + "\n");
+                } catch (IOException exc) {
+                    System.out.println("Impossibile scrivere il messaggio di log su file: " + exc.getMessage());
+                }
             }
         }
 
@@ -62,5 +83,6 @@ public class QueueFileWriter
     public void stopProcessingAndClose()
     {
         queueProcessingThread.interrupt();
+        isClosed = true;
     }
 }
