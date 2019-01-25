@@ -94,10 +94,11 @@ public class Server implements Runnable
                 String username = message.getFields().get("username");
                 String password = message.getFields().get("password");
 
+                /**
                 int i = 0;
                 while(registeredUsers.get(i).getUsername().equals(username) && registeredUsers.get(i).getHashedPassword().equals(password)){
 
-                }
+                }*/
 
             }
 
