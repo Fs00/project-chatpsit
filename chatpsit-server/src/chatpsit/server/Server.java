@@ -78,30 +78,91 @@ public class Server implements Runnable
      */
     private void handleClientConnection(Socket clientSocket)
     {
-        // TODO
-        // deve rispondere ai messaggi di login e registrazione
-        // se il login va a buon fine deve essere eseguito UserConnection.run() in un nuovo thread
-        // per tutti gli altri messaggi il server risponderà al client con un errore
         try
         {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            PrintWriter bufferedWriter = new PrintWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
 
             String rawMessage = bufferedReader.readLine();
             Message message = Message.deserialize(rawMessage);
 
-            if(message.getType() == Message.Type.UserLogin)
+            switch (message.getType())
             {
-                String username = message.getFields().get("username");
-                String password = message.getFields().get("password");
+                case UserLogin:
+                case AdminPanelLogin:
+                    String username = message.getFields().get("username");
+                    String password = message.getFields().get("password");
+                    // verifica se utente esiste (registeredUsers) e ottiene corripsondente oggetto User
+                    User foundUser = registeredUsers.stream().filter(user -> user.getUsername().equals(username)).findFirst().orElse(null);
+                    if (foundUser == null)
+                    {
+                        Message errMessage = new Message(Message.Type.NotifyError, Message.createFieldsMap("description", "Utente già registrato"));
+                        bufferedWriter.println(errMessage.serialize());
+                    }
+                    else
+                    {
+                        if (foundUser.passwordMatches(password))
+                        {
+                            Message errMessage = new Message(Message.Type.NotifyError, Message.createFieldsMap("description", "Password errata"));
+                            bufferedWriter.println(errMessage.serialize());
+                        }
+                        else
+                        {
+                            if (message.getType()== Message.Type.UserLogin){
+                                if (currentUserClientConnections.containsKey(foundUser.getUsername()))
+                                {
+                                    Message errMessage = new Message(Message.Type.NotifyError, Message.createFieldsMap("description", "Utente già connesso"));
+                                    bufferedWriter.println(errMessage.serialize());
+                                }
+                                else
+                                {
+                                    Message errMessage = new Message(Message.Type.NotifyError, Message.createFieldsMap("description", "Login effettuato con successo"));
+                                    bufferedWriter.println(errMessage.serialize());
+                                    UserConnection newUserConn = new UserConnection(foundUser,clientSocket,this,false);
+                                    currentUserClientConnections.put(username,newUserConn);
+                                }
+                            }
+                            else
+                            {
+                                if (currentAdminPanelConnections.containsKey(foundUser.getUsername()))
+                                {
+                                    Message errMessage = new Message(Message.Type.NotifyError, Message.createFieldsMap("description", "Utente già connesso"));
+                                    bufferedWriter.println(errMessage.serialize());
+                                }
+                                else
+                                {
+                                    Message errMessage = new Message(Message.Type.NotifyError, Message.createFieldsMap("description", "Login effettuato con successo"));
+                                    bufferedWriter.println(errMessage.serialize());
+                                    UserConnection newUserConn = new UserConnection(foundUser,clientSocket,this,true);
+                                    currentAdminPanelConnections.put(username,newUserConn);
+                                }
+                            }
+                        }
+                    }
+                    break;
 
-                /**
-                int i = 0;
-                while(registeredUsers.get(i).getUsername().equals(username) && registeredUsers.get(i).getHashedPassword().equals(password)){
-
-                }*/
-
+                case Register:
+                    String newUsername = message.getFields().get("username");
+                    String newPassword = message.getFields().get("password");
+                    User foundUser2 = registeredUsers.stream().filter(user -> user.getUsername().equals(newUsername)).findFirst().orElse(null);
+                    if (foundUser2 != null){
+                        Message errMessage = new Message(Message.Type.NotifyError, Message.createFieldsMap("description", "Utente già registrato"));
+                        bufferedWriter.println(errMessage.serialize());
+                    }
+                    else
+                    {
+                        try
+                        {
+                            User newUser = new User(newUsername, User.hashPassword(newPassword), false, false);
+                            registeredUsers.add(newUser);
+                        }
+                        catch (Exception e){
+                            Message errMessage = new Message(Message.Type.NotifyError, Message.createFieldsMap("description", "La password non rispetta i canoni consentiti"));
+                            bufferedWriter.println(errMessage.serialize());
+                        }
+                    }
+                    break;
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }
