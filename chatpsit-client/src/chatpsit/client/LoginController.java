@@ -7,10 +7,7 @@ import chatpsit.common.gui.IModel;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 
 import java.io.IOException;
 
@@ -53,6 +50,17 @@ public class LoginController implements IController
     @Override
     public void notifyMessage(Message message)
     {
-        // TODO
+        switch (message.getType())
+        {
+            case NotifySuccess:
+                // TODO
+                break;
+            case NotifyError:
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Login fallito");
+                alert.setContentText(message.getFields().get("description"));   // TODO cambierà a seconda del messaggio di errore
+                alert.showAndWait();
+                break;
+        }
     }
 }
