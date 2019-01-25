@@ -1,12 +1,17 @@
 package chatpsit.server;
 
 import chatpsit.common.Message;
+import chatpsit.common.ServerConstants;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Server implements Runnable
 {
@@ -19,9 +24,9 @@ public class Server implements Runnable
     private ServerSocket serverSocket;
     private final int SERVER_PORT = 7777;
 
-    private final Map<String, UserConnection> currentUserClientConnections = Collections.synchronizedMap(new HashMap<>());
-    private final Map<String, UserConnection> currentAdminPanelConnections = Collections.synchronizedMap(new HashMap<>());
-    private final List<User> registeredUsers = Collections.synchronizedList(new ArrayList<>());
+    private final Map<String, UserConnection> currentUserClientConnections = new ConcurrentHashMap<>();
+    private final Map<String, UserConnection> currentAdminPanelConnections = new ConcurrentHashMap<>();
+    private final List<User> registeredUsers = new CopyOnWriteArrayList<>();
 
     public Server(Server.Mode mode) throws Exception
     {
@@ -80,93 +85,121 @@ public class Server implements Runnable
     {
         try
         {
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            PrintWriter bufferedWriter = new PrintWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
+            BufferedReader connectionReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            PrintWriter connectionWriter = new PrintWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
 
-            String rawMessage = bufferedReader.readLine();
+            String rawMessage = connectionReader.readLine();
             Message message = Message.deserialize(rawMessage);
+
+            // Esci subito se il tipo di messaggio non è tra quelli adatti per cominciare una connessione
+            if (message.getType() != Message.Type.AdminPanelLogin &&
+                message.getType() != Message.Type.UserLogin &&
+                message.getType() != Message.Type.Register)
+            {
+                Message errMessage = new Message(Message.Type.NotifyError, Message.createFieldsMap("description", "Tipo di messaggio inappropriato"));
+                connectionWriter.println(errMessage.serialize());
+                clientSocket.close();
+                return;
+            }
+
+            // Estrapola username e password dal messaggio e cerca se esiste un utente con lo stesso nome
+            String username = message.getFields().get("username");
+            String password = message.getFields().get("password");
+            User existingUser = registeredUsers.stream().filter(user -> user.getUsername().equals(username)).findFirst().orElse(null);
 
             switch (message.getType())
             {
                 case UserLogin:
                 case AdminPanelLogin:
-                    String username = message.getFields().get("username");
-                    String password = message.getFields().get("password");
-                    // verifica se utente esiste (registeredUsers) e ottiene corripsondente oggetto User
-                    User foundUser = registeredUsers.stream().filter(user -> user.getUsername().equals(username)).findFirst().orElse(null);
-                    if (foundUser == null)
+                    if (existingUser == null || !existingUser.passwordMatches(password))
                     {
-                        Message errMessage = new Message(Message.Type.NotifyError, Message.createFieldsMap("description", "Utente già registrato"));
-                        bufferedWriter.println(errMessage.serialize());
+                        Message errMessage = new Message(Message.Type.NotifyError, Message.createFieldsMap("description", ServerConstants.WRONG_CREDENTIALS_ERR));
+                        connectionWriter.println(errMessage.serialize());
+                        clientSocket.close();
+                        return;
+                    }
+
+                    if (message.getType() == Message.Type.AdminPanelLogin && !existingUser.isAdmin())
+                    {
+                        Message errMessage = new Message(Message.Type.NotifyError, Message.createFieldsMap("description", ServerConstants.ONLY_ADMIN_CAN_ERR));
+                        connectionWriter.println(errMessage.serialize());
+                        clientSocket.close();
+                        return;
+                    }
+
+                    // A seconda del tipo di login, seleziona la map sulla quale controllare se c'è già una connessione dello stesso utente
+                    Map<String, UserConnection> connectionsMap;
+                    if (message.getType() == Message.Type.UserLogin)
+                        connectionsMap = currentUserClientConnections;
+                    else
+                        connectionsMap = currentAdminPanelConnections;
+
+                    if (connectionsMap.containsKey(existingUser.getUsername()))
+                    {
+                        Message errMessage = new Message(Message.Type.NotifyError, Message.createFieldsMap("description", ServerConstants.ALREADY_LOGGED_IN_MSG_ERR));
+                        connectionWriter.println(errMessage.serialize());
+                        clientSocket.close();
+                        return;
                     }
                     else
                     {
-                        if (foundUser.passwordMatches(password))
+                        // Notifica a tutti che l'utente si è connesso
+                        this.sendToAllClients(new Message(Message.Type.UserConnected, Message.createFieldsMap("username", existingUser.getUsername())));
+
+                        // Fai partire il gestore della connessione utente su un altro thread
+                        UserConnection loggedInUserConn = new UserConnection(existingUser, clientSocket,
+                                                   this, message.getType() == Message.Type.AdminPanelLogin);
+                        new Thread(loggedInUserConn).start();
+                        connectionsMap.put(username, loggedInUserConn);
+                        Logger.logEvent(Logger.EventType.Info, "Accesso effettuato dall'utente " + username);
+
+                        // Notifica all'utente che il login è avvenuto con successo e inviagli tutti i nominativi degli utenti connessi
+                        loggedInUserConn.sendMessage(new Message(Message.Type.NotifySuccess, Message.createFieldsMap("description", "")));
+                        for (UserConnection connection : currentUserClientConnections.values())
                         {
-                            Message errMessage = new Message(Message.Type.NotifyError, Message.createFieldsMap("description", "Password errata"));
-                            bufferedWriter.println(errMessage.serialize());
-                        }
-                        else
-                        {
-                            if (message.getType()== Message.Type.UserLogin){
-                                if (currentUserClientConnections.containsKey(foundUser.getUsername()))
-                                {
-                                    Message errMessage = new Message(Message.Type.NotifyError, Message.createFieldsMap("description", "Utente già connesso"));
-                                    bufferedWriter.println(errMessage.serialize());
-                                }
-                                else
-                                {
-                                    Message errMessage = new Message(Message.Type.NotifyError, Message.createFieldsMap("description", "Login effettuato con successo"));
-                                    bufferedWriter.println(errMessage.serialize());
-                                    UserConnection newUserConn = new UserConnection(foundUser,clientSocket,this,false);
-                                    currentUserClientConnections.put(username,newUserConn);
-                                }
-                            }
-                            else
-                            {
-                                if (currentAdminPanelConnections.containsKey(foundUser.getUsername()))
-                                {
-                                    Message errMessage = new Message(Message.Type.NotifyError, Message.createFieldsMap("description", "Utente già connesso"));
-                                    bufferedWriter.println(errMessage.serialize());
-                                }
-                                else
-                                {
-                                    Message errMessage = new Message(Message.Type.NotifyError, Message.createFieldsMap("description", "Login effettuato con successo"));
-                                    bufferedWriter.println(errMessage.serialize());
-                                    UserConnection newUserConn = new UserConnection(foundUser,clientSocket,this,true);
-                                    currentAdminPanelConnections.put(username,newUserConn);
-                                }
-                            }
+                            String connectedUserName = connection.getUser().getUsername();
+                            if (!connectedUserName.equals(username))
+                                loggedInUserConn.sendMessage(new Message(Message.Type.UserConnected, Message.createFieldsMap("username", connectedUserName)));
                         }
                     }
                     break;
 
                 case Register:
-                    String newUsername = message.getFields().get("username");
-                    String newPassword = message.getFields().get("password");
-                    User foundUser2 = registeredUsers.stream().filter(user -> user.getUsername().equals(newUsername)).findFirst().orElse(null);
-                    if (foundUser2 != null){
-                        Message errMessage = new Message(Message.Type.NotifyError, Message.createFieldsMap("description", "Utente già registrato"));
-                        bufferedWriter.println(errMessage.serialize());
+                    if (existingUser != null)
+                    {
+                        Message errMessage = new Message(Message.Type.NotifyError, Message.createFieldsMap("description", ServerConstants.ALREADY_REGISTERED_ERR));
+                        connectionWriter.println(errMessage.serialize());
                     }
                     else
                     {
+                        boolean registrationSuccessful = false;
                         try
                         {
-                            User newUser = new User(newUsername, User.hashPassword(newPassword), false, false);
+                            User newUser = new User(username, User.hashPassword(password), false, false);
                             registeredUsers.add(newUser);
+                            registrationSuccessful = true;
                         }
-                        catch (Exception e){
-                            Message errMessage = new Message(Message.Type.NotifyError, Message.createFieldsMap("description", "La password non rispetta i canoni consentiti"));
-                            bufferedWriter.println(errMessage.serialize());
+                        catch (Exception e)
+                        {
+                            Message errMessage = new Message(Message.Type.NotifyError, Message.createFieldsMap("description", ServerConstants.WRONG_USERNAME_FORMAT_ERR));
+                            connectionWriter.println(errMessage.serialize());
+                        }
+
+                        if (registrationSuccessful)
+                        {
+                            Message successMessage = new Message(Message.Type.NotifySuccess, Message.createFieldsMap("description", ""));
+                            connectionWriter.println(successMessage.serialize());
+                            Logger.logEvent(Logger.EventType.Info, "Nuovo utente registrato: " + username);
                         }
                     }
+                    clientSocket.close();
                     break;
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
-
+        catch (Exception e) {
+            Logger.logEvent(Logger.EventType.Error, "Errore durante la creazione della connessione con l'host " +
+                            clientSocket.getInetAddress() + ":" + clientSocket.getPort() + " " + e.getMessage());
+        }
     }
 
     /**
@@ -194,11 +227,8 @@ public class Server implements Runnable
      */
     public void sendToAdminPanelsOnly(Message message)
     {
-        synchronized (currentAdminPanelConnections)
-        {
-            for (UserConnection connection : currentAdminPanelConnections.values())
-                connection.sendMessage(message);
-        }
+        for (UserConnection connection : currentAdminPanelConnections.values())
+            connection.sendMessage(message);
     }
 
     /**
@@ -213,7 +243,7 @@ public class Server implements Runnable
         File file = new File(System.getProperty("user.dir"), "usersdata.txt");
         try
         {
-            int currentLine = 0;
+            int currentLine = 1;
             Scanner scanner = new Scanner(file);
             while (scanner.hasNextLine())
             {

@@ -20,7 +20,9 @@ public class Message
         NotifySuccess,
         NotifyError,
         Ban,
-        LogEvent
+        LogEvent,
+        UserConnected,
+        UserDisconnected
     }
 
     /**
@@ -115,14 +117,15 @@ public class Message
         messageTypeFields.put(Type.AdminPanelLogin, new String[] {"username", "password"});
         messageTypeFields.put(Type.PrivateMessage, new String[] {"sender", "recipient", "message"});
         messageTypeFields.put(Type.GlobalMessage, new String[] {"sender", "message"});
-        //Volendo si potrebbe prevedere di inserire pure una morivazione al report
-        messageTypeFields.put(Type.Report, new String[] {"sender", "reportedUser"});
+        messageTypeFields.put(Type.Report, new String[] {"sender", "reportedUser", "reason"});
         messageTypeFields.put(Type.Ban, new String[] {"bannedUser"});
         messageTypeFields.put(Type.Register, new String[] {"username", "password", "displayName"});
         messageTypeFields.put(Type.Logout, new String[] {"username"});
-        messageTypeFields.put(Type.NotifySuccess, new String[] {"description"});
+        messageTypeFields.put(Type.NotifySuccess, new String[] {"description"});    // valutare se rimuovere descrizione (superflua)
         messageTypeFields.put(Type.NotifyError, new String[]{ "description" });
         messageTypeFields.put(Type.LogEvent, new String[] { "text" });
+        messageTypeFields.put(Type.UserConnected, new String[] {"username"});
+        messageTypeFields.put(Type.UserDisconnected, new String[] {"username"});
         // "blocca" la map in modo che non sia più modificabile
         messageTypeFields = Collections.unmodifiableMap(messageTypeFields);
 
@@ -138,6 +141,8 @@ public class Message
         messageTypeStrings.put(Type.NotifySuccess, "SUCSS");
         messageTypeStrings.put(Type.NotifyError, "ERROR");
         messageTypeStrings.put(Type.LogEvent, "LGEVT");
+        messageTypeStrings.put(Type.UserConnected, "USRCT");
+        messageTypeStrings.put(Type.UserDisconnected, "USRDC");
         messageTypeStrings = Collections.unmodifiableMap(messageTypeStrings);
     }
 
