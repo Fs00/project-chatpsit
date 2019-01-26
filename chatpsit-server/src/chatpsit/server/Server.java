@@ -2,6 +2,7 @@ package chatpsit.server;
 
 import chatpsit.common.Message;
 import chatpsit.common.ServerConstants;
+import chatpsit.common.ServerMode;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -15,20 +16,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Server implements Runnable
 {
-    // Il server può essere eseguito in locale o su server remoto
-    public enum Mode {
-        Remote,
-        Local
-    }
-
     private ServerSocket serverSocket;
-    private final int SERVER_PORT = 7777;
-
     private final Map<String, UserConnection> currentUserClientConnections = new ConcurrentHashMap<>();
     private final Map<String, UserConnection> currentAdminPanelConnections = new ConcurrentHashMap<>();
     private final List<User> registeredUsers = new CopyOnWriteArrayList<>();
 
-    public Server(Server.Mode mode) throws Exception
+    public Server(ServerMode mode) throws Exception
     {
         Logger.setMode(mode, this);
         //Logger.startLoggingOnFile();
@@ -40,7 +33,7 @@ public class Server implements Runnable
     {
         try
         {
-            serverSocket = new ServerSocket(SERVER_PORT);
+            serverSocket = new ServerSocket(ServerConstants.SERVER_PORT);
             Logger.logEvent(Logger.EventType.Info, "Server avviato");
         }
         catch (Exception exc)

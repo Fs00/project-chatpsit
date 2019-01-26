@@ -1,9 +1,9 @@
-package chatpsit.client.model;
+package chatpsit.common;
 
-public enum ServerConnection
+public enum ServerMode
 {
-    Local,
-    Remote;
+    Remote,
+    Local;
 
     @Override
     public String toString()

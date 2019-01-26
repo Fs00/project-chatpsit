@@ -1,8 +1,7 @@
 package chatpsit.client;
 
-import chatpsit.client.model.ClientModel;
-import chatpsit.client.model.ServerConnection;
 import chatpsit.common.Message;
+import chatpsit.common.ServerMode;
 import chatpsit.common.gui.IController;
 import chatpsit.common.gui.IModel;
 import javafx.collections.FXCollections;
@@ -25,7 +24,7 @@ public class RegistrationController implements IController
     @FXML
     private PasswordField fieldPasswd;
     @FXML
-    private ChoiceBox<ServerConnection> serverChoiceBox;
+    private ChoiceBox<ServerMode> serverChoiceBox;
 
     public RegistrationController()
     {
@@ -33,14 +32,14 @@ public class RegistrationController implements IController
         bindToModel(this.model);
     }
 
-    public ObservableList<ServerConnection> getServerChoices()
+    public ObservableList<ServerMode> getServerChoices()
     {
-        return FXCollections.observableArrayList(ServerConnection.Local, ServerConnection.Remote);
+        return FXCollections.observableArrayList(ServerMode.Local, ServerMode.Remote);
     }
 
-    public ServerConnection getDefaultServerChoice()
+    public ServerMode getDefaultServerChoice()
     {
-        return ServerConnection.Local;
+        return ServerMode.Local;
     }
 
     @FXML

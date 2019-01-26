@@ -1,6 +1,7 @@
 package chatpsit.client.model;
 
 import chatpsit.common.ServerConstants;
+import chatpsit.common.ServerMode;
 import chatpsit.common.gui.IController;
 import chatpsit.common.gui.IModel;
 
@@ -9,18 +10,18 @@ import java.util.List;
 
 public class ClientModel implements IModel
 {
-    private String serverUrl = ServerConstants.LOCAL_SERVER_URL;
+    private String serverUrl = ServerConstants.LOCAL_SERVER_ADDRESS;
     private List<IController> attachedControllers;
 
-    public void changeServerUrl(ServerConnection connectionMode)
+    public void changeServerUrl(ServerMode connectionMode)
     {
         switch (connectionMode)
         {
             case Local:
-                serverUrl = ServerConstants.LOCAL_SERVER_URL;
+                serverUrl = ServerConstants.LOCAL_SERVER_ADDRESS;
                 break;
             case Remote:
-                serverUrl = ServerConstants.REMOTE_SERVER_URL;
+                serverUrl = ServerConstants.REMOTE_SERVER_ADDRESS;
                 break;
         }
     }

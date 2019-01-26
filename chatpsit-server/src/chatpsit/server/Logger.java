@@ -1,6 +1,7 @@
 package chatpsit.server;
 
 import chatpsit.common.Message;
+import chatpsit.common.ServerMode;
 
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
@@ -23,7 +24,7 @@ public final class Logger
     // Utilizzato per creare una stringa partendo dalla data attuale
     private final static SimpleDateFormat dateFormatter = new SimpleDateFormat("[dd/MM/yyyy HH:mm:ss]");
 
-    private static Server.Mode mode = Server.Mode.Local;
+    private static ServerMode mode = ServerMode.Local;
     private static Server server;
     private static boolean logOnFile = false;
     private static QueueFileWriter asyncLogFileWriter;
@@ -32,12 +33,12 @@ public final class Logger
      * Modifica la modalità di logging (locale o remota)
      * @param mode la modalità scelta
      */
-    public static void setMode(Server.Mode mode, Server server)
+    public static void setMode(ServerMode mode, Server server)
     {
         Logger.mode = mode;
         Logger.server = server;
 
-        if (mode == Server.Mode.Remote)
+        if (mode == ServerMode.Remote)
             startLoggingOnFile();
     }
 
@@ -85,7 +86,7 @@ public final class Logger
         }
         logString += message;
 
-        if (mode == Server.Mode.Local)
+        if (mode == ServerMode.Local)
             System.out.println(logString);
         else if (server != null)
             server.sendToAdminPanelsOnly(new Message(Message.Type.LogEvent, Message.createFieldsMap("text", logString)));
