@@ -23,26 +23,60 @@ public class LoginController implements IController
     @FXML
     private ChoiceBox<ServerMode> serverChoiceBox;
 
-    public LoginController()
+    public void initialize()
     {
         this.model = ClientApp.getModel();
-        bindToModel(this.model);
+        serverChoiceBox.getSelectionModel().selectedItemProperty().addListener(observable -> {
+            model.changeServerMode(serverChoiceBox.getSelectionModel().getSelectedItem());
+        });
     }
 
+    @FXML
     public ObservableList<ServerMode> getServerChoices()
     {
         return FXCollections.observableArrayList(ServerMode.Local, ServerMode.Remote);
     }
-
+    @FXML
     public ServerMode getDefaultServerChoice()
     {
         return ServerMode.Local;
     }
-
     @FXML
     private void showRegistrationScene()
     {
         ClientApp.showRegisterScene();
+    }
+
+    @FXML
+    private void attemptLogin()
+    {
+        Message loginMessage = new Message(Message.Type.UserLogin, Message.createFieldsMap(
+                "username", fieldUsername.getText().trim(),
+                "password", fieldPasswd.getText()
+        ));
+
+        changeControlsDisable(true);
+        try {
+            model.sendMessageToServer(loginMessage);
+        }
+        catch (Exception exc)
+        {
+            Alert errAlert = new Alert(Alert.AlertType.ERROR);
+            errAlert.setTitle("Errore di connessione");
+            errAlert.setHeaderText("Errore inatteso nell'invio del messaggio al server");
+            errAlert.setContentText(exc.getMessage());
+            errAlert.showAndWait();
+        }
+        changeControlsDisable(false);
+    }
+
+    private void changeControlsDisable(boolean disable)
+    {
+        fieldUsername.setDisable(disable);
+        fieldPasswd.setDisable(disable);
+        loginButton.setDisable(disable);
+        registerButton.setDisable(disable);
+        serverChoiceBox.setDisable(disable);
     }
 
     @Override
@@ -52,12 +86,15 @@ public class LoginController implements IController
         {
             case NotifySuccess:
                 // TODO
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Login riuscito");
+                alert.showAndWait();
                 break;
             case NotifyError:
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Login fallito");
-                alert.setContentText(message.getFields().get("description"));   // TODO cambierà a seconda del messaggio di errore
-                alert.showAndWait();
+                Alert errAlert = new Alert(Alert.AlertType.ERROR);
+                errAlert.setTitle("Login fallito");
+                errAlert.setContentText(message.getFields().get("description"));
+                errAlert.showAndWait();
                 break;
         }
     }

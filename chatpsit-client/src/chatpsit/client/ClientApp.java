@@ -1,20 +1,20 @@
 package chatpsit.client;
 
 import chatpsit.client.model.ClientModel;
+import chatpsit.common.gui.IController;
 import chatpsit.common.gui.IModel;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-
 public class ClientApp extends Application
 {
     private static Stage mainStage;
     private static Scene loginScene, registerScene;
-    private static final IModel model = new ClientModel();
+    private static IController loginController, registrationController;
+    private static IModel model = new ClientModel();
 
     @Override
     public void start(Stage primaryStage) throws IOException
@@ -26,16 +26,19 @@ public class ClientApp extends Application
 
     private void initializeStartupScenes() throws IOException
     {
-        Parent loginRoot = FXMLLoader.load(ClientApp.class.getResource("views/login.fxml"));
-        loginScene = new Scene(loginRoot);
+        FXMLLoader loader = new FXMLLoader(ClientApp.class.getResource("views/login.fxml"));
+        loginScene = new Scene(loader.load());
+        loginController = loader.getController();
 
-        Parent registerRoot = FXMLLoader.load(ClientApp.class.getResource("views/registration.fxml"));
-        registerScene = new Scene(registerRoot);
+        loader = new FXMLLoader(ClientApp.class.getResource("views/registration.fxml"));
+        registerScene = new Scene(loader.load());
+        registrationController = loader.getController();
     }
 
     static void showLoginScene()
     {
         model.detachControllers();
+        model.attachController(loginController);
         mainStage.setTitle("Login");
         mainStage.setScene(loginScene);
         mainStage.setResizable(false);
@@ -45,6 +48,7 @@ public class ClientApp extends Application
     static void showRegisterScene()
     {
         model.detachControllers();
+        model.attachController(registrationController);
         mainStage.setTitle("Registrazione");
         mainStage.setScene(registerScene);
         mainStage.setResizable(false);
