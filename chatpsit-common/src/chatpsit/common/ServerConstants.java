@@ -13,6 +13,7 @@ public class ServerConstants
     public final static String WRONG_USERNAME_FORMAT_ERR = "Il nome utente contiene caratteri non permessi. " +
                                "Assicurati che non siano presenti spazi, punti esclamativi o chiocciole.";
     public final static String ONLY_ADMIN_CAN_ERR = "Solo gli admin possono accedere al pannello di amministrazione.";
+    public final static String USER_BANNED_ERR = "Questo utente è stato bannato. Impossibile effettuare l'accesso.";
 
     private ServerConstants() {}
 }

@@ -79,7 +79,7 @@ public class Server implements Runnable
         try
         {
             BufferedReader connectionReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            PrintWriter connectionWriter = new PrintWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
+            PrintWriter connectionWriter = new PrintWriter(clientSocket.getOutputStream(), true);
 
             String rawMessage = connectionReader.readLine();
             Message message = Message.deserialize(rawMessage);
@@ -104,6 +104,7 @@ public class Server implements Runnable
             {
                 case UserLogin:
                 case AdminPanelLogin:
+                    // Verifica correttezza username e password
                     if (existingUser == null || !existingUser.passwordMatches(password))
                     {
                         Message errMessage = new Message(Message.Type.NotifyError, Message.createFieldsMap("description", ServerConstants.WRONG_CREDENTIALS_ERR));
@@ -112,9 +113,19 @@ public class Server implements Runnable
                         return;
                     }
 
+                    // Impedisci il login al pannello di amministrazione se l'utente non è admin
                     if (message.getType() == Message.Type.AdminPanelLogin && !existingUser.isAdmin())
                     {
                         Message errMessage = new Message(Message.Type.NotifyError, Message.createFieldsMap("description", ServerConstants.ONLY_ADMIN_CAN_ERR));
+                        connectionWriter.println(errMessage.serialize());
+                        clientSocket.close();
+                        return;
+                    }
+
+                    // Impedisci accesso se l'utente è bannato
+                    if (existingUser.isBanned())
+                    {
+                        Message errMessage = new Message(Message.Type.NotifyError, Message.createFieldsMap("description", ServerConstants.USER_BANNED_ERR));
                         connectionWriter.println(errMessage.serialize());
                         clientSocket.close();
                         return;
@@ -127,6 +138,7 @@ public class Server implements Runnable
                     else
                         connectionsMap = currentAdminPanelConnections;
 
+                    // Verifica se l'utente ha già una sessione attiva
                     if (connectionsMap.containsKey(existingUser.getUsername()))
                     {
                         Message errMessage = new Message(Message.Type.NotifyError, Message.createFieldsMap("description", ServerConstants.ALREADY_LOGGED_IN_MSG_ERR));
