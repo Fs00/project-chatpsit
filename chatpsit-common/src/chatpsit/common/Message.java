@@ -86,7 +86,8 @@ public class Message
      */
     public static Message deserialize(String rawMessage)
     {
-        String[] rawMessageFields = rawMessage.split(Character.toString(DELIMITER_CHAR));
+        // Il parametro -1 indica di mantenere i campi vuoti nell'array se ci fossero due delimitatori vicini
+        String[] rawMessageFields = rawMessage.split(Character.toString(DELIMITER_CHAR), -1);
         Type rawMessageType = getMessageTypeFromString(rawMessageFields[0]);
         if (rawMessageType == null)
             throw new IllegalArgumentException("Il tipo di messaggio " + rawMessageFields[0] + " non esiste.");

@@ -3,7 +3,7 @@ package chatpsit.common;
 public class ServerConstants
 {
     public final static int SERVER_PORT = 7777;
-    public final static String REMOTE_SERVER_ADDRESS = ""; // TODO
+    public final static String REMOTE_SERVER_ADDRESS = "TODO"; // TODO
     public final static String LOCAL_SERVER_ADDRESS = "localhost";
 
     public final static String ALREADY_LOGGED_IN_MSG_ERR = "È ancora attiva una sessione effettuata da questo utente. " +

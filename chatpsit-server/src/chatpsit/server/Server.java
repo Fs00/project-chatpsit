@@ -201,9 +201,17 @@ public class Server implements Runnable
                     break;
             }
         }
-        catch (Exception e) {
+        catch (Exception e)
+        {
             Logger.logEvent(Logger.EventType.Error, "Errore durante la creazione della connessione con l'host " +
                             clientSocket.getInetAddress() + ":" + clientSocket.getPort() + " " + e.getMessage());
+
+            try {
+                clientSocket.close();
+            }
+            catch (Exception exc) {
+                exc.printStackTrace();
+            }
         }
     }
 
