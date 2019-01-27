@@ -82,6 +82,8 @@ public class Server implements Runnable
             PrintWriter connectionWriter = new PrintWriter(clientSocket.getOutputStream(), true);
 
             String rawMessage = connectionReader.readLine();
+            Logger.logEvent(Logger.EventType.Info, "L'host " + clientSocket.getInetAddress() + ":" +
+                            clientSocket.getPort() + " ha instaurato una connessione con il messaggio " + rawMessage.substring(0,5));
             Message message = Message.deserialize(rawMessage);
 
             // Esci subito se il tipo di messaggio non è tra quelli adatti per cominciare una connessione

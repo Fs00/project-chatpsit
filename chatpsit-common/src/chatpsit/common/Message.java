@@ -99,6 +99,11 @@ public class Message
         return type;
     }
 
+    public boolean isLastMessage()
+    {
+        return isLastMessage;
+    }
+
     public String getField(String fieldName)
     {
         return fields.get(fieldName);
@@ -198,7 +203,7 @@ public class Message
         messageTypeFields.put(Type.GlobalMessage, new String[] {"sender", "message"});
         messageTypeFields.put(Type.Report, new String[] {"sender", "reportedUser", "reason"});
         messageTypeFields.put(Type.Ban, new String[] {"bannedUser"});
-        messageTypeFields.put(Type.Register, new String[] {"username", "password", "displayName"});
+        messageTypeFields.put(Type.Register, new String[] {"username", "password"});
         messageTypeFields.put(Type.Logout, new String[] {"username"});
         messageTypeFields.put(Type.NotifySuccess, new String[] {});
         messageTypeFields.put(Type.NotifyError, new String[]{ "description" });

@@ -1,9 +1,9 @@
 package chatpsit.client;
 
+import chatpsit.client.model.ClientModel;
 import chatpsit.common.Message;
 import chatpsit.common.ServerMode;
 import chatpsit.common.gui.IController;
-import chatpsit.common.gui.IModel;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -11,7 +11,7 @@ import javafx.scene.control.*;
 
 public class LoginController implements IController
 {
-    private IModel model;
+    private ClientModel model;
     @FXML
     private Button loginButton;
     @FXML
@@ -50,10 +50,10 @@ public class LoginController implements IController
     @FXML
     private void attemptLogin()
     {
-        Message loginMessage = new Message(Message.Type.UserLogin, Message.createFieldsMap(
-                "username", fieldUsername.getText().trim(),
-                "password", fieldPasswd.getText()
-        ));
+        Message loginMessage = Message.createNew(Message.Type.UserLogin)
+                                .field("username", fieldUsername.getText().trim())
+                                .field("password", fieldPasswd.getText())
+                                .build();
 
         changeControlsDisable(true);
         try {
@@ -93,7 +93,7 @@ public class LoginController implements IController
             case NotifyError:
                 Alert errAlert = new Alert(Alert.AlertType.ERROR);
                 errAlert.setTitle("Login fallito");
-                errAlert.setContentText(message.getFields().get("description"));
+                errAlert.setContentText(message.getField("description"));
                 errAlert.showAndWait();
                 break;
         }

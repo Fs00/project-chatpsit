@@ -1,20 +1,17 @@
 package chatpsit.client;
 
+import chatpsit.client.model.ClientModel;
 import chatpsit.common.Message;
 import chatpsit.common.ServerMode;
 import chatpsit.common.gui.IController;
-import chatpsit.common.gui.IModel;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 
 public class RegistrationController implements IController
 {
-    private IModel model;
+    private ClientModel model;
     @FXML
     private Button showLoginButton;
     @FXML
@@ -48,9 +45,63 @@ public class RegistrationController implements IController
         ClientApp.showLoginScene();
     }
 
+    @FXML
+    private void attemptRegistration()
+    {
+        Message registrationMessage = Message.createNew(Message.Type.Register)
+                .field("username", fieldUsername.getText().trim())
+                .field("password", fieldPasswd.getText())
+                .build();
+
+        changeControlsDisable(true);
+        try {
+            model.sendMessageToServer(registrationMessage);
+        }
+        catch (Exception exc)
+        {
+            Alert errAlert = new Alert(Alert.AlertType.ERROR);
+            errAlert.setTitle("Errore di connessione");
+            errAlert.setHeaderText("Errore inatteso nell'invio del messaggio al server");
+            errAlert.setContentText(exc.getMessage());
+            errAlert.showAndWait();
+        }
+        changeControlsDisable(false);
+        clearTextFields();
+    }
+
+    private void clearTextFields()
+    {
+        fieldUsername.setText("");
+        fieldPasswd.setText("");
+    }
+
+    private void changeControlsDisable(boolean disable)
+    {
+        fieldUsername.setDisable(disable);
+        fieldPasswd.setDisable(disable);
+        showLoginButton.setDisable(disable);
+        registerButton.setDisable(disable);
+        serverChoiceBox.setDisable(disable);
+    }
+
     @Override
     public void notifyMessage(Message message)
     {
-        // TODO
+        switch (message.getType())
+        {
+            case NotifySuccess:
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Operazione riuscita");
+                alert.setHeaderText("Registrazione effettuata");
+                alert.setContentText("Effettua l'accesso con il tuo nuovo utente.");
+                alert.show();
+                break;
+            case NotifyError:
+                Alert errAlert = new Alert(Alert.AlertType.ERROR);
+                errAlert.setHeaderText("Registrazione fallita");
+                errAlert.setContentText(message.getField("description"));
+                errAlert.show();
+                break;
+        }
     }
 }

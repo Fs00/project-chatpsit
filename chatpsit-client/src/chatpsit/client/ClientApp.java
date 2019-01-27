@@ -55,11 +55,11 @@ public class ClientApp extends Application
         mainStage.show();
     }
 
-    public static void main(String[] args) {
-        launch(args);
+    static ClientModel getModel() {
+        return (ClientModel) model;
     }
 
-    static IModel getModel() {
-        return model;
+    public static void main(String[] args) {
+        launch(args);
     }
 }

@@ -19,7 +19,7 @@ public class User
         if (!isValidUsername(username))
             throw new IllegalArgumentException("Formato username non valido");
         else if (isAdmin && isBanned)
-            throw new IllegalArgumentException("Utente non può essere sia amministratore che bannato");
+            throw new IllegalArgumentException("Un utente non può essere sia amministratore che bannato");
         else
         {
             this.username = username;
@@ -77,7 +77,7 @@ public class User
             fileRecord = "@";
         else if (isBanned)
             fileRecord = "!";
-        return fileRecord += username + ";" + hashedPassword;
+        return fileRecord + username + ";" + hashedPassword;
 }
 
     /**
@@ -110,7 +110,7 @@ public class User
      */
     public static boolean isValidUsername(String username)
     {
-        return !(username.contains(";") || username.contains("@") || username.contains("!") || username.contains(" "));
+        return !(username.isEmpty() || username.contains(";") || username.contains("@") || username.contains("!") || username.contains(" "));
     }
 
     /**

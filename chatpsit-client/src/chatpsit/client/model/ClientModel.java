@@ -14,33 +14,25 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ClientModel implements IModel
 {
     private List<IController> attachedControllers;
 
-    private String serverUrl = ServerConstants.LOCAL_SERVER_ADDRESS;;
+    private String serverUrl = ServerConstants.LOCAL_SERVER_ADDRESS;
     private Socket clientSocket;
     private BufferedReader connectionReader;
     private PrintWriter connectionWriter;
 
-    public ClientModel()
-    {
-        attachedControllers = new ArrayList<>(3);
-    }
-    public void attachController(IController controller)
-    {
-        attachedControllers.add(controller);
-    }
-    public void detachController(IController controller)
-    {
-        attachedControllers.remove(controller);
-    }
-    public void detachControllers()
-    {
-        attachedControllers.clear();
-    }
+    private String loggedInUsername;
+    private List<String> connectedUsers;
+    private Map<String, List<String>> privateChatMessages;
 
+    /**
+     * Manda il messaggio specificato al server
+     * @throws IOException Eventuali errori di connessione devono essere gestiti
+     */
     public void sendMessageToServer(Message request) throws IOException
     {
         if (clientSocket == null || clientSocket.isClosed())
@@ -48,16 +40,25 @@ public class ClientModel implements IModel
 
         connectionWriter.println(request.serialize());
 
+        if (request.getType() == Message.Type.UserLogin)
+            loggedInUsername = request.getField("username");
+
         if (request.getType() == Message.Type.UserLogin ||
             request.getType() == Message.Type.Register ||
             request.getType() == Message.Type.PrivateMessage)
-            handleServerResponse(connectionReader.readLine(), request.getType());
+            handleServerResponse(connectionReader.readLine());
 
-        if (request.getType() == Message.Type.Logout)
+        if (request.isLastMessage() && !clientSocket.isClosed())
             clientSocket.close();
     }
 
-    private void handleServerResponse(String responseString, Message.Type requestType) throws IOException
+    /**
+     * Decodifica la risposta ricevuta dal server e aggiorna le variabili o
+     * chiude la connessione in seguito ad essa
+     * @param responseString risposta ricevuta dal server
+     * @throws IOException Eventuali errori di connessione devono essere gestiti
+     */
+    private void handleServerResponse(String responseString) throws IOException
     {
         if (responseString == null)
         {
@@ -68,16 +69,17 @@ public class ClientModel implements IModel
         Message response = Message.deserialize(responseString);
         attachedControllers.forEach(controller -> controller.notifyMessage(response));
 
-        switch (requestType)
-        {
-            case UserLogin:
-                if (response.getType() == Message.Type.NotifyError)
-                    clientSocket.close();
-                break;
-            case Register:
-                clientSocket.close();
-                break;
-        }
+        // TODO aggiornamento variabili
+
+        if (response.isLastMessage())
+            clientSocket.close();
+    }
+
+    private void connectToServer() throws IOException
+    {
+        clientSocket = new Socket(serverUrl, ServerConstants.SERVER_PORT);
+        connectionReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+        connectionWriter = new PrintWriter(clientSocket.getOutputStream(), true);
     }
 
     public void startMessageReceivingListener()
@@ -98,10 +100,20 @@ public class ClientModel implements IModel
             serverUrl = ServerConstants.REMOTE_SERVER_ADDRESS;
     }
 
-    private void connectToServer() throws IOException
+    public ClientModel()
     {
-        clientSocket = new Socket(serverUrl, ServerConstants.SERVER_PORT);
-        connectionReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-        connectionWriter = new PrintWriter(clientSocket.getOutputStream(), true);
+        attachedControllers = new ArrayList<>(3);
+    }
+    public void attachController(IController controller)
+    {
+        attachedControllers.add(controller);
+    }
+    public void detachController(IController controller)
+    {
+        attachedControllers.remove(controller);
+    }
+    public void detachControllers()
+    {
+        attachedControllers.clear();
     }
 }
