@@ -10,7 +10,7 @@
          <children>
             <Label text="Login">
                <font>
-                  <Font size="22.0" />
+                  <Font size="24.0" />
                </font>
             </Label>
             <Label text="Effettua l'accesso al pannello di amministrazione" />
