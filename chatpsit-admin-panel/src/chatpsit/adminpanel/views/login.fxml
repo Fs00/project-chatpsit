@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="273.0" prefWidth="361.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chatpsit.adminpanel.LoginController">
+   <top>
+      <VBox alignment="CENTER" prefHeight="82.0" prefWidth="368.0" spacing="8.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label text="Login">
+               <font>
+                  <Font size="22.0" />
+               </font>
+            </Label>
+            <Label text="Effettua l'accesso al pannello di amministrazione" />
+         </children>
+      </VBox>
+   </top>
+   <center>
+      <AnchorPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <children>
+            <TextField fx:id="fieldUsername" layoutX="145.0" layoutY="14.0" prefHeight="26.0" prefWidth="200.0" AnchorPane.rightAnchor="16.0" />
+            <PasswordField fx:id="fieldPasswd" layoutX="145.0" layoutY="58.0" prefHeight="26.0" prefWidth="200.0" AnchorPane.rightAnchor="16.0" />
+            <Label layoutX="46.0" layoutY="19.0" text="Username" />
+            <Label layoutX="51.0" layoutY="63.0" text="Password" />
+            <ChoiceBox fx:id="serverChoiceBox" items="${controller.serverChoices}" layoutX="144.0" layoutY="101.0" prefHeight="26.0" prefWidth="200.0" value="${controller.defaultServerChoice}" AnchorPane.rightAnchor="17.0" />
+            <Label layoutX="65.0" layoutY="106.0" text="Server:" />
+         </children>
+      </AnchorPane>
+   </center>
+   <bottom>
+      <ButtonBar prefHeight="55.0" prefWidth="361.0" BorderPane.alignment="CENTER">
+        <buttons>
+            <Button fx:id="loginButton" mnemonicParsing="false" onAction="#attemptLogin" text="Accedi" />
+        </buttons>
+         <padding>
+            <Insets right="16.0" />
+         </padding>
+      </ButtonBar>
+   </bottom>
+</BorderPane>

@@ -1,6 +1,6 @@
 package chatpsit.client;
 
-import chatpsit.client.model.ClientModel;
+import chatpsit.client.model.UserClientModel;
 import chatpsit.common.Message;
 import chatpsit.common.ServerMode;
 import chatpsit.common.gui.IController;
@@ -11,7 +11,7 @@ import javafx.scene.control.*;
 
 public class LoginController implements IController
 {
-    private ClientModel model;
+    private UserClientModel model;
     @FXML
     private Button loginButton;
     @FXML
@@ -63,7 +63,7 @@ public class LoginController implements IController
         {
             Alert errAlert = new Alert(Alert.AlertType.ERROR);
             errAlert.setTitle("Errore di connessione");
-            errAlert.setHeaderText("Errore inatteso nell'invio del messaggio al server");
+            errAlert.setHeaderText("Errore inatteso nell'invio del messaggio");
             errAlert.setContentText(exc.getMessage());
             errAlert.showAndWait();
         }
@@ -92,7 +92,7 @@ public class LoginController implements IController
                 break;
             case NotifyError:
                 Alert errAlert = new Alert(Alert.AlertType.ERROR);
-                errAlert.setTitle("Login fallito");
+                errAlert.setHeaderText("Login fallito");
                 errAlert.setContentText(message.getField("description"));
                 errAlert.showAndWait();
                 break;

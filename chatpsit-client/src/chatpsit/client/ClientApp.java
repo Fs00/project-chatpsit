@@ -1,6 +1,6 @@
 package chatpsit.client;
 
-import chatpsit.client.model.ClientModel;
+import chatpsit.client.model.UserClientModel;
 import chatpsit.common.gui.IController;
 import chatpsit.common.gui.IModel;
 import javafx.application.Application;
@@ -11,15 +11,15 @@ import javafx.stage.Stage;
 import java.io.IOException;
 public class ClientApp extends Application
 {
-    private static Stage mainStage;
+    private static Stage startupStage, mainStage;
     private static Scene loginScene, registerScene;
     private static IController loginController, registrationController;
-    private static IModel model = new ClientModel();
+    private static IModel model = new UserClientModel();
 
     @Override
     public void start(Stage primaryStage) throws IOException
     {
-        mainStage = primaryStage;
+        startupStage = primaryStage;
         initializeStartupScenes();
         showLoginScene();
     }
@@ -39,24 +39,24 @@ public class ClientApp extends Application
     {
         model.detachControllers();
         model.attachController(loginController);
-        mainStage.setTitle("Login");
-        mainStage.setScene(loginScene);
-        mainStage.setResizable(false);
-        mainStage.show();
+        startupStage.setTitle("Login");
+        startupStage.setScene(loginScene);
+        startupStage.setResizable(false);
+        startupStage.show();
     }
 
     static void showRegisterScene()
     {
         model.detachControllers();
         model.attachController(registrationController);
-        mainStage.setTitle("Registrazione");
-        mainStage.setScene(registerScene);
-        mainStage.setResizable(false);
-        mainStage.show();
+        startupStage.setTitle("Registrazione");
+        startupStage.setScene(registerScene);
+        startupStage.setResizable(false);
+        startupStage.show();
     }
 
-    static ClientModel getModel() {
-        return (ClientModel) model;
+    static UserClientModel getModel() {
+        return (UserClientModel) model;
     }
 
     public static void main(String[] args) {

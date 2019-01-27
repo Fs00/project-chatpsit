@@ -1,6 +1,6 @@
-package chatpsit.client;
+package chatpsit.adminpanel;
 
-import chatpsit.client.model.UserClientModel;
+import chatpsit.adminpanel.model.AdminPanelModel;
 import chatpsit.common.Message;
 import chatpsit.common.ServerMode;
 import chatpsit.common.gui.IController;
@@ -9,13 +9,11 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
-public class RegistrationController implements IController
+public class LoginController implements IController
 {
-    private UserClientModel model;
+    private AdminPanelModel model;
     @FXML
-    private Button showLoginButton;
-    @FXML
-    private Button registerButton;
+    private Button loginButton;
     @FXML
     private TextField fieldUsername;
     @FXML
@@ -23,64 +21,53 @@ public class RegistrationController implements IController
     @FXML
     private ChoiceBox<ServerMode> serverChoiceBox;
 
-    public RegistrationController()
+    public void initialize()
     {
-        this.model = ClientApp.getModel();
-        bindToModel(this.model);
+        this.model = AdminPanelApp.getModel();
+        serverChoiceBox.getSelectionModel().selectedItemProperty().addListener(observable -> {
+            model.changeServerMode(serverChoiceBox.getSelectionModel().getSelectedItem());
+        });
     }
 
+    @FXML
     public ObservableList<ServerMode> getServerChoices()
     {
         return FXCollections.observableArrayList(ServerMode.Local, ServerMode.Remote);
     }
-
+    @FXML
     public ServerMode getDefaultServerChoice()
     {
         return ServerMode.Local;
     }
 
     @FXML
-    private void backToLogin()
+    private void attemptLogin()
     {
-        ClientApp.showLoginScene();
-    }
-
-    @FXML
-    private void attemptRegistration()
-    {
-        Message registrationMessage = Message.createNew(Message.Type.Register)
-                .field("username", fieldUsername.getText().trim())
-                .field("password", fieldPasswd.getText())
-                .build();
+        Message loginMessage = Message.createNew(Message.Type.AdminPanelLogin)
+                                .field("username", fieldUsername.getText().trim())
+                                .field("password", fieldPasswd.getText())
+                                .build();
 
         changeControlsDisable(true);
         try {
-            model.sendMessageToServer(registrationMessage);
+            model.sendMessageToServer(loginMessage);
         }
         catch (Exception exc)
         {
             Alert errAlert = new Alert(Alert.AlertType.ERROR);
             errAlert.setTitle("Errore di connessione");
-            errAlert.setHeaderText("Errore inatteso nell'invio del messaggio al server");
+            errAlert.setHeaderText("Errore inatteso nell'invio del messaggio");
             errAlert.setContentText(exc.getMessage());
             errAlert.showAndWait();
         }
         changeControlsDisable(false);
-        clearTextFields();
-    }
-
-    private void clearTextFields()
-    {
-        fieldUsername.setText("");
-        fieldPasswd.setText("");
     }
 
     private void changeControlsDisable(boolean disable)
     {
         fieldUsername.setDisable(disable);
         fieldPasswd.setDisable(disable);
-        showLoginButton.setDisable(disable);
-        registerButton.setDisable(disable);
+        loginButton.setDisable(disable);
         serverChoiceBox.setDisable(disable);
     }
 
@@ -90,17 +77,16 @@ public class RegistrationController implements IController
         switch (message.getType())
         {
             case NotifySuccess:
+                // TODO
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Operazione riuscita");
-                alert.setHeaderText("Registrazione effettuata");
-                alert.setContentText("Effettua l'accesso con il tuo nuovo utente.");
-                alert.show();
+                alert.setTitle("Login riuscito");
+                alert.showAndWait();
                 break;
             case NotifyError:
                 Alert errAlert = new Alert(Alert.AlertType.ERROR);
-                errAlert.setHeaderText("Registrazione fallita");
+                errAlert.setHeaderText("Login fallito");
                 errAlert.setContentText(message.getField("description"));
-                errAlert.show();
+                errAlert.showAndWait();
                 break;
         }
     }

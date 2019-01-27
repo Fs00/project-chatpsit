@@ -1,10 +1,8 @@
-package chatpsit.client.model;
+package chatpsit.common.gui;
 
 import chatpsit.common.Message;
 import chatpsit.common.ServerConstants;
 import chatpsit.common.ServerMode;
-import chatpsit.common.gui.IController;
-import chatpsit.common.gui.IModel;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,20 +12,15 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-public class ClientModel implements IModel
+public abstract class ClientModel implements IModel
 {
-    private List<IController> attachedControllers;
+    private List<IController> attachedControllers = new ArrayList<>();
 
-    private String serverUrl = ServerConstants.LOCAL_SERVER_ADDRESS;
-    private Socket clientSocket;
-    private BufferedReader connectionReader;
-    private PrintWriter connectionWriter;
-
-    private String loggedInUsername;
-    private List<String> connectedUsers;
-    private Map<String, List<String>> privateChatMessages;
+    protected String serverUrl = ServerConstants.LOCAL_SERVER_ADDRESS;
+    protected Socket clientSocket;
+    protected BufferedReader connectionReader;
+    protected PrintWriter connectionWriter;
 
     /**
      * Manda il messaggio specificato al server
@@ -40,25 +33,16 @@ public class ClientModel implements IModel
 
         connectionWriter.println(request.serialize());
 
-        if (request.getType() == Message.Type.UserLogin)
-            loggedInUsername = request.getField("username");
-
-        if (request.getType() == Message.Type.UserLogin ||
-            request.getType() == Message.Type.Register ||
-            request.getType() == Message.Type.PrivateMessage)
-            handleServerResponse(connectionReader.readLine());
-
-        if (request.isLastMessage() && !clientSocket.isClosed())
+        if (request.isLastMessage())
             clientSocket.close();
     }
 
     /**
-     * Decodifica la risposta ricevuta dal server e aggiorna le variabili o
-     * chiude la connessione in seguito ad essa
+     * Decodifica la risposta ricevuta dal server ed eventualmente chiude la connessione in seguito ad essa
      * @param responseString risposta ricevuta dal server
      * @throws IOException Eventuali errori di connessione devono essere gestiti
      */
-    private void handleServerResponse(String responseString) throws IOException
+    protected void handleServerResponse(String responseString) throws IOException
     {
         if (responseString == null)
         {
@@ -69,17 +53,8 @@ public class ClientModel implements IModel
         Message response = Message.deserialize(responseString);
         attachedControllers.forEach(controller -> controller.notifyMessage(response));
 
-        // TODO aggiornamento variabili
-
-        if (response.isLastMessage())
+        if (response.isLastMessage() && !clientSocket.isClosed())
             clientSocket.close();
-    }
-
-    private void connectToServer() throws IOException
-    {
-        clientSocket = new Socket(serverUrl, ServerConstants.SERVER_PORT);
-        connectionReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-        connectionWriter = new PrintWriter(clientSocket.getOutputStream(), true);
     }
 
     public void startMessageReceivingListener()
@@ -92,6 +67,13 @@ public class ClientModel implements IModel
         // TODO
     }
 
+    private void connectToServer() throws IOException
+    {
+        clientSocket = new Socket(serverUrl, ServerConstants.SERVER_PORT);
+        connectionReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+        connectionWriter = new PrintWriter(clientSocket.getOutputStream(), true);
+    }
+
     public void changeServerMode(ServerMode mode)
     {
         if (mode == ServerMode.Local)
@@ -100,10 +82,6 @@ public class ClientModel implements IModel
             serverUrl = ServerConstants.REMOTE_SERVER_ADDRESS;
     }
 
-    public ClientModel()
-    {
-        attachedControllers = new ArrayList<>(3);
-    }
     public void attachController(IController controller)
     {
         attachedControllers.add(controller);
