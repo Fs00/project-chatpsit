@@ -6,7 +6,12 @@ import java.net.Socket;
 import java.util.Date;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class UserConnection implements Runnable
+/**
+ * Gestisce la connessione di un client, fornendo metodi per recapitare messaggi all'utente connesso e
+ * notificando il server per ogni messaggio che il client manda.
+ * Da eseguire su un thread parallelo.
+ */
+public class UserConnectionHandler implements Runnable
 {
     private User user;
     private Socket clientSocket;
@@ -15,7 +20,7 @@ public class UserConnection implements Runnable
     private boolean isAdminPanelConnection;
     private final LinkedBlockingQueue<Message> messageQueue = new LinkedBlockingQueue<>();
 
-    public UserConnection(User user, Socket clientSocket, Server server, boolean isAdminPanelConnection) {
+    public UserConnectionHandler(User user, Socket clientSocket, Server server, boolean isAdminPanelConnection) {
         this.user = user;
         this.clientSocket = clientSocket;
         this.server = server;
@@ -29,6 +34,10 @@ public class UserConnection implements Runnable
         // TODO
     }
 
+    /**
+     * Accoda un messaggio per l'invio all'utente
+     * @param message il messaggio da inviare
+     */
     public void sendMessage(Message message)
     {
         try {

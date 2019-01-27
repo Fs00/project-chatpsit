@@ -17,8 +17,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class Server implements Runnable
 {
     private ServerSocket serverSocket;
-    private final Map<String, UserConnection> currentUserClientConnections = new ConcurrentHashMap<>();
-    private final Map<String, UserConnection> currentAdminPanelConnections = new ConcurrentHashMap<>();
+    private final Map<String, UserConnectionHandler> currentUserClientConnections = new ConcurrentHashMap<>();
+    private final Map<String, UserConnectionHandler> currentAdminPanelConnections = new ConcurrentHashMap<>();
     private final List<User> registeredUsers = new CopyOnWriteArrayList<>();
 
     public Server(ServerMode mode) throws Exception
@@ -144,7 +144,7 @@ public class Server implements Runnable
                     }
 
                     // A seconda del tipo di login, seleziona la map sulla quale controllare se c'è già una connessione dello stesso utente
-                    Map<String, UserConnection> connectionsMap;
+                    Map<String, UserConnectionHandler> connectionsMap;
                     if (message.getType() == Message.Type.UserLogin)
                         connectionsMap = currentUserClientConnections;
                     else
@@ -170,7 +170,7 @@ public class Server implements Runnable
                         );
 
                         // Fai partire il gestore della connessione utente su un altro thread
-                        UserConnection loggedInUserConn = new UserConnection(existingUser, clientSocket,
+                        UserConnectionHandler loggedInUserConn = new UserConnectionHandler(existingUser, clientSocket,
                                                    this, message.getType() == Message.Type.AdminPanelLogin);
                         new Thread(loggedInUserConn).start();
                         connectionsMap.put(username, loggedInUserConn);
@@ -178,7 +178,7 @@ public class Server implements Runnable
 
                         // Notifica all'utente che il login è avvenuto con successo e inviagli tutti i nominativi degli utenti connessi
                         loggedInUserConn.sendMessage(Message.createNew(Message.Type.NotifySuccess).build());
-                        for (UserConnection connection : currentUserClientConnections.values())
+                        for (UserConnectionHandler connection : currentUserClientConnections.values())
                         {
                             String connectedUserName = connection.getUser().getUsername();
                             if (!connectedUserName.equals(username))
@@ -267,7 +267,7 @@ public class Server implements Runnable
      */
     public void sendToAdminPanelsOnly(Message message)
     {
-        for (UserConnection connection : currentAdminPanelConnections.values())
+        for (UserConnectionHandler connection : currentAdminPanelConnections.values())
             connection.sendMessage(message);
     }
 

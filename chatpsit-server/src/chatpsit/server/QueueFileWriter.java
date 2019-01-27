@@ -28,6 +28,10 @@ public class QueueFileWriter
         queueProcessingThread.start();
     }
 
+    /**
+     * Accoda per la scrittura su file la stringa specificata
+     * @param text la stringa da scrivere su file
+     */
     public void appendText(String text)
     {
         if (isClosed)
@@ -43,6 +47,7 @@ public class QueueFileWriter
 
     private void processQueue()
     {
+        // Ciclo di elaborazione della coda
         while (!Thread.interrupted())
         {
             try {
@@ -80,6 +85,9 @@ public class QueueFileWriter
         }
     }
 
+    /**
+     * Segnala al thread che processa la coda di fermarsi appena possibile
+     */
     public void stopProcessingAndClose()
     {
         queueProcessingThread.interrupt();
