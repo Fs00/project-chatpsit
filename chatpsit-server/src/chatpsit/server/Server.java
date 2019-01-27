@@ -89,15 +89,18 @@ public class Server implements Runnable
                 message.getType() != Message.Type.UserLogin &&
                 message.getType() != Message.Type.Register)
             {
-                Message errMessage = new Message(Message.Type.NotifyError, Message.createFieldsMap("description", "Tipo di messaggio inappropriato"));
+                Message errMessage = Message.createNew(Message.Type.NotifyError)
+                                    .field("description", "Tipo di messaggio inappropriato")
+                                    .lastMessage()
+                                    .build();
                 connectionWriter.println(errMessage.serialize());
                 clientSocket.close();
                 return;
             }
 
             // Estrapola username e password dal messaggio e cerca se esiste un utente con lo stesso nome
-            String username = message.getFields().get("username");
-            String password = message.getFields().get("password");
+            String username = message.getField("username");
+            String password = message.getField("password");
             User existingUser = registeredUsers.stream().filter(user -> user.getUsername().equals(username)).findFirst().orElse(null);
 
             switch (message.getType())
@@ -107,7 +110,10 @@ public class Server implements Runnable
                     // Verifica correttezza username e password
                     if (existingUser == null || !existingUser.passwordMatches(password))
                     {
-                        Message errMessage = new Message(Message.Type.NotifyError, Message.createFieldsMap("description", ServerConstants.WRONG_CREDENTIALS_ERR));
+                        Message errMessage = Message.createNew(Message.Type.NotifyError)
+                                            .field("description", ServerConstants.WRONG_CREDENTIALS_ERR)
+                                            .lastMessage()
+                                            .build();
                         connectionWriter.println(errMessage.serialize());
                         clientSocket.close();
                         return;
@@ -116,7 +122,10 @@ public class Server implements Runnable
                     // Impedisci il login al pannello di amministrazione se l'utente non è admin
                     if (message.getType() == Message.Type.AdminPanelLogin && !existingUser.isAdmin())
                     {
-                        Message errMessage = new Message(Message.Type.NotifyError, Message.createFieldsMap("description", ServerConstants.ONLY_ADMIN_CAN_ERR));
+                        Message errMessage = Message.createNew(Message.Type.NotifyError)
+                                            .field("description", ServerConstants.ONLY_ADMIN_CAN_ERR)
+                                            .lastMessage()
+                                            .build();
                         connectionWriter.println(errMessage.serialize());
                         clientSocket.close();
                         return;
@@ -125,7 +134,10 @@ public class Server implements Runnable
                     // Impedisci accesso se l'utente è bannato
                     if (existingUser.isBanned())
                     {
-                        Message errMessage = new Message(Message.Type.NotifyError, Message.createFieldsMap("description", ServerConstants.USER_BANNED_ERR));
+                        Message errMessage = Message.createNew(Message.Type.NotifyError)
+                                            .field("description", ServerConstants.USER_BANNED_ERR)
+                                            .lastMessage()
+                                            .build();
                         connectionWriter.println(errMessage.serialize());
                         clientSocket.close();
                         return;
@@ -141,7 +153,10 @@ public class Server implements Runnable
                     // Verifica se l'utente ha già una sessione attiva
                     if (connectionsMap.containsKey(existingUser.getUsername()))
                     {
-                        Message errMessage = new Message(Message.Type.NotifyError, Message.createFieldsMap("description", ServerConstants.ALREADY_LOGGED_IN_MSG_ERR));
+                        Message errMessage = Message.createNew(Message.Type.NotifyError)
+                                            .field("description", ServerConstants.ALREADY_LOGGED_IN_MSG_ERR)
+                                            .lastMessage()
+                                            .build();
                         connectionWriter.println(errMessage.serialize());
                         clientSocket.close();
                         return;
@@ -149,7 +164,10 @@ public class Server implements Runnable
                     else
                     {
                         // Notifica a tutti che l'utente si è connesso
-                        this.sendToAllClients(new Message(Message.Type.UserConnected, Message.createFieldsMap("username", existingUser.getUsername())));
+                        this.sendToAllClients(Message.createNew(Message.Type.UserConnected)
+                                .field("username", existingUser.getUsername())
+                                .build()
+                        );
 
                         // Fai partire il gestore della connessione utente su un altro thread
                         UserConnection loggedInUserConn = new UserConnection(existingUser, clientSocket,
@@ -159,12 +177,15 @@ public class Server implements Runnable
                         Logger.logEvent(Logger.EventType.Info, "Accesso effettuato dall'utente " + username);
 
                         // Notifica all'utente che il login è avvenuto con successo e inviagli tutti i nominativi degli utenti connessi
-                        loggedInUserConn.sendMessage(new Message(Message.Type.NotifySuccess, Message.createFieldsMap("description", "")));
+                        loggedInUserConn.sendMessage(Message.createNew(Message.Type.NotifySuccess).build());
                         for (UserConnection connection : currentUserClientConnections.values())
                         {
                             String connectedUserName = connection.getUser().getUsername();
                             if (!connectedUserName.equals(username))
-                                loggedInUserConn.sendMessage(new Message(Message.Type.UserConnected, Message.createFieldsMap("username", connectedUserName)));
+                                loggedInUserConn.sendMessage(Message.createNew(Message.Type.UserConnected)
+                                        .field("username", connectedUserName)
+                                        .build()
+                                );
                         }
                     }
                     break;
@@ -172,7 +193,10 @@ public class Server implements Runnable
                 case Register:
                     if (existingUser != null)
                     {
-                        Message errMessage = new Message(Message.Type.NotifyError, Message.createFieldsMap("description", ServerConstants.ALREADY_REGISTERED_ERR));
+                        Message errMessage = Message.createNew(Message.Type.NotifyError)
+                                            .field("description", ServerConstants.ALREADY_REGISTERED_ERR)
+                                            .lastMessage()
+                                            .build();
                         connectionWriter.println(errMessage.serialize());
                     }
                     else
@@ -186,13 +210,16 @@ public class Server implements Runnable
                         }
                         catch (Exception e)
                         {
-                            Message errMessage = new Message(Message.Type.NotifyError, Message.createFieldsMap("description", ServerConstants.WRONG_USERNAME_FORMAT_ERR));
+                            Message errMessage = Message.createNew(Message.Type.NotifyError)
+                                                .field("description", ServerConstants.WRONG_USERNAME_FORMAT_ERR)
+                                                .lastMessage()
+                                                .build();
                             connectionWriter.println(errMessage.serialize());
                         }
 
                         if (registrationSuccessful)
                         {
-                            Message successMessage = new Message(Message.Type.NotifySuccess, Message.createFieldsMap("description", ""));
+                            Message successMessage = Message.createNew(Message.Type.NotifySuccess).lastMessage().build();
                             connectionWriter.println(successMessage.serialize());
                             Logger.logEvent(Logger.EventType.Info, "Nuovo utente registrato: " + username);
                         }
