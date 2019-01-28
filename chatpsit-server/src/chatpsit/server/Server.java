@@ -172,9 +172,9 @@ public class Server implements Runnable
                         );
 
                         // Fai partire il gestore della connessione utente su un altro thread
-                        UserConnectionHandler loggedInUserConn = new UserConnectionHandler(existingUser, clientSocket,
-                                                   this, message.getType() == Message.Type.AdminPanelLogin);
-                        new Thread(loggedInUserConn).start();
+                        UserConnectionHandler loggedInUserConn = new UserConnectionHandler(this, existingUser, clientSocket,
+                                connectionReader, connectionWriter, message.getType() == Message.Type.AdminPanelLogin);
+                        loggedInUserConn.start();
                         connectionsMap.put(username, loggedInUserConn);
                         Logger.logEvent(Logger.EventType.Info, "Accesso effettuato dall'utente " + username);
 
