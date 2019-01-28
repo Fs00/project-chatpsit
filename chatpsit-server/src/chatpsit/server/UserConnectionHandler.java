@@ -1,6 +1,7 @@
 package chatpsit.server;
 
 import chatpsit.common.Message;
+import chatpsit.common.User;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;

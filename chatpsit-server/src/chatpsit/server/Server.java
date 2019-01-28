@@ -3,6 +3,7 @@ package chatpsit.server;
 import chatpsit.common.Message;
 import chatpsit.common.ServerConstants;
 import chatpsit.common.ServerMode;
+import chatpsit.common.User;
 
 import java.io.*;
 import java.net.ServerSocket;

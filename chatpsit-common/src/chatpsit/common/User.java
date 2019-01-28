@@ -1,4 +1,4 @@
-package chatpsit.server;
+package chatpsit.common;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
