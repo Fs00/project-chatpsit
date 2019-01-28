@@ -44,7 +44,7 @@ public class LoginController implements IController
     @FXML
     private void showRegistrationScene()
     {
-        ClientApp.showRegisterScene();
+        ClientApp.setRegisterScene();
     }
 
     @FXML
@@ -85,10 +85,7 @@ public class LoginController implements IController
         switch (message.getType())
         {
             case NotifySuccess:
-                // TODO
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Login riuscito");
-                alert.showAndWait();
+                ClientApp.showGlobalChatWindow();
                 break;
             case NotifyError:
                 Alert errAlert = new Alert(Alert.AlertType.ERROR);

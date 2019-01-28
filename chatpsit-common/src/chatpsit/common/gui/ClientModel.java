@@ -10,12 +10,12 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public abstract class ClientModel implements IModel
 {
-    private List<IController> attachedControllers = new ArrayList<>();
+    private List<IController> attachedControllers = new CopyOnWriteArrayList<>();
 
     protected String serverUrl = ServerConstants.LOCAL_SERVER_ADDRESS;
     protected Socket clientSocket;

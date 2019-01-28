@@ -42,7 +42,7 @@ public class RegistrationController implements IController
     @FXML
     private void backToLogin()
     {
-        ClientApp.showLoginScene();
+        ClientApp.setLoginScene();
     }
 
     @FXML
@@ -61,7 +61,7 @@ public class RegistrationController implements IController
         {
             Alert errAlert = new Alert(Alert.AlertType.ERROR);
             errAlert.setTitle("Errore di connessione");
-            errAlert.setHeaderText("Errore inatteso nell'invio del messaggio al server");
+            errAlert.setHeaderText("Errore inatteso nell'invio del messaggio");
             errAlert.setContentText(exc.getMessage());
             errAlert.showAndWait();
         }
