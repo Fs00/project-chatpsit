@@ -8,6 +8,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.stage.Stage;
 
 public class LoginController implements IController
 {
@@ -44,7 +45,7 @@ public class LoginController implements IController
     @FXML
     private void showRegistrationScene()
     {
-        ClientApp.setRegisterScene();
+        ClientApp.setRegisterScene((Stage) loginButton.getScene().getWindow());
     }
 
     @FXML
@@ -85,6 +86,7 @@ public class LoginController implements IController
         switch (message.getType())
         {
             case NotifySuccess:
+                ((Stage) loginButton.getScene().getWindow()).close();
                 ClientApp.showGlobalChatWindow();
                 break;
             case NotifyError:

@@ -8,6 +8,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.stage.Stage;
 
 public class RegistrationController implements IController
 {
@@ -42,7 +43,7 @@ public class RegistrationController implements IController
     @FXML
     private void backToLogin()
     {
-        ClientApp.setLoginScene();
+        ClientApp.setLoginScene((Stage) registerButton.getScene().getWindow());
     }
 
     @FXML

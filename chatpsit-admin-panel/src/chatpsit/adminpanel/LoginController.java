@@ -8,6 +8,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.stage.Stage;
 
 public class LoginController implements IController
 {
@@ -77,16 +78,14 @@ public class LoginController implements IController
         switch (message.getType())
         {
             case NotifySuccess:
-                // TODO
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Login riuscito");
-                alert.showAndWait();
+                ((Stage) loginButton.getScene().getWindow()).close();
+                AdminPanelApp.showMainWindow();
                 break;
             case NotifyError:
                 Alert errAlert = new Alert(Alert.AlertType.ERROR);
                 errAlert.setHeaderText("Login fallito");
                 errAlert.setContentText(message.getField("description"));
-                errAlert.showAndWait();
+                errAlert.show();
                 break;
         }
     }

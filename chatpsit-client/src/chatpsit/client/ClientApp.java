@@ -5,7 +5,6 @@ import chatpsit.common.gui.IController;
 import chatpsit.common.gui.IModel;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
@@ -13,39 +12,38 @@ import java.io.IOException;
 
 public class ClientApp extends Application
 {
-    private static Stage startupStage, globalChatStage;
-    private static Scene loginScene, registerScene;
-    private static Parent globalChatRootNode;
+    private static Scene loginScene, registerScene, globalChatScene;
     private static IController loginController, registrationController, globalChatController;
     private static IModel model = new UserClientModel();
 
     @Override
     public void start(Stage primaryStage) throws IOException
     {
-        startupStage = primaryStage;
-        initializeStartupScenes();
-        initializeGlobalChatStage();
-        showStartupStage();
+        loadWindowLayouts();
+        setLoginScene(primaryStage);
+        primaryStage.show();
     }
 
     static void showGlobalChatWindow()
     {
-        startupStage.hide();
         model.detachControllers();
         model.attachController(globalChatController);
-        globalChatStage.setScene(new Scene(globalChatRootNode));
+
+        Stage globalChatStage = new Stage();
+        globalChatStage.setTitle("Chat globale");
+        globalChatStage.setResizable(false);
+        globalChatStage.setScene(globalChatScene);
         globalChatStage.show();
-        globalChatStage.requestFocus();
     }
 
-    static void showStartupStage()
+    static void showStartupWindow()
     {
-        globalChatStage.hide();
-        setLoginScene();
+        Stage startupStage = new Stage();
+        setLoginScene(startupStage);
         startupStage.show();
     }
 
-    static void setLoginScene()
+    static void setLoginScene(Stage startupStage)
     {
         model.detachControllers();
         model.attachController(loginController);
@@ -54,7 +52,7 @@ public class ClientApp extends Application
         startupStage.setResizable(false);
     }
 
-    static void setRegisterScene()
+    static void setRegisterScene(Stage startupStage)
     {
         model.detachControllers();
         model.attachController(registrationController);
@@ -63,18 +61,7 @@ public class ClientApp extends Application
         startupStage.setResizable(false);
     }
 
-    private void initializeGlobalChatStage() throws IOException
-    {
-        globalChatStage = new Stage();
-        globalChatStage.setTitle("Chat globale");
-        globalChatStage.setResizable(false);
-
-        FXMLLoader loader = new FXMLLoader(ClientApp.class.getResource("views/globalChat.fxml"));
-        globalChatRootNode = loader.load();
-        globalChatController = loader.getController();
-    }
-
-    private void initializeStartupScenes() throws IOException
+    private void loadWindowLayouts() throws IOException
     {
         FXMLLoader loader = new FXMLLoader(ClientApp.class.getResource("views/login.fxml"));
         loginScene = new Scene(loader.load());
@@ -83,6 +70,10 @@ public class ClientApp extends Application
         loader = new FXMLLoader(ClientApp.class.getResource("views/registration.fxml"));
         registerScene = new Scene(loader.load());
         registrationController = loader.getController();
+
+        loader = new FXMLLoader(ClientApp.class.getResource("views/globalChat.fxml"));
+        globalChatScene = new Scene(loader.load());
+        globalChatController = loader.getController();
     }
 
     static UserClientModel getModel() {

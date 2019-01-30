@@ -1,30 +1,22 @@
-package chatpsit.client;
+package chatpsit.adminpanel;
 
-import chatpsit.client.model.UserClientModel;
 import chatpsit.common.Message;
 import chatpsit.common.gui.IController;
 import javafx.fxml.FXML;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
-public class GlobalChatController implements IController
+public class MainWindowController implements IController
 {
-    private UserClientModel model;
-
     @FXML
     private BorderPane rootNode;
-
-    public void initialize()
-    {
-        model = ClientApp.getModel();
-    }
 
     @FXML
     private void quitToLogin()
     {
         // TODO logout
         ((Stage) rootNode.getScene().getWindow()).close();
-        ClientApp.showStartupWindow();
+        AdminPanelApp.showLoginWindow();
     }
 
     @Override
