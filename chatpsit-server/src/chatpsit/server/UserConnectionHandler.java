@@ -4,6 +4,7 @@ import chatpsit.common.Message;
 import chatpsit.common.User;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Date;
@@ -45,6 +46,44 @@ public class UserConnectionHandler
         messageQueueConsumer.start();
 
         // TODO thread per ricezione messaggi dal client
+        messageReceiver = new Thread(this::listenForMessages);
+        messageReceiver.start();
+    }
+
+    private void listenForMessages()
+    {
+        try
+        {
+            String rawMessage;
+            while ((rawMessage = connectionReader.readLine()) != null)
+            {
+                Message messageDeserialized = Message.deserialize(rawMessage);
+
+                switch (messageDeserialized.getType()) {
+                    case PrivateMessage:
+                        server.deliverPrivateMessage(messageDeserialized);
+                        break;
+                    case GlobalMessage:
+                        server.sendToAllClients(messageDeserialized);
+                        break;
+                    case Report:
+                        server.sendToAdminPanelsOnly(messageDeserialized);
+                        break;
+                    case Logout:
+                        server.notifyClosedConnection(this);
+                        break;
+                    case Ban:
+                        //TODO
+                        break;
+                }
+
+                if (messageDeserialized.isLastMessage())
+                    clientSocket.close();
+            }
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -96,5 +135,9 @@ public class UserConnectionHandler
     public Date getLastActivity()
     {
         return lastActivity;
+    }
+
+    public boolean isAdminPanelConnection() {
+        return isAdminPanelConnection;
     }
 }

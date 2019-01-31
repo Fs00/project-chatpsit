@@ -260,7 +260,8 @@ public class Server implements Runnable
      */
     public void sendToAllClients(Message message)
     {
-        // TODO
+        for (UserConnectionHandler connection : currentAdminPanelConnections.values())
+            connection.sendMessage(message);
         sendToAdminPanelsOnly(message);
     }
 
@@ -273,6 +274,15 @@ public class Server implements Runnable
         for (UserConnectionHandler connection : currentAdminPanelConnections.values())
             connection.sendMessage(message);
     }
+
+    public void notifyClosedConnection(UserConnectionHandler logoutUser){
+        if (logoutUser.isAdminPanelConnection())
+            currentAdminPanelConnections.remove(logoutUser.getUser().getUsername());
+        else
+            currentUserClientConnections.remove(logoutUser.getUser().getUsername());
+    }
+
+
 
     /**
      * Carica i dati degli utenti da un file locale chiamato usersdata.txt
