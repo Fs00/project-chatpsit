@@ -245,6 +245,17 @@ public class Server implements Runnable
         }
     }
 
+    public void banUser(String username)
+    {
+        /*
+          deve:
+          - controllare se il nome utente è presente in registeredUsers
+          - se è presente, chiamare ban() sull'istanza di User trovata
+          - se l'utente è connesso, deve essere scollegato dopo avergli mandato un messaggio Ban
+          IMPORTANTE: QUESTO METODO NON DEVE LANCIARE ECCEZIONI, ma solo loggare eventuali errori
+         */
+    }
+
     /**
      * Recapita il messaggio privato al destinatario specificato all'interno del messaggio
      * @param message messaggio di tipo PrivateMessage
@@ -275,13 +286,20 @@ public class Server implements Runnable
             connection.sendMessage(message);
     }
 
-    public void notifyClosedConnection(UserConnectionHandler logoutUser){
-        if (logoutUser.isAdminPanelConnection())
-            currentAdminPanelConnections.remove(logoutUser.getUser().getUsername());
+    /**
+     * Notifica il server che la connessione specificata è stata chiusa
+     * @param userConnection l'istanza di UserConnectionHandler corrispondente
+     */
+    public void notifyClosedConnection(UserConnectionHandler userConnection)
+    {
+        if (userConnection.isAdminPanelConnection())
+            currentAdminPanelConnections.remove(userConnection.getUser().getUsername());
         else
-            currentUserClientConnections.remove(logoutUser.getUser().getUsername());
-    }
+            currentUserClientConnections.remove(userConnection.getUser().getUsername());
 
+        Logger.logEvent(Logger.EventType.Info, "L'utente " + userConnection.getUser().getUsername() +
+                " ha effettuato il logout" + (userConnection.isAdminPanelConnection() ? " dal pannello di amministrazione" : ""));
+    }
 
 
     /**

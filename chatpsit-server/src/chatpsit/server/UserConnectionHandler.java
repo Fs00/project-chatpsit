@@ -4,7 +4,6 @@ import chatpsit.common.Message;
 import chatpsit.common.User;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Date;
@@ -45,11 +44,14 @@ public class UserConnectionHandler
         messageQueueConsumer = new Thread(this::processMessageQueue);
         messageQueueConsumer.start();
 
-        // TODO thread per ricezione messaggi dal client
         messageReceiver = new Thread(this::listenForMessages);
         messageReceiver.start();
     }
 
+    /**
+     * Rimane in ascolto di messaggi in arrivo da parte del client fino alla chiusura del socket.
+     * Da eseguire su un thread parallelo.
+     */
     private void listenForMessages()
     {
         try
@@ -57,32 +59,40 @@ public class UserConnectionHandler
             String rawMessage;
             while ((rawMessage = connectionReader.readLine()) != null)
             {
-                Message messageDeserialized = Message.deserialize(rawMessage);
+                try
+                {
+                    lastActivity = new Date();
+                    Message receivedMessage = Message.deserialize(rawMessage);
 
-                switch (messageDeserialized.getType()) {
-                    case PrivateMessage:
-                        server.deliverPrivateMessage(messageDeserialized);
-                        break;
-                    case GlobalMessage:
-                        server.sendToAllClients(messageDeserialized);
-                        break;
-                    case Report:
-                        server.sendToAdminPanelsOnly(messageDeserialized);
-                        break;
-                    case Logout:
-                        server.notifyClosedConnection(this);
-                        break;
-                    case Ban:
-                        //TODO
-                        break;
+                    switch (receivedMessage.getType()) {
+                        case PrivateMessage:
+                            server.deliverPrivateMessage(receivedMessage);
+                            break;
+                        case GlobalMessage:
+                            server.sendToAllClients(receivedMessage);
+                            break;
+                        case Report:
+                            server.sendToAdminPanelsOnly(receivedMessage);
+                            break;
+                        case Ban:
+                            server.banUser(receivedMessage.getField("bannedUser"));
+                            break;
+                    }
+
+                    if (receivedMessage.isLastMessage())
+                        closeAndStopProcessing();
                 }
-
-                if (messageDeserialized.isLastMessage())
-                    clientSocket.close();
+                catch (Exception exc)
+                {
+                    Logger.logEvent(Logger.EventType.Error, "Errore nell'elaborazione del messaggio ricevuto " +
+                                    "dall'utente " + user.getUsername() + ": " + exc.getMessage());
+                }
             }
         }
-        catch (IOException e) {
-            e.printStackTrace();
+        catch (Exception exc) {
+            if (!exc.getMessage().equals("Socket closed"))
+                Logger.logEvent(Logger.EventType.Error, "Errore fatale del thread di ricezione dei messaggi dall'utente " +
+                            user.getUsername() + ": " + exc.getMessage());
         }
     }
 
@@ -100,7 +110,7 @@ public class UserConnectionHandler
                 connectionWriter.println(messageToSend.serialize());
 
                 if (messageToSend.isLastMessage())
-                    clientSocket.close();
+                    closeAndStopProcessing();
             }
         }
         catch (Exception exc)
@@ -111,6 +121,26 @@ public class UserConnectionHandler
                 Logger.logEvent(Logger.EventType.Error, "Errore nella chiusura del socket dell'utente " +
                                 user.getUsername() + ": " + exc.getMessage());
         }
+    }
+
+    /**
+     * Chiude il socket, ferma i thread di elaborazione dei messaggi
+     * e notifica il server della chiusura della connessione
+     */
+    public void closeAndStopProcessing()
+    {
+        try {
+            clientSocket.close();
+        }
+        catch (Exception exc) {
+            Logger.logEvent(Logger.EventType.Error, "Errore nella chiusura del socket per l'utente " + user +
+                            ": " + exc.getMessage());
+        }
+
+        messageQueueConsumer.interrupt();
+        messageReceiver.interrupt();
+
+        server.notifyClosedConnection(this);
     }
 
     /**

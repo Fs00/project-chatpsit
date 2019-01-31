@@ -204,7 +204,7 @@ public class Message
         messageTypeFields.put(Type.Report, new String[] {"sender", "reportedUser", "reason"});
         messageTypeFields.put(Type.Ban, new String[] {"bannedUser"});
         messageTypeFields.put(Type.Register, new String[] {"username", "password"});
-        messageTypeFields.put(Type.Logout, new String[] {"username"});
+        messageTypeFields.put(Type.Logout, new String[] {});
         messageTypeFields.put(Type.NotifySuccess, new String[] {});
         messageTypeFields.put(Type.NotifyError, new String[]{ "description" });
         messageTypeFields.put(Type.LogEvent, new String[] { "text" });
