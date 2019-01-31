@@ -3,14 +3,14 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
-<BorderPane stylesheets="mainWindowStyles.css" fx:id="rootNode" prefHeight="462.0" prefWidth="630.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chatpsit.adminpanel.MainWindowController">
+<BorderPane fx:id="rootNode" prefHeight="462.0" prefWidth="630.0" stylesheets="@mainWindowStyles.css" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chatpsit.adminpanel.MainWindowController">
    <top>
       <MenuBar BorderPane.alignment="CENTER">
         <menus>
           <Menu mnemonicParsing="false" text="File">
             <items>
-              <MenuItem mnemonicParsing="false" onAction="#quitToLogin" text="Logout" />
-              <MenuItem mnemonicParsing="false" text="Esci" />
+              <MenuItem mnemonicParsing="false" onAction="#logoutAndQuitToLogin" text="Logout" />
+              <MenuItem mnemonicParsing="false" onAction="#logoutAndCloseWindow" text="Esci" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="?">
@@ -22,11 +22,9 @@
       </MenuBar>
    </top>
    <center>
-      <SplitPane dividerPositions="0.28503184713375795" prefHeight="160.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-        <items>
-            <ListView items="${controller.sidebarEntries}" prefHeight="431.0" prefWidth="181.0" />
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="319.0" prefWidth="241.0" />
-        </items>
-      </SplitPane>
    </center>
+   <left>
+      <ListView items="${controller.sidebarEntries}" prefHeight="433.0" prefWidth="193.0" BorderPane.alignment="CENTER" />
+   </left>
 </BorderPane>

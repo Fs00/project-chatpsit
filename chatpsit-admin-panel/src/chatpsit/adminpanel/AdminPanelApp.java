@@ -44,6 +44,11 @@ public class AdminPanelApp extends Application
         mainStage.setScene(mainWindowScene);
         mainStage.setTitle("Pannello di amministrazione");
         mainStage.setResizable(false);
+        mainStage.setOnCloseRequest(event -> {
+            boolean logoutSuccessful = ((MainWindowController) mainWindowController).sendLogout();
+            if (!logoutSuccessful)
+                event.consume();    // stops window closing
+        });
         mainStage.show();
     }
 

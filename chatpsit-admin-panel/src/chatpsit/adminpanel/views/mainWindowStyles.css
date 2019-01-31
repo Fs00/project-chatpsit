@@ -1,8 +1,8 @@
-/* just an experiment */
-.split-pane *.split-pane-divider {
-    -fx-padding: 0 1 0 1;
-}
-
 .list-cell {
   -fx-background-color: white;
+  -fx-padding: 8px;
+}
+
+.list-cell:selected {
+  -fx-background-color: #0093ff;
 }
