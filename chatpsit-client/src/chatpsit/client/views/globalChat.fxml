@@ -1,22 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
-<BorderPane fx:id="rootNode" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chatpsit.client.GlobalChatController">
-   <center>
-      <AnchorPane prefHeight="400.0" prefWidth="600.0">
-
-</AnchorPane>
-   </center>
+<BorderPane fx:id="rootNode" prefHeight="464.0" prefWidth="714.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chatpsit.client.GlobalChatController">
    <top>
       <MenuBar BorderPane.alignment="CENTER">
         <menus>
           <Menu mnemonicParsing="false" text="File">
             <items>
               <MenuItem mnemonicParsing="false" text="Logout" />
-              <MenuItem mnemonicParsing="false" text="Esci" onAction="#quitToLogin"/>
+              <MenuItem mnemonicParsing="false" onAction="#quitToLogin" text="Esci" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="?">
@@ -27,4 +21,22 @@
         </menus>
       </MenuBar>
    </top>
+   <bottom>
+      <AnchorPane prefHeight="469.0" prefWidth="714.0" BorderPane.alignment="CENTER">
+         <children>
+            <TableView layoutX="14.0" layoutY="8.0" prefHeight="385.0" prefWidth="283.0">
+                <placeholder>
+                    <Label text="Nessun utente connesso" />
+                </placeholder>
+              <columns>
+                <TableColumn prefWidth="282.0" text="Utenti connessi" />
+              </columns>
+            </TableView>
+            <ListView layoutX="327.0" layoutY="8.0" prefHeight="385.0" prefWidth="373.0" />
+            <Button disable="true" layoutX="14.0" layoutY="410.0" mnemonicParsing="false" prefHeight="47.0" prefWidth="145.0" text="Messaggio privato" />
+            <Button disable="true" layoutX="175.0" layoutY="410.0" mnemonicParsing="false" prefHeight="47.0" prefWidth="120.0" text="Segnala" />
+            <Button disable="true" layoutX="600.0" layoutY="410.0" mnemonicParsing="false" prefHeight="47.0" prefWidth="100.0" text="Invia" />
+            <TextArea layoutX="327.0" layoutY="409.0" prefHeight="35.0" prefWidth="254.0" wrapText="true" />
+         </children></AnchorPane>
+   </bottom>
 </BorderPane>
