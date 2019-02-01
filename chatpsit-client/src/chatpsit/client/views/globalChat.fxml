@@ -3,13 +3,13 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
-<BorderPane fx:id="rootNode" prefHeight="464.0" prefWidth="714.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chatpsit.client.GlobalChatController">
+<BorderPane fx:id="rootNode" prefHeight="473.0" prefWidth="714.0" xmlns="http://javafx.com/javafx/8.0.192" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chatpsit.client.GlobalChatController">
    <top>
       <MenuBar BorderPane.alignment="CENTER">
         <menus>
           <Menu mnemonicParsing="false" text="File">
             <items>
-              <MenuItem mnemonicParsing="false" text="Logout" />
+              <MenuItem mnemonicParsing="false" onAction="#logoutAndQuitToLogin" text="Logout" />
               <MenuItem mnemonicParsing="false" onAction="#quitToLogin" text="Esci" />
             </items>
           </Menu>
@@ -22,9 +22,9 @@
       </MenuBar>
    </top>
    <bottom>
-      <AnchorPane prefHeight="469.0" prefWidth="714.0" BorderPane.alignment="CENTER">
+      <AnchorPane prefHeight="455.0" prefWidth="714.0" BorderPane.alignment="CENTER">
          <children>
-            <TableView layoutX="14.0" layoutY="8.0" prefHeight="385.0" prefWidth="283.0">
+            <TableView fx:id="tableViewUsers" layoutX="14.0" layoutY="8.0" prefHeight="385.0" prefWidth="283.0">
                 <placeholder>
                     <Label text="Nessun utente connesso" />
                 </placeholder>
@@ -33,10 +33,10 @@
               </columns>
             </TableView>
             <ListView layoutX="327.0" layoutY="8.0" prefHeight="385.0" prefWidth="373.0" />
-            <Button disable="true" layoutX="14.0" layoutY="410.0" mnemonicParsing="false" prefHeight="47.0" prefWidth="145.0" text="Messaggio privato" />
-            <Button disable="true" layoutX="175.0" layoutY="410.0" mnemonicParsing="false" prefHeight="47.0" prefWidth="120.0" text="Segnala" />
-            <Button disable="true" layoutX="600.0" layoutY="410.0" mnemonicParsing="false" prefHeight="47.0" prefWidth="100.0" text="Invia" />
-            <TextArea layoutX="327.0" layoutY="409.0" prefHeight="35.0" prefWidth="254.0" wrapText="true" />
+            <Button fx:id="sendPrivateButton" disable="true" layoutX="14.0" layoutY="410.0" mnemonicParsing="false" prefHeight="37.0" prefWidth="145.0" text="Messaggio privato" />
+            <Button fx:id="reportButton" disable="true" layoutX="175.0" layoutY="410.0" mnemonicParsing="false" prefHeight="37.0" prefWidth="120.0" text="Segnala" />
+            <Button fx:id="sendButton" disable="true" layoutX="600.0" layoutY="410.0" mnemonicParsing="false" prefHeight="37.0" prefWidth="100.0" text="Invia" />
+            <TextArea fx:id="textArea" layoutX="327.0" layoutY="409.0" onKeyTyped="#checkEmptyMessageText" prefHeight="37.0" prefWidth="254.0" wrapText="true" />
          </children></AnchorPane>
    </bottom>
 </BorderPane>

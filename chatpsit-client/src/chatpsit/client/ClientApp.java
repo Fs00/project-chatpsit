@@ -33,6 +33,11 @@ public class ClientApp extends Application
         globalChatStage.setTitle("Chat globale");
         globalChatStage.setResizable(false);
         globalChatStage.setScene(globalChatScene);
+        globalChatStage.setOnCloseRequest(event -> {
+            boolean logoutSuccessful = ((GlobalChatController) globalChatController).sendLogout();
+            if (!logoutSuccessful)
+                event.consume();    // stops window closing
+        });
         globalChatStage.show();
     }
 
