@@ -66,7 +66,7 @@ public class UserConnectionHandler
 
                     switch (receivedMessage.getType()) {
                         case PrivateMessage:
-                            server.deliverPrivateMessage(receivedMessage);
+                            server.deliverPrivateMessage(receivedMessage, this);
                             break;
                         case GlobalMessage:
                             server.sendToAllClients(receivedMessage);
@@ -75,7 +75,7 @@ public class UserConnectionHandler
                             server.sendToAdminPanelsOnly(receivedMessage);
                             break;
                         case Ban:
-                            server.banUser(receivedMessage.getField("bannedUser"));
+                            server.banUser(receivedMessage);
                             break;
                     }
 
@@ -90,7 +90,7 @@ public class UserConnectionHandler
             }
         }
         catch (Exception exc) {
-            if (!exc.getMessage().equals("Socket closed"))
+            if (!exc.getMessage().equalsIgnoreCase("Socket closed"))
                 Logger.logEvent(Logger.EventType.Error, "Errore fatale del thread di ricezione dei messaggi dall'utente " +
                             user.getUsername() + ": " + exc.getMessage());
         }

@@ -202,7 +202,7 @@ public class Message
         messageTypeFields.put(Type.PrivateMessage, new String[] {"sender", "recipient", "message"});
         messageTypeFields.put(Type.GlobalMessage, new String[] {"sender", "message"});
         messageTypeFields.put(Type.Report, new String[] {"sender", "reportedUser", "reason"});
-        messageTypeFields.put(Type.Ban, new String[] {"bannedUser"});
+        messageTypeFields.put(Type.Ban, new String[] {"bannedUser", "reason"});
         messageTypeFields.put(Type.Register, new String[] {"username", "password"});
         messageTypeFields.put(Type.Logout, new String[] {});
         messageTypeFields.put(Type.NotifySuccess, new String[] {});

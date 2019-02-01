@@ -245,24 +245,45 @@ public class Server implements Runnable
         }
     }
 
-    public void banUser(String username)
+    public void banUser(Message banMessage)
     {
-        /*
-          deve:
-          - controllare se il nome utente è presente in registeredUsers
-          - se è presente, chiamare ban() sull'istanza di User trovata
-          - se l'utente è connesso, deve essere scollegato dopo avergli mandato un messaggio Ban
-          IMPORTANTE: QUESTO METODO NON DEVE LANCIARE ECCEZIONI, ma solo loggare eventuali errori
-         */
+        User existingUser = registeredUsers.stream().filter(user -> user.getUsername().equals(banMessage.getField("bannedUser"))).findFirst().orElse(null);
+        if (existingUser != null)
+        {
+            try {
+                existingUser.ban();
+            }
+            catch(Exception e) {
+                Logger.logEvent(Logger.EventType.Error, "Tentato ban di un admin");
+            }
+            UserConnectionHandler bannedUserConnection = currentUserClientConnections.getOrDefault(banMessage.getField("bannedUser"), null);
+            if (bannedUserConnection != null)
+                bannedUserConnection.sendMessage(banMessage);
+        }
+        else
+            Logger.logEvent(Logger.EventType.Error, "Tentato ban di un utente non esistente");
     }
 
     /**
      * Recapita il messaggio privato al destinatario specificato all'interno del messaggio
-     * @param message messaggio di tipo PrivateMessage
+     * @param messageToDeliver messaggio di tipo PrivateMessage
      */
-    public void deliverPrivateMessage(Message message)
+    public void deliverPrivateMessage(Message messageToDeliver, UserConnectionHandler sender)
     {
-        // TODO
+        UserConnectionHandler recipientConnection = currentUserClientConnections.getOrDefault(messageToDeliver.getField("recipient"), null);
+        if (recipientConnection != null)
+        {
+            recipientConnection.sendMessage(messageToDeliver);
+            Message successMessage = Message.createNew(Message.Type.NotifySuccess).build();
+            sender.sendMessage(successMessage);
+        }
+        else
+        {
+            Message errorMessage = Message.createNew(Message.Type.NotifyError)
+                                    .field("description", "Destinatario non connesso")
+                                    .build();
+            sender.sendMessage(errorMessage);
+        }
     }
 
     /**
