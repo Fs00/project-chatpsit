@@ -10,7 +10,7 @@
           <Menu mnemonicParsing="false" text="File">
             <items>
               <MenuItem mnemonicParsing="false" onAction="#logoutAndQuitToLogin" text="Logout" />
-              <MenuItem mnemonicParsing="false" onAction="#quitToLogin" text="Esci" />
+              <MenuItem mnemonicParsing="false" onAction="#logoutAndCloseWindow" text="Esci" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="?">
