@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<AnchorPane prefHeight="343.0" prefWidth="335.0" xmlns="http://javafx.com/javafx/8.0.192" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chatpsit.adminpanel.ServerLogController">
+   <children>
+      <Label layoutX="130.0" layoutY="155.0" text="Log del server" />
+   </children>
+</AnchorPane>

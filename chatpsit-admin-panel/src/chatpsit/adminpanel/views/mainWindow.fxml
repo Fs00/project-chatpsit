@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
-<BorderPane fx:id="rootNode" prefHeight="462.0" prefWidth="630.0" stylesheets="@mainWindowStyles.css" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chatpsit.adminpanel.MainWindowController">
+<BorderPane fx:id="rootPane" prefHeight="462.0" prefWidth="630.0" stylesheets="@mainWindowStyles.css" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chatpsit.adminpanel.MainWindowController">
    <top>
       <MenuBar BorderPane.alignment="CENTER">
         <menus>
@@ -22,9 +22,9 @@
       </MenuBar>
    </top>
    <center>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="319.0" prefWidth="241.0" />
+      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="319.0" prefWidth="241.0" />
    </center>
    <left>
-      <ListView items="${controller.sidebarEntries}" prefHeight="433.0" prefWidth="193.0" BorderPane.alignment="CENTER" />
+      <ListView fx:id="sidebarMenu" items="${controller.sidebarEntries}" prefHeight="433.0" prefWidth="193.0" BorderPane.alignment="CENTER" />
    </left>
 </BorderPane>
