@@ -26,7 +26,6 @@ public class ClientApp extends Application
 
     static void showGlobalChatWindow()
     {
-        model.detachControllers();
         model.attachController(globalChatController);
 
         Stage globalChatStage = new Stage();
@@ -50,7 +49,6 @@ public class ClientApp extends Application
 
     static void setLoginScene(Stage startupStage)
     {
-        model.detachControllers();
         model.attachController(loginController);
         startupStage.setTitle("Login");
         startupStage.setScene(loginScene);
@@ -59,7 +57,6 @@ public class ClientApp extends Application
 
     static void setRegisterScene(Stage startupStage)
     {
-        model.detachControllers();
         model.attachController(registrationController);
         startupStage.setTitle("Registrazione");
         startupStage.setScene(registerScene);

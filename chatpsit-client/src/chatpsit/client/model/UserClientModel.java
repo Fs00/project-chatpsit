@@ -14,8 +14,7 @@ public class UserClientModel extends ClientModel
     private Map<String, List<String>> privateChatMessages;
 
     /**
-     * Manda il messaggio specificato al server
-     * @throws IOException Eventuali errori di connessione devono essere gestiti
+     * Vedi metodo nella superclasse
      */
     public void sendMessageToServer(Message request) throws IOException
     {
@@ -23,23 +22,15 @@ public class UserClientModel extends ClientModel
 
         if (request.getType() == Message.Type.UserLogin)
             loggedInUsername = request.getField("username");
-
-        if (request.getType() == Message.Type.UserLogin ||
-            request.getType() == Message.Type.Register ||
-            request.getType() == Message.Type.PrivateMessage)
-            handleServerResponse(connectionReader.readLine());
     }
 
     /**
-     * Decodifica la risposta ricevuta dal server e aggiorna le variabili o
-     * chiude la connessione in seguito ad essa
-     * @param responseString risposta ricevuta dal server
-     * @throws IOException Eventuali errori di connessione devono essere gestiti
+     * Vedi metodo nella superclasse
      */
     @Override
-    protected void handleServerResponse(String responseString) throws IOException
+    protected void handleServerMessage(String receivedString) throws IOException
     {
-        super.handleServerResponse(responseString);
+        super.handleServerMessage(receivedString);
         // TODO aggiornamento variabili
     }
 }

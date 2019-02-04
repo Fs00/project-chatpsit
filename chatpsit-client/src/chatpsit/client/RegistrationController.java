@@ -27,7 +27,6 @@ public class RegistrationController implements IController
     public RegistrationController()
     {
         this.model = ClientApp.getModel();
-        bindToModel(this.model);
     }
 
     public ObservableList<ServerMode> getServerChoices()
@@ -43,18 +42,37 @@ public class RegistrationController implements IController
     @FXML
     private void backToLogin()
     {
+        model.detachController(this);
         ClientApp.setLoginScene((Stage) registerButton.getScene().getWindow());
     }
 
     @FXML
     private void attemptRegistration()
     {
+        changeControlsDisable(true);
+
+        // Tenta connessione con il server
+        try {
+            model.connectToServer(serverChoiceBox.getSelectionModel().getSelectedItem());
+        }
+        catch (Exception exc)
+        {
+            Alert errAlert = new Alert(Alert.AlertType.ERROR);
+            errAlert.setTitle("Errore di connessione");
+            errAlert.setHeaderText("Impossibile connettersi al server");
+            errAlert.setContentText(exc.getMessage());
+            errAlert.show();
+
+            changeControlsDisable(false);
+            return;
+        }
+
+        // Procedi con la registrazione se la connessione è andata a buon fine
         Message registrationMessage = Message.createNew(Message.Type.Register)
                 .field("username", fieldUsername.getText().trim())
                 .field("password", fieldPasswd.getText())
                 .build();
 
-        changeControlsDisable(true);
         try {
             model.sendMessageToServer(registrationMessage);
         }
@@ -64,8 +82,9 @@ public class RegistrationController implements IController
             errAlert.setTitle("Errore di connessione");
             errAlert.setHeaderText("Errore inatteso nell'invio del messaggio");
             errAlert.setContentText(exc.getMessage());
-            errAlert.showAndWait();
+            errAlert.show();
         }
+
         changeControlsDisable(false);
         clearTextFields();
     }

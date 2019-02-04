@@ -25,7 +25,6 @@ public class AdminPanelApp extends Application
 
     static void showLoginWindow()
     {
-        model.detachControllers();
         model.attachController(loginController);
 
         Stage loginStage = new Stage();
@@ -37,7 +36,6 @@ public class AdminPanelApp extends Application
 
     static void showMainWindow()
     {
-        model.detachControllers();
         model.attachController(mainWindowController);
 
         Stage mainStage = new Stage();
