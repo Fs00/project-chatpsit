@@ -11,12 +11,11 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public abstract class ClientModel implements IModel
 {
-    private List<IController> attachedControllers = new CopyOnWriteArrayList<>();
+    private CopyOnWriteArrayList<IController> attachedControllers = new CopyOnWriteArrayList<>();
 
     protected Socket clientSocket;
     protected BufferedReader connectionReader;
@@ -103,7 +102,7 @@ public abstract class ClientModel implements IModel
 
     public void attachController(IController controller)
     {
-        attachedControllers.add(controller);
+        attachedControllers.addIfAbsent(controller);
     }
     public void detachController(IController controller)
     {

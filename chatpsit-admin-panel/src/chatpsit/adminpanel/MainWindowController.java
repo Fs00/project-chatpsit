@@ -3,6 +3,7 @@ package chatpsit.adminpanel;
 import chatpsit.adminpanel.model.AdminPanelModel;
 import chatpsit.common.Message;
 import chatpsit.common.gui.IController;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -38,6 +39,7 @@ public class MainWindowController implements IController
 
     public void initialize()
     {
+        bindToModel(model);
         sidebarMenu.getSelectionModel().selectedItemProperty().addListener(((observable, oldValue, newValue) -> {
             rootPane.setCenter(contentNodes.get(newValue));
         }));
@@ -65,7 +67,11 @@ public class MainWindowController implements IController
             contentNodes.put("Log del server", loader.load());
             paneControllers.add(loader.getController());
         }
-        catch (Exception exc) {}
+        catch (Exception exc)
+        {
+            System.err.println("FATAL: Missing layout assets for main window panes");
+            Platform.exit();
+        }
     }
 
     @FXML
@@ -83,6 +89,7 @@ public class MainWindowController implements IController
                                     .lastMessage()
                                     .build();
             model.sendMessageToServer(logoutMessage);
+            model.detachControllers();
             logoutSuccessful = true;
         }
         catch (IOException exc)
@@ -115,6 +122,6 @@ public class MainWindowController implements IController
     @Override
     public void notifyMessage(Message message)
     {
-        // TODO
+        paneControllers.forEach(controller -> Platform.runLater(() -> controller.notifyMessage(message)));
     }
 }

@@ -37,8 +37,8 @@ public class GlobalChatController implements IController
 
     public void initialize()
     {
-
         model = ClientApp.getModel();
+        bindToModel(model);
         tableViewUsers.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null)
             {
@@ -60,9 +60,10 @@ public class GlobalChatController implements IController
         try
         {
             Message logoutMessage = Message.createNew(Message.Type.Logout)
-                    .lastMessage()
-                    .build();
+                                    .lastMessage()
+                                    .build();
             model.sendMessageToServer(logoutMessage);
+            model.detachControllers();
             logoutSuccessful = true;
         }
         catch (IOException exc)

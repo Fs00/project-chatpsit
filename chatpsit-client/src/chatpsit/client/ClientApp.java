@@ -4,6 +4,7 @@ import chatpsit.client.model.UserClientModel;
 import chatpsit.common.gui.IController;
 import chatpsit.common.gui.IModel;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -12,32 +13,16 @@ import java.io.IOException;
 
 public class ClientApp extends Application
 {
-    private static Scene loginScene, registerScene, globalChatScene;
-    private static IController loginController, registrationController, globalChatController;
+    private static Scene loginScene, registerScene;
+    private static IController loginController, registrationController;
     private static IModel model = new UserClientModel();
 
     @Override
     public void start(Stage primaryStage) throws IOException
     {
-        loadWindowLayouts();
+        loadStartupWindowLayouts();
         setLoginScene(primaryStage);
         primaryStage.show();
-    }
-
-    static void showGlobalChatWindow()
-    {
-        model.attachController(globalChatController);
-
-        Stage globalChatStage = new Stage();
-        globalChatStage.setTitle("Chat globale");
-        globalChatStage.setResizable(false);
-        globalChatStage.setScene(globalChatScene);
-        globalChatStage.setOnCloseRequest(event -> {
-            boolean logoutSuccessful = ((GlobalChatController) globalChatController).sendLogout();
-            if (!logoutSuccessful)
-                event.consume();    // stops window closing
-        });
-        globalChatStage.show();
     }
 
     static void showStartupWindow()
@@ -45,8 +30,42 @@ public class ClientApp extends Application
         Stage startupStage = new Stage();
         setLoginScene(startupStage);
         startupStage.show();
+        startupStage.requestFocus();
     }
 
+    /*
+      A differenza della finestra di avvio, la finestra della chat globale viene caricata da capo
+      ogni volta affinché venga ricreata una nuova istanza del controller senza i dati precedenti
+     */
+    static void showGlobalChatWindow()
+    {
+        FXMLLoader loader = new FXMLLoader(ClientApp.class.getResource("views/globalChat.fxml"));
+        try
+        {
+            Stage globalChatStage = new Stage();
+            globalChatStage.setTitle("Chat globale");
+            globalChatStage.setResizable(false);
+            globalChatStage.setScene(new Scene(loader.load()));
+
+            globalChatStage.setOnCloseRequest(event -> {
+                boolean logoutSuccessful = loader.<GlobalChatController>getController().sendLogout();
+                if (!logoutSuccessful)
+                    event.consume();    // annulla la chiusura della finestra
+            });
+
+            globalChatStage.show();
+        }
+        catch (Exception exc)
+        {
+            System.err.println("FATAL: Missing layout assets for global chat window");
+            Platform.exit();
+        }
+    }
+
+    /*
+      Funzioni per il cambio scena nella finestra di login/registrazione.
+      Il model viene scollegato all'interno dei rispettivi controller ad ogni cambio scena.
+     */
     static void setLoginScene(Stage startupStage)
     {
         model.attachController(loginController);
@@ -63,7 +82,7 @@ public class ClientApp extends Application
         startupStage.setResizable(false);
     }
 
-    private void loadWindowLayouts() throws IOException
+    private void loadStartupWindowLayouts() throws IOException
     {
         FXMLLoader loader = new FXMLLoader(ClientApp.class.getResource("views/login.fxml"));
         loginScene = new Scene(loader.load());
@@ -72,10 +91,6 @@ public class ClientApp extends Application
         loader = new FXMLLoader(ClientApp.class.getResource("views/registration.fxml"));
         registerScene = new Scene(loader.load());
         registrationController = loader.getController();
-
-        loader = new FXMLLoader(ClientApp.class.getResource("views/globalChat.fxml"));
-        globalChatScene = new Scene(loader.load());
-        globalChatController = loader.getController();
     }
 
     static UserClientModel getModel() {
