@@ -329,7 +329,6 @@ public class Server implements Runnable
             currentUserClientConnections.remove(userConnection.getUser().getUsername());
 
         // Notifica a tutti i client connessi che l'utente si è disconnesso
-        // TODO sembra non funzionare, indagare
         this.sendToAllClients(Message.createNew(Message.Type.UserDisconnected)
                 .field("username", userConnection.getUser().getUsername())
                 .build()
