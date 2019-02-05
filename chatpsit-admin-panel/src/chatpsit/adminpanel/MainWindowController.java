@@ -27,7 +27,7 @@ public class MainWindowController implements IController
     @FXML
     private BorderPane rootPane;
     @FXML
-    private ListView sidebarMenu;
+    private ListView<String> sidebarMenu;
 
     public MainWindowController()
     {
@@ -42,7 +42,8 @@ public class MainWindowController implements IController
         sendReadyMessageToServer();
 
         sidebarMenu.getSelectionModel().selectedItemProperty().addListener(((observable, oldValue, newValue) -> {
-            rootPane.setCenter(contentNodes.get(newValue));
+            if (newValue != null)   // evita di mostrare nulla in caso di deselezionamento della voce
+                rootPane.setCenter(contentNodes.get(newValue));
         }));
         // Select first sidebar element
         sidebarMenu.getSelectionModel().select(0);
