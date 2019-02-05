@@ -33,6 +33,9 @@ public class GlobalChatController implements IController
     @FXML
     private Button reportButton;
 
+    @FXML
+    private ListView listView;
+
     public void initialize()
     {
         model = ClientApp.getModel();
@@ -129,7 +132,17 @@ public class GlobalChatController implements IController
     @Override
     public void notifyMessage(Message message)
     {
-        // TODO
+        switch (message.getType())
+        {
+            case GlobalMessage:
+                listView.getItems().add(message.getField("sender") + ": " + message.getField("message"));
+                break;
+            case UserConnected:
+                tableViewUsers.getItems().add(message.getField("username"));
+            case UserDisconnected:
+                tableViewUsers.getItems().remove(message.getField("username"));
+                break;
+        }
     }
 
     @FXML
@@ -139,5 +152,22 @@ public class GlobalChatController implements IController
             sendButton.setDisable(false);
         else
             sendButton.setDisable(true);
+    }
+
+    @FXML
+    private void sendGlobalMessage()
+    {
+        try
+        {
+            model.sendMessageToServer(Message.createNew(Message.Type.GlobalMessage).field("sender", model.getLoggedInUsername()).field("message", textArea.getText()).build());
+            textArea.setText("");
+        }
+        catch (Exception e)
+        {
+            Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+            errorAlert.setTitle("Errore di connessione");
+            errorAlert.setHeaderText("Impossibile mandare il messaggio al server");
+            errorAlert.setContentText("Riprova o esci dall'applicazione.");
+        }
     }
 }

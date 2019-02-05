@@ -33,4 +33,9 @@ public class UserClientModel extends ClientModel
         super.handleServerMessage(receivedString);
         // TODO aggiornamento variabili
     }
+
+    public String getLoggedInUsername()
+    {
+        return loggedInUsername;
+    }
 }
