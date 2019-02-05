@@ -4,6 +4,7 @@ import chatpsit.client.model.UserClientModel;
 import chatpsit.common.Message;
 import chatpsit.common.gui.IController;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
@@ -17,24 +18,20 @@ public class GlobalChatController implements IController
 
     @FXML
     private BorderPane rootNode;
-
     @FXML
     private Button sendButton;
-
     @FXML
-    private TextArea textArea;
-
+    private TextArea messageTextArea;
     @FXML
-    private TableView tableViewUsers;
-
+    private TableView<String> tableViewUsers;
     @FXML
     private Button sendPrivateButton;
-
     @FXML
     private Button reportButton;
-
     @FXML
     private ListView listView;
+    @FXML
+    private TableColumn<String, String> usersColumn;
 
     public void initialize()
     {
@@ -43,6 +40,10 @@ public class GlobalChatController implements IController
 
         sendReadyMessageToServer();
 
+        // FIXME
+        usersColumn.setCellValueFactory(item -> new SimpleStringProperty(item.toString()));
+
+        // Listener per dis/abilitare bottoni sotto la lista degli utenti connessi se un utente è selezionato
         tableViewUsers.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null)
             {
@@ -54,6 +55,14 @@ public class GlobalChatController implements IController
                 sendPrivateButton.setDisable(true);
                 reportButton.setDisable(true);
              }
+        });
+
+        // Listener per abilitare bottone Invia messaggio se il testo non è vuoto e non contiene spazi
+        messageTextArea.textProperty().addListener(text -> {
+            if (!messageTextArea.getText().trim().isEmpty())
+                sendButton.setDisable(false);
+            else
+                sendButton.setDisable(true);
         });
     }
 
@@ -129,6 +138,7 @@ public class GlobalChatController implements IController
         if (!rootNode.getScene().getWindow().isShowing())
             ClientApp.showStartupWindow();
     }
+
     @Override
     public void notifyMessage(Message message)
     {
@@ -146,21 +156,16 @@ public class GlobalChatController implements IController
     }
 
     @FXML
-    private void checkEmptyMessageText()
-    {
-        if (!textArea.getText().trim().isEmpty())
-            sendButton.setDisable(false);
-        else
-            sendButton.setDisable(true);
-    }
-
-    @FXML
     private void sendGlobalMessage()
     {
         try
         {
-            model.sendMessageToServer(Message.createNew(Message.Type.GlobalMessage).field("sender", model.getLoggedInUsername()).field("message", textArea.getText()).build());
-            textArea.setText("");
+            model.sendMessageToServer(Message.createNew(Message.Type.GlobalMessage)
+                    .field("sender", model.getLoggedInUsername())
+                    .field("message", messageTextArea.getText())
+                    .build()
+            );
+            messageTextArea.setText("");
         }
         catch (Exception e)
         {
