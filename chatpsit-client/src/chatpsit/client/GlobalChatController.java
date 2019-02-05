@@ -8,6 +8,8 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
@@ -142,6 +144,42 @@ public class GlobalChatController implements IController
         }
     }
 
+    @FXML
+    private void sendGlobalMessage()
+    {
+        try
+        {
+            model.sendMessageToServer(Message.createNew(Message.Type.GlobalMessage)
+                    .field("sender", model.getLoggedInUsername())
+                    .field("message", messageTextArea.getText())
+                    .build()
+            );
+            messageTextArea.setText("");
+        }
+        catch (Exception e)
+        {
+            Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+            errorAlert.setTitle("Errore di connessione");
+            errorAlert.setHeaderText("Impossibile mandare il messaggio al server");
+            errorAlert.setContentText("Riprova o esci dall'applicazione.");
+        }
+    }
+
+    @FXML
+    private void sendMessageIfEnterPressed(KeyEvent event)
+    {
+        if (event.getCode() == KeyCode.ENTER)
+        {
+            if (!sendButton.isDisabled())
+                sendGlobalMessage();
+
+            // Impedisce che si possa andare a capo riga nel testo del messaggio
+            // (potenziale falla di sicurezza visto che ogni riga è un messaggio del protocollo
+            //  e verrebbe interpretata come tale dal server)
+            event.consume();
+        }
+    }
+
     boolean sendLogout()
     {
         //TODO chiudere finestre chat private
@@ -201,26 +239,5 @@ public class GlobalChatController implements IController
         }
         // Posiziona lo scrolling della lista sull'ultimo messaggio
         globalChatList.scrollTo(globalChatList.getItems().size()-1);
-    }
-
-    @FXML
-    private void sendGlobalMessage()
-    {
-        try
-        {
-            model.sendMessageToServer(Message.createNew(Message.Type.GlobalMessage)
-                    .field("sender", model.getLoggedInUsername())
-                    .field("message", messageTextArea.getText())
-                    .build()
-            );
-            messageTextArea.setText("");
-        }
-        catch (Exception e)
-        {
-            Alert errorAlert = new Alert(Alert.AlertType.ERROR);
-            errorAlert.setTitle("Errore di connessione");
-            errorAlert.setHeaderText("Impossibile mandare il messaggio al server");
-            errorAlert.setContentText("Riprova o esci dall'applicazione.");
-        }
     }
 }
