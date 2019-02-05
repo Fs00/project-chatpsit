@@ -16,7 +16,7 @@ public class UserClientModel extends ClientModel
     /**
      * Vedi metodo nella superclasse
      */
-    public void sendMessageToServer(Message request) throws IOException
+    public void sendMessageToServer(Message request) throws Exception
     {
         super.sendMessageToServer(request);
 

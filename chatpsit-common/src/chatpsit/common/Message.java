@@ -174,6 +174,7 @@ public class Message
     public enum Type {
         UserLogin,
         AdminPanelLogin,
+        Ready,
         PrivateMessage,
         GlobalMessage,
         Report,
@@ -199,6 +200,7 @@ public class Message
         messageTypeFields = new HashMap<>();
         messageTypeFields.put(Type.UserLogin, new String[] {"username", "password"});
         messageTypeFields.put(Type.AdminPanelLogin, new String[] {"username", "password"});
+        messageTypeFields.put(Type.Ready, new String[] {});
         messageTypeFields.put(Type.PrivateMessage, new String[] {"sender", "recipient", "message"});
         messageTypeFields.put(Type.GlobalMessage, new String[] {"sender", "message"});
         messageTypeFields.put(Type.Report, new String[] {"sender", "reportedUser", "reason"});
@@ -216,6 +218,7 @@ public class Message
         messageTypeStrings = new HashMap<>();
         messageTypeStrings.put(Type.UserLogin, "ULGIN");
         messageTypeStrings.put(Type.AdminPanelLogin, "ALGIN");
+        messageTypeStrings.put(Type.Ready, "READY");
         messageTypeStrings.put(Type.PrivateMessage, "PRMSG");
         messageTypeStrings.put(Type.GlobalMessage, "GLMSG");
         messageTypeStrings.put(Type.Report, "REPRT");

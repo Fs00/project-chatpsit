@@ -3,7 +3,7 @@ package chatpsit.common.gui;
 import chatpsit.common.Message;
 import chatpsit.common.ServerConstants;
 import chatpsit.common.ServerMode;
-import com.sun.javafx.application.PlatformImpl;
+import javafx.application.Platform;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -25,7 +25,7 @@ public abstract class ClientModel implements IModel
      * Manda il messaggio specificato al server e chiude la connessione se il messaggio inviato è marchiato come conclusivo
      * @throws IOException Eventuali errori di connessione devono essere gestiti
      */
-    public void sendMessageToServer(Message request) throws IOException
+    public void sendMessageToServer(Message request) throws Exception
     {
         if (clientSocket == null || clientSocket.isClosed())
             throw new UnsupportedOperationException("Non è stata stabilita una connessione con il server");
@@ -50,14 +50,10 @@ public abstract class ClientModel implements IModel
         }
 
         Message receivedMessage = Message.deserialize(receivedString);
+        System.out.println("Ricevuto messaggio " + receivedMessage.getType() + " dal server");
 
-        // Se non ci sono controller collegati a cui notificare il messaggio, attendine uno
-        while (attachedControllers.isEmpty()) {}
-
-        // Il callback di notifica ai controller viene eseguito sul thread principale di JavaFX.
-        // L'esecuzione del callback viene attesa in quanto si potrebbero perdere dei messaggi subito dopo il login;
-        // lo scollegamento del controller del login potrebbe avvenire dopo la ricezione di altri messaggi (da verificare effettivamente)
-        attachedControllers.forEach(controller -> PlatformImpl.runAndWait(() -> controller.notifyMessage(receivedMessage)));
+        // Il callback di notifica ai controller viene eseguito sul thread principale di JavaFX
+        attachedControllers.forEach(controller -> Platform.runLater(() -> controller.notifyMessage(receivedMessage)));
 
         if (receivedMessage.isLastMessage() && !clientSocket.isClosed())
             clientSocket.close();

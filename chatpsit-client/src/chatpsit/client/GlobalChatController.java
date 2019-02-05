@@ -3,15 +3,13 @@ package chatpsit.client;
 import chatpsit.client.model.UserClientModel;
 import chatpsit.common.Message;
 import chatpsit.common.gui.IController;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
-import java.io.IOException;
+import java.util.Optional;
 
 public class GlobalChatController implements IController
 {
@@ -39,6 +37,9 @@ public class GlobalChatController implements IController
     {
         model = ClientApp.getModel();
         bindToModel(model);
+
+        sendReadyMessageToServer();
+
         tableViewUsers.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null)
             {
@@ -51,6 +52,39 @@ public class GlobalChatController implements IController
                 reportButton.setDisable(true);
              }
         });
+    }
+
+    /**
+     * Segnala al server che è pronto a ricevere messaggi
+     * Se l'invio del messaggio fallisce, l'utente è invitato a riprovare o a chiudere l'applicazione
+     */
+    private void sendReadyMessageToServer()
+    {
+        boolean messageSent = false;
+        while (!messageSent)
+        {
+            try
+            {
+                Message readyMessage = Message.createNew(Message.Type.Ready).build();
+                model.sendMessageToServer(readyMessage);
+                messageSent = true;
+            }
+            catch (Exception exc)
+            {
+                Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+                errorAlert.setTitle("Errore di connessione");
+                errorAlert.setHeaderText("Impossibile mandare il messaggio 'READY' al server");
+                errorAlert.setContentText("Riprova o esci dall'applicazione.");
+
+                ButtonType retry = new ButtonType("Riprova", ButtonBar.ButtonData.BACK_PREVIOUS);
+                ButtonType quit = new ButtonType("Esci", ButtonBar.ButtonData.FINISH);
+                errorAlert.getButtonTypes().setAll(retry, quit);
+
+                Optional<ButtonType> choice = errorAlert.showAndWait();
+                if (!choice.isPresent() || choice.get() == quit)
+                    Platform.exit();
+            }
+        }
     }
 
     boolean sendLogout()
@@ -66,7 +100,7 @@ public class GlobalChatController implements IController
             model.detachControllers();
             logoutSuccessful = true;
         }
-        catch (IOException exc)
+        catch (Exception exc)
         {
             Alert errorDialog = new Alert(Alert.AlertType.ERROR);
             errorDialog.setTitle("Errore di connessione");

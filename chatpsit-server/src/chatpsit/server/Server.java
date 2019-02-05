@@ -166,6 +166,9 @@ public class Server implements Runnable
                     }
                     else
                     {
+                        // Notifica all'utente che il login è avvenuto con successo
+                        connectionWriter.println(Message.createNew(Message.Type.NotifySuccess).build().serialize());
+
                         // Notifica a tutti che l'utente si è connesso
                         this.sendToAllClients(Message.createNew(Message.Type.UserConnected)
                                 .field("username", existingUser.getUsername())
@@ -179,8 +182,7 @@ public class Server implements Runnable
                         connectionsMap.put(username, loggedInUserConn);
                         Logger.logEvent(Logger.EventType.Info, "Accesso effettuato dall'utente " + username);
 
-                        // Notifica all'utente che il login è avvenuto con successo e inviagli tutti i nominativi degli utenti connessi
-                        loggedInUserConn.sendMessage(Message.createNew(Message.Type.NotifySuccess).build());
+                        // Inviagli tutti i nominativi degli utenti connessi quando il client segnalerà di essere pronto
                         for (UserConnectionHandler connection : currentUserClientConnections.values())
                         {
                             String connectedUserName = connection.getUser().getUsername();
@@ -247,7 +249,10 @@ public class Server implements Runnable
 
     public void banUser(Message banMessage)
     {
-        User existingUser = registeredUsers.stream().filter(user -> user.getUsername().equals(banMessage.getField("bannedUser"))).findFirst().orElse(null);
+        User existingUser = registeredUsers.stream()
+                            .filter(user -> user.getUsername().equals(banMessage.getField("bannedUser")))
+                            .findFirst().orElse(null);
+
         if (existingUser != null)
         {
             try {
@@ -276,6 +281,9 @@ public class Server implements Runnable
             recipientConnection.sendMessage(messageToDeliver);
             Message successMessage = Message.createNew(Message.Type.NotifySuccess).build();
             sender.sendMessage(successMessage);
+
+            Logger.logEvent(Logger.EventType.Info, messageToDeliver.getField("sender") +
+                            " ha inviato un messaggio privato a " + messageToDeliver.getField("recipient"));
         }
         else
         {
@@ -295,6 +303,8 @@ public class Server implements Runnable
         for (UserConnectionHandler connection : currentAdminPanelConnections.values())
             connection.sendMessage(message);
         sendToAdminPanelsOnly(message);
+
+        Logger.logEvent(Logger.EventType.Info, "Inviato messaggio di tipo " + message.getType() + " a tutti gli host connessi.");
     }
 
     /**
@@ -317,6 +327,13 @@ public class Server implements Runnable
             currentAdminPanelConnections.remove(userConnection.getUser().getUsername());
         else
             currentUserClientConnections.remove(userConnection.getUser().getUsername());
+
+        // Notifica a tutti i client connessi che l'utente si è disconnesso
+        // TODO sembra non funzionare, indagare
+        this.sendToAllClients(Message.createNew(Message.Type.UserDisconnected)
+                .field("username", userConnection.getUser().getUsername())
+                .build()
+        );
 
         Logger.logEvent(Logger.EventType.Info, "L'utente " + userConnection.getUser().getUsername() +
                 " ha effettuato il logout" + (userConnection.isAdminPanelConnection() ? " dal pannello di amministrazione" : ""));

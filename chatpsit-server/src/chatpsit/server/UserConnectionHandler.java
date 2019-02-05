@@ -24,7 +24,7 @@ public class UserConnectionHandler
     private final BufferedReader connectionReader;
     private final PrintWriter connectionWriter;
 
-    private Thread messageQueueConsumer, messageReceiver;
+    private Thread messageSenderThread;
     private final LinkedBlockingQueue<Message> messageQueue = new LinkedBlockingQueue<>();
 
     public UserConnectionHandler(Server server, User user, Socket clientSocket, BufferedReader connectionReader,
@@ -39,13 +39,15 @@ public class UserConnectionHandler
         this.lastActivity = new Date();
     }
 
+    /**
+     * Quando il gestore della connessione viene fatto partire, viene avviato soltanto il thread preposto
+     * all'ascolto dei messaggi inviati dal client.
+     * I messaggi destinati al client in coda vengono inviati solo dopo che esso ha recapitato al server un messaggio
+     * Ready (pronto a ricevere messaggi).
+     */
     public void start()
     {
-        messageQueueConsumer = new Thread(this::processMessageQueue);
-        messageQueueConsumer.start();
-
-        messageReceiver = new Thread(this::listenForMessages);
-        messageReceiver.start();
+        new Thread(this::listenForMessages).start();
     }
 
     /**
@@ -64,7 +66,11 @@ public class UserConnectionHandler
                     lastActivity = new Date();
                     Message receivedMessage = Message.deserialize(rawMessage);
 
-                    switch (receivedMessage.getType()) {
+                    switch (receivedMessage.getType())
+                    {
+                        case Ready:
+                            startMessageSenderThread();
+                            break;
                         case PrivateMessage:
                             server.deliverPrivateMessage(receivedMessage, this);
                             break;
@@ -96,6 +102,12 @@ public class UserConnectionHandler
         }
     }
 
+    private void startMessageSenderThread()
+    {
+        messageSenderThread = new Thread(this::processMessageQueue);
+        messageSenderThread.start();
+    }
+
     /**
      * Elabora la coda dei messaggi in attesa di essere inviati al client.
      * Da eseguire su un thread parallelo.
@@ -115,9 +127,7 @@ public class UserConnectionHandler
         }
         catch (Exception exc)
         {
-            if (exc instanceof InterruptedException)
-                Logger.logEvent(Logger.EventType.Info, "Thread di invio messaggi per l'utente " + user.getUsername() + " in chiusura.");
-            else
+            if (!(exc instanceof InterruptedException))
                 Logger.logEvent(Logger.EventType.Error, "Errore nella chiusura del socket dell'utente " +
                                 user.getUsername() + ": " + exc.getMessage());
         }
@@ -137,8 +147,8 @@ public class UserConnectionHandler
                             ": " + exc.getMessage());
         }
 
-        messageQueueConsumer.interrupt();
-        messageReceiver.interrupt();
+        if (messageSenderThread != null && messageSenderThread.isAlive())
+            messageSenderThread.interrupt();
 
         server.notifyClosedConnection(this);
     }

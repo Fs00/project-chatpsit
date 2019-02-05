@@ -10,15 +10,13 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class MainWindowController implements IController
 {
@@ -40,11 +38,47 @@ public class MainWindowController implements IController
     public void initialize()
     {
         bindToModel(model);
+
+        sendReadyMessageToServer();
+
         sidebarMenu.getSelectionModel().selectedItemProperty().addListener(((observable, oldValue, newValue) -> {
             rootPane.setCenter(contentNodes.get(newValue));
         }));
         // Select first sidebar element
         sidebarMenu.getSelectionModel().select(0);
+    }
+
+    /**
+     * Segnala al server che è pronto a ricevere messaggi
+     * Se l'invio del messaggio fallisce, l'utente è invitato a riprovare o a chiudere l'applicazione
+     */
+    private void sendReadyMessageToServer()
+    {
+        boolean messageSent = false;
+        while (!messageSent)
+        {
+            try
+            {
+                Message readyMessage = Message.createNew(Message.Type.Ready).build();
+                model.sendMessageToServer(readyMessage);
+                messageSent = true;
+            }
+            catch (Exception exc)
+            {
+                Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+                errorAlert.setTitle("Errore di connessione");
+                errorAlert.setHeaderText("Impossibile mandare il messaggio 'READY' al server");
+                errorAlert.setContentText("Riprova o esci dall'applicazione.");
+
+                ButtonType retry = new ButtonType("Riprova", ButtonBar.ButtonData.BACK_PREVIOUS);
+                ButtonType quit = new ButtonType("Esci", ButtonBar.ButtonData.FINISH);
+                errorAlert.getButtonTypes().setAll(retry, quit);
+
+                Optional<ButtonType> choice = errorAlert.showAndWait();
+                if (!choice.isPresent() || choice.get() == quit)
+                    Platform.exit();
+            }
+        }
     }
 
     private void loadContentNodes()
@@ -74,12 +108,6 @@ public class MainWindowController implements IController
         }
     }
 
-    @FXML
-    public ObservableList<String> getSidebarEntries()
-    {
-        return FXCollections.observableArrayList(contentNodes.keySet());
-    }
-
     boolean sendLogout()
     {
         boolean logoutSuccessful = false;
@@ -92,7 +120,7 @@ public class MainWindowController implements IController
             model.detachControllers();
             logoutSuccessful = true;
         }
-        catch (IOException exc)
+        catch (Exception exc)
         {
             Alert errorDialog = new Alert(Alert.AlertType.ERROR);
             errorDialog.setTitle("Errore di connessione");
@@ -101,6 +129,12 @@ public class MainWindowController implements IController
             errorDialog.show();
         }
         return logoutSuccessful;
+    }
+
+    @FXML
+    public ObservableList<String> getSidebarEntries()
+    {
+        return FXCollections.observableArrayList(contentNodes.keySet());
     }
 
     @FXML
