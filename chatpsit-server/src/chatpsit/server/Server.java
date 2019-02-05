@@ -300,7 +300,7 @@ public class Server implements Runnable
      */
     public void sendToAllClients(Message message)
     {
-        for (UserConnectionHandler connection : currentAdminPanelConnections.values())
+        for (UserConnectionHandler connection : currentUserClientConnections.values())
             connection.sendMessage(message);
         sendToAdminPanelsOnly(message);
 
