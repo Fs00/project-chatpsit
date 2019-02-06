@@ -81,7 +81,11 @@ public class UserConnectionHandler
                             server.sendToAdminPanelsOnly(receivedMessage);
                             break;
                         case Ban:
-                            server.banUser(receivedMessage);
+                            if (isAdminPanelConnection)
+                                server.banUser(receivedMessage);
+                            else
+                                Logger.logEvent(Logger.EventType.Warning, "L'utente non admin " + user.getUsername() +
+                                                " ha tentato il ban dell'utente " + receivedMessage.getField("bannedUser"));
                             break;
                     }
 

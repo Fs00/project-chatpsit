@@ -259,15 +259,34 @@ public class Server implements Runnable
 
         if (existingUser != null)
         {
-            try {
+            try
+            {
                 existingUser.ban();
+
+                UserConnectionHandler bannedUserConnection = currentUserClientConnections.getOrDefault(banMessage.getField("bannedUser"), null);
+                if (bannedUserConnection != null)
+                {
+                    // Invia un nuovo messaggio all'utente bannato con gli stessi campi del messaggio di ban ricevuto dall'admin panel
+                    // con il terminatore di connessione presente
+                    Message banAndKickMessage = Message.createNew(Message.Type.Ban)
+                                                .field("bannedUser", banMessage.getField("bannedUser"))
+                                                .field("reason", banMessage.getField("reason"))
+                                                .lastMessage()
+                                                .build();
+                    bannedUserConnection.sendMessage(banAndKickMessage);
+                }
+
+                // Notifica tutti gli utenti che l'utente è stato bannato
+                sendToAllClients(Message.createNew(Message.Type.UserBanned)
+                        .field("username", banMessage.getField("bannedUser"))
+                        .build()
+                );
             }
-            catch(Exception e) {
-                Logger.logEvent(Logger.EventType.Error, "Tentato ban di un admin");
+            catch (Exception exc)
+            {
+                Logger.logEvent(Logger.EventType.Error, "Errore durante il ban dell'utente " +
+                                banMessage.getField("bannedUser") + ": " + exc.getMessage());
             }
-            UserConnectionHandler bannedUserConnection = currentUserClientConnections.getOrDefault(banMessage.getField("bannedUser"), null);
-            if (bannedUserConnection != null)
-                bannedUserConnection.sendMessage(banMessage);
         }
         else
             Logger.logEvent(Logger.EventType.Error, "Tentato ban di un utente non esistente");

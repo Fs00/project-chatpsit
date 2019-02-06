@@ -183,9 +183,11 @@ public class Message
         NotifySuccess,
         NotifyError,
         Ban,
+        Unban,
         LogEvent,
         UserConnected,
-        UserDisconnected
+        UserDisconnected,
+        UserBanned
     }
 
     // Caratteri usati nella serializzazione del messaggio
@@ -205,6 +207,7 @@ public class Message
         messageTypeFields.put(Type.GlobalMessage, new String[] {"sender", "message"});
         messageTypeFields.put(Type.Report, new String[] {"sender", "reportedUser", "reason"});
         messageTypeFields.put(Type.Ban, new String[] {"bannedUser", "reason"});
+        messageTypeFields.put(Type.Unban, new String[] {"bannedUser"});
         messageTypeFields.put(Type.Register, new String[] {"username", "password"});
         messageTypeFields.put(Type.Logout, new String[] {});
         messageTypeFields.put(Type.NotifySuccess, new String[] {});
@@ -212,6 +215,7 @@ public class Message
         messageTypeFields.put(Type.LogEvent, new String[] { "text" });
         messageTypeFields.put(Type.UserConnected, new String[] {"username"});
         messageTypeFields.put(Type.UserDisconnected, new String[] {"username"});
+        messageTypeFields.put(Type.UserBanned, new String[] {"username"});
         // blocca la map in modo che non sia più modificabile
         messageTypeFields = Collections.unmodifiableMap(messageTypeFields);
 
@@ -223,6 +227,7 @@ public class Message
         messageTypeStrings.put(Type.GlobalMessage, "GLMSG");
         messageTypeStrings.put(Type.Report, "REPRT");
         messageTypeStrings.put(Type.Ban, "BANHR");
+        messageTypeStrings.put(Type.Unban, "UNBAN");
         messageTypeStrings.put(Type.Register, "RGSTR");
         messageTypeStrings.put(Type.Logout, "LGOUT");
         messageTypeStrings.put(Type.NotifySuccess, "SUCSS");
@@ -230,6 +235,7 @@ public class Message
         messageTypeStrings.put(Type.LogEvent, "LGEVT");
         messageTypeStrings.put(Type.UserConnected, "USRCT");
         messageTypeStrings.put(Type.UserDisconnected, "USRDC");
+        messageTypeStrings.put(Type.UserBanned, "USRBN");
         messageTypeStrings = Collections.unmodifiableMap(messageTypeStrings);
     }
 

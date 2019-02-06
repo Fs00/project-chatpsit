@@ -53,10 +53,17 @@ public abstract class BaseGlobalChatController<M extends ClientModel> implements
 
                         case UserDisconnected:
                         case UserConnected:
+                        case UserBanned:
                             setAlignment(Pos.CENTER);
                             setStyle("-fx-font-style: italic");
-                            setText(msg.getField("username") + " si è " +
-                                    (msg.getType() == Message.Type.UserConnected ? "connesso" : "disconnesso"));
+
+                            String messageText = "L'utente " + msg.getField("username");
+                            if (msg.getType() == Message.Type.UserBanned)
+                                messageText += " è stato bannato";
+                            else
+                                messageText += " si è " + (msg.getType() == Message.Type.UserConnected ? "connesso" : "disconnesso");
+
+                            setText(messageText);
                             break;
                     }
                 }
@@ -72,6 +79,7 @@ public abstract class BaseGlobalChatController<M extends ClientModel> implements
         switch (message.getType())
         {
             case GlobalMessage:
+            case UserBanned:
                 globalChatList.getItems().add(message);
                 break;
             case UserConnected:

@@ -4,9 +4,11 @@ import chatpsit.client.model.UserClientModel;
 import chatpsit.common.Message;
 import chatpsit.common.gui.BaseGlobalChatController;
 import chatpsit.common.gui.IMainWindowController;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -101,6 +103,17 @@ public class GlobalChatController extends BaseGlobalChatController<UserClientMod
     @Override
     public void notifyMessage(Message message)
     {
+        if (message.getType() == Message.Type.Ban)
+        {
+            Alert banAlert = new Alert(Alert.AlertType.ERROR);
+            banAlert.setTitle("Utente bannato");
+            banAlert.setHeaderText("Sei stato bannato");
+            banAlert.setContentText("Motivo: " + message.getField("reason"));
+            banAlert.getButtonTypes().setAll(new ButtonType("Esci dall'applicazione"));
+            banAlert.showAndWait();
+            Platform.exit();
+        }
+
         super.notifyMessage(message);
         // TODO eventuali altre azioni
     }
