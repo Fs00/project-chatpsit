@@ -6,6 +6,10 @@ public class Main
 {
     public static void main(String[] args) throws Exception
     {
-        new Thread(new Server(ServerMode.Local)).run();
+        Server serverInstance = new Server(ServerMode.Local);
+        new Thread(serverInstance).run();
+
+        // Effettua le operazioni di chiusura del server quando viene richiesta la terminazione del processo
+        Runtime.getRuntime().addShutdownHook(new Thread(serverInstance::shutdownServer));
     }
 }

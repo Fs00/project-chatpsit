@@ -60,8 +60,9 @@ public class Server implements Runnable
         }
     }
 
-    private void shutdownServer()
+    public void shutdownServer()
     {
+        Logger.logEvent(Logger.EventType.Info, "Chiusura del server in corso");
         /*
          deve:
          - scrivere i dati degli utenti aggiornati sul file
