@@ -177,10 +177,10 @@ public class Server implements Runnable
                             );
 
                         // Fai partire il gestore della connessione utente su un altro thread
-                        UserConnectionHandler loggedInUserConn = new UserConnectionHandler(this, existingUser, clientSocket,
+                        UserConnectionHandler loggedInUserConnection = new UserConnectionHandler(this, existingUser, clientSocket,
                                 connectionReader, connectionWriter, message.getType() == Message.Type.AdminPanelLogin);
-                        loggedInUserConn.start();
-                        connectionsMap.put(username, loggedInUserConn);
+                        loggedInUserConnection.start();
+                        connectionsMap.put(username, loggedInUserConnection);
                         Logger.logEvent(Logger.EventType.Info, "Accesso effettuato dall'utente " + username);
 
                         // Inviagli tutti i nominativi degli utenti connessi quando il client segnalerà di essere pronto
@@ -188,12 +188,24 @@ public class Server implements Runnable
                         {
                             String connectedUserName = connection.getUser().getUsername();
                             // Se l'host è un admin panel, allora in lista può comparire il suo nome utente se è connesso con un client
-                            if (loggedInUserConn.isAdminPanelConnection() || !connectedUserName.equals(username))
+                            if (loggedInUserConnection.isAdminPanelConnection() || !connectedUserName.equals(username))
                             {
-                                loggedInUserConn.sendMessage(Message.createNew(Message.Type.UserConnected)
+                                loggedInUserConnection.sendMessage(Message.createNew(Message.Type.UserConnected)
                                         .field("username", connectedUserName)
                                         .build()
                                 );
+                            }
+                        }
+
+                        // Manda i dati di tutti gli utenti registrati se è un admin panel
+                        if (loggedInUserConnection.isAdminPanelConnection())
+                        {
+                            for (User user : registeredUsers)
+                            {
+                                Message userDataMessage = Message.createNew(Message.Type.UserData)
+                                                           .field("serializedData", user.serialize())
+                                                           .build();
+                                loggedInUserConnection.sendMessage(userDataMessage);
                             }
                         }
                     }
@@ -231,6 +243,12 @@ public class Server implements Runnable
                             Message successMessage = Message.createNew(Message.Type.NotifySuccess).lastMessage().build();
                             connectionWriter.println(successMessage.serialize());
                             Logger.logEvent(Logger.EventType.Info, "Nuovo utente registrato: " + username);
+
+                            // Notifica gli admin panel che un nuovo utente si è registrato
+                            sendToAdminPanelsOnly(Message.createNew(Message.Type.UserRegistered)
+                                    .field("username", username)
+                                    .build()
+                            );
                         }
                     }
                     clientSocket.close();
@@ -251,45 +269,84 @@ public class Server implements Runnable
         }
     }
 
-    public void banUser(Message banMessage)
+    /**
+     * Effettua il ban dell'utente specificato qualora non lo fosse e notifica il ban a tutti i client collegati
+     */
+    private void banUser(User userToBeBanned, String reason)
+    {
+        if (!userToBeBanned.isBanned())
+        {
+            userToBeBanned.ban();
+
+            UserConnectionHandler bannedUserConnection = currentUserClientConnections.getOrDefault(userToBeBanned.getUsername(), null);
+            if (bannedUserConnection != null)
+            {
+                // Invia un nuovo messaggio all'utente bannato con gli stessi campi del messaggio di ban ricevuto dall'admin panel
+                // e il terminatore di connessione presente
+                Message banAndKickMessage = Message.createNew(Message.Type.Ban)
+                                            .field("bannedUser", userToBeBanned.getUsername())
+                                            .field("reason", reason)
+                                            .lastMessage()
+                                            .build();
+                bannedUserConnection.sendMessage(banAndKickMessage);
+            }
+
+            // Notifica tutti gli utenti che l'utente è stato bannato
+            sendToAllClients(Message.createNew(Message.Type.UserBanned)
+                    .field("username", userToBeBanned.getUsername())
+                    .build()
+            );
+        }
+        else
+            Logger.logEvent(Logger.EventType.Error, "Ban fallito: l'utente " + userToBeBanned.getUsername() + " è già bannato");
+    }
+
+    /**
+     * Rimouve il ban per l'utente specificato qualora fosse bannato e notifica l'operazione a tutti i client collegati
+     */
+    private void unbanUser(User bannedUser)
+    {
+        if (bannedUser.isBanned())
+        {
+            bannedUser.unban();
+
+            // Notifica tutti gli utenti che l'utente è stato bannato
+            sendToAllClients(Message.createNew(Message.Type.UserUnbanned)
+                    .field("username", bannedUser.getUsername())
+                    .build()
+            );
+        }
+        else
+            Logger.logEvent(Logger.EventType.Error, "Rimozione del ban fallita: l'utente " + bannedUser.getUsername() + " non è bannato");
+    }
+
+    /**
+     * A seconda del messaggio passatogli, effettua il ban o la rimozione del ban per l'utente specificato (se esiste)
+     * @param message messaggio di tipo Ban o Unban
+     */
+    public void performBanOrUnban(Message message)
     {
         User existingUser = registeredUsers.stream()
-                            .filter(user -> user.getUsername().equals(banMessage.getField("bannedUser")))
+                            .filter(user -> user.getUsername().equals(message.getField("bannedUser")))
                             .findFirst().orElse(null);
 
         if (existingUser != null)
         {
             try
             {
-                existingUser.ban();
-
-                UserConnectionHandler bannedUserConnection = currentUserClientConnections.getOrDefault(banMessage.getField("bannedUser"), null);
-                if (bannedUserConnection != null)
-                {
-                    // Invia un nuovo messaggio all'utente bannato con gli stessi campi del messaggio di ban ricevuto dall'admin panel
-                    // con il terminatore di connessione presente
-                    Message banAndKickMessage = Message.createNew(Message.Type.Ban)
-                                                .field("bannedUser", banMessage.getField("bannedUser"))
-                                                .field("reason", banMessage.getField("reason"))
-                                                .lastMessage()
-                                                .build();
-                    bannedUserConnection.sendMessage(banAndKickMessage);
-                }
-
-                // Notifica tutti gli utenti che l'utente è stato bannato
-                sendToAllClients(Message.createNew(Message.Type.UserBanned)
-                        .field("username", banMessage.getField("bannedUser"))
-                        .build()
-                );
+                if (message.getType() == Message.Type.Ban)
+                    banUser(existingUser, message.getField("reason"));
+                else
+                    unbanUser(existingUser);
             }
             catch (Exception exc)
             {
-                Logger.logEvent(Logger.EventType.Error, "Errore durante il ban dell'utente " +
-                                banMessage.getField("bannedUser") + ": " + exc.getMessage());
+                Logger.logEvent(Logger.EventType.Error, "Errore durante il ban/unban dell'utente " +
+                                message.getField("bannedUser") + ": " + exc.getMessage());
             }
         }
         else
-            Logger.logEvent(Logger.EventType.Error, "Tentato ban di un utente non esistente");
+            Logger.logEvent(Logger.EventType.Error, "Tentato ban/unban di un utente inesistente");
     }
 
     /**

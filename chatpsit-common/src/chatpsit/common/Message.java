@@ -185,9 +185,13 @@ public class Message
         Ban,
         Unban,
         LogEvent,
+        UserData,
         UserConnected,
         UserDisconnected,
-        UserBanned
+        UserBanned,
+        UserUnbanned,
+        UserRegistered,
+        ServerShutdown
     }
 
     // Caratteri usati nella serializzazione del messaggio
@@ -213,9 +217,13 @@ public class Message
         messageTypeFields.put(Type.NotifySuccess, new String[] {});
         messageTypeFields.put(Type.NotifyError, new String[]{ "description" });
         messageTypeFields.put(Type.LogEvent, new String[] { "text" });
+        messageTypeFields.put(Type.UserData, new String[] { "serializedData" });
         messageTypeFields.put(Type.UserConnected, new String[] {"username"});
         messageTypeFields.put(Type.UserDisconnected, new String[] {"username"});
         messageTypeFields.put(Type.UserBanned, new String[] {"username"});
+        messageTypeFields.put(Type.UserUnbanned, new String[] {"username"});
+        messageTypeFields.put(Type.UserRegistered, new String[] {"username"});
+        messageTypeFields.put(Type.ServerShutdown, new String[] {});
         // blocca la map in modo che non sia più modificabile
         messageTypeFields = Collections.unmodifiableMap(messageTypeFields);
 
@@ -233,9 +241,13 @@ public class Message
         messageTypeStrings.put(Type.NotifySuccess, "SUCSS");
         messageTypeStrings.put(Type.NotifyError, "ERROR");
         messageTypeStrings.put(Type.LogEvent, "LGEVT");
+        messageTypeStrings.put(Type.UserData, "UDATA");
         messageTypeStrings.put(Type.UserConnected, "USRCT");
         messageTypeStrings.put(Type.UserDisconnected, "USRDC");
         messageTypeStrings.put(Type.UserBanned, "USRBN");
+        messageTypeStrings.put(Type.UserUnbanned, "USRUB");
+        messageTypeStrings.put(Type.UserRegistered, "USRRG");
+        messageTypeStrings.put(Type.ServerShutdown, "SHUTD");
         messageTypeStrings = Collections.unmodifiableMap(messageTypeStrings);
     }
 

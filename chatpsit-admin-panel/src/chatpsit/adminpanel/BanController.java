@@ -76,7 +76,21 @@ public class BanController implements IController<AdminPanelModel>
     @Override
     public void notifyMessage(Message message)
     {
-        // TODO
+        switch (message.getType())
+        {
+            case UserData:
+                // TODO
+                break;
+            case UserBanned:
+                // TODO
+                break;
+            case UserUnbanned:
+                // TODO
+                break;
+            case UserRegistered:
+                // TODO
+                break;
+        }
     }
 
     @Override

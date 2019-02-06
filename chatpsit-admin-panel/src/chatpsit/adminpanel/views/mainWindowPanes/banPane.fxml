@@ -11,6 +11,9 @@
           <TableColumn fx:id="isAdminColumn" editable="false" resizable="false" text="Admin" />
             <TableColumn fx:id="isBannedColumn" editable="false" resizable="false" text="Bannato" />
         </columns>
+        <placeholder>
+          <Label text="Nessun utente registrato" />
+        </placeholder>
       </TableView>
       <Button fx:id="banButton" onAction="#banUser" disable="true" layoutX="419.0" layoutY="16.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="114.0" text="Banna" AnchorPane.rightAnchor="16.0" AnchorPane.topAnchor="16.0" />
       <Button fx:id="unbanButton" onAction="#unbanUser" disable="true" layoutX="417.0" layoutY="52.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="114.0" text="Rimuovi ban" AnchorPane.rightAnchor="16.0" AnchorPane.topAnchor="52.0" />

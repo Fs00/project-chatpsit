@@ -19,7 +19,7 @@ public class User
         if (!isValidUsername(username))
             throw new IllegalArgumentException("Formato username non valido");
         else if (isAdmin && isBanned)
-            throw new IllegalArgumentException("Un utente non può essere sia amministratore che bannato");
+            throw new IllegalArgumentException("Un amministratore non può essere bannato");
         else
         {
             this.username = username;
@@ -110,7 +110,8 @@ public class User
      */
     public static boolean isValidUsername(String username)
     {
-        return !(username.isEmpty() || username.contains(";") || username.contains("@") || username.contains("!") || username.contains(" "));
+        return !(username == null || username.isEmpty() || username.contains(";") || username.contains("@") ||
+                 username.contains("!") || username.contains(" "));
     }
 
     /**
