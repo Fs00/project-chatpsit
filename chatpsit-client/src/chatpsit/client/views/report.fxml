@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.AnchorPane?>
+<AnchorPane prefHeight="200.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chatpsit.client.ReportController">
+   <children>
+      <TextArea fx:id="reasonTextArea" layoutX="14.0" layoutY="14.0" prefHeight="173.0" prefWidth="167.0" wrapText="true" />
+      <Button fx:id="sendReportButton" layoutX="191.0" layoutY="38.0" mnemonicParsing="false" prefHeight="37.0" prefWidth="95.0" text="Riporta utente" />
+      <Button fx:id="undoReportButton" layoutX="191.0" layoutY="132.0" mnemonicParsing="false" prefHeight="37.0" prefWidth="95.0" text="Annulla" />
+   </children>
+</AnchorPane>
