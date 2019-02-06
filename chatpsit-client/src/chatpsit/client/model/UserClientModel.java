@@ -9,20 +9,7 @@ import java.util.Map;
 
 public class UserClientModel extends ClientModel
 {
-    private String loggedInUsername;
-    private List<String> connectedUsers;
     private Map<String, List<String>> privateChatMessages;
-
-    /**
-     * Vedi metodo nella superclasse
-     */
-    public void sendMessageToServer(Message request) throws Exception
-    {
-        super.sendMessageToServer(request);
-
-        if (request.getType() == Message.Type.UserLogin)
-            loggedInUsername = request.getField("username");
-    }
 
     /**
      * Vedi metodo nella superclasse
@@ -32,10 +19,5 @@ public class UserClientModel extends ClientModel
     {
         super.handleServerMessage(receivedString);
         // TODO aggiornamento variabili
-    }
-
-    public String getLoggedInUsername()
-    {
-        return loggedInUsername;
     }
 }

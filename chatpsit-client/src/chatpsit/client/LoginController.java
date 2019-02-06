@@ -10,9 +10,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
-public class LoginController implements IController
+public class LoginController implements IController<UserClientModel>
 {
-    private UserClientModel model;
     @FXML
     private Button loginButton;
     @FXML
@@ -23,11 +22,6 @@ public class LoginController implements IController
     private PasswordField fieldPasswd;
     @FXML
     private ChoiceBox<ServerMode> serverChoiceBox;
-
-    public LoginController()
-    {
-        this.model = ClientApp.getModel();
-    }
 
     @FXML
     public ObservableList<ServerMode> getServerChoices()
@@ -42,7 +36,7 @@ public class LoginController implements IController
     @FXML
     private void showRegistrationScene()
     {
-        model.detachController(this);
+        getModel().detachController(this);
         ClientApp.setRegisterScene((Stage) loginButton.getScene().getWindow());
     }
 
@@ -53,7 +47,7 @@ public class LoginController implements IController
 
         // Tenta connessione con il server
         try {
-            model.connectToServer(serverChoiceBox.getSelectionModel().getSelectedItem());
+            getModel().connectToServer(serverChoiceBox.getSelectionModel().getSelectedItem());
         }
         catch (Exception exc)
         {
@@ -73,7 +67,7 @@ public class LoginController implements IController
                                 .field("password", fieldPasswd.getText())
                                 .build();
         try {
-            model.sendMessageToServer(loginMessage);
+            getModel().sendMessageToServer(loginMessage);
         }
         catch (Exception exc)
         {
@@ -106,7 +100,7 @@ public class LoginController implements IController
         {
             case NotifySuccess:
                 ((Stage) loginButton.getScene().getWindow()).close();
-                model.detachController(this);
+                getModel().detachController(this);
                 ClientApp.showGlobalChatWindow();
                 break;
             case NotifyError:
@@ -116,5 +110,11 @@ public class LoginController implements IController
                 errAlert.show();
                 break;
         }
+    }
+
+    @Override
+    public UserClientModel getModel()
+    {
+        return ClientApp.getModel();
     }
 }

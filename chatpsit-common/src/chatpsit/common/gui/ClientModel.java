@@ -17,6 +17,7 @@ public abstract class ClientModel implements IModel
 {
     private CopyOnWriteArrayList<IController> attachedControllers = new CopyOnWriteArrayList<>();
 
+    protected String loggedInUsername;
     protected Socket clientSocket;
     protected BufferedReader connectionReader;
     protected PrintWriter connectionWriter;
@@ -34,6 +35,9 @@ public abstract class ClientModel implements IModel
 
         if (request.isLastMessage())
             clientSocket.close();
+
+        if (request.getType() == Message.Type.UserLogin || request.getType() == Message.Type.AdminPanelLogin)
+            loggedInUsername = request.getField("username");
     }
 
     /**
@@ -94,6 +98,11 @@ public abstract class ClientModel implements IModel
         connectionWriter = new PrintWriter(clientSocket.getOutputStream(), true);
 
         startMessageReceivingListener();
+    }
+
+    public String getLoggedInUsername()
+    {
+        return loggedInUsername;
     }
 
     public void attachController(IController controller)

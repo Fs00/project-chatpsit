@@ -1,12 +1,13 @@
 package chatpsit.adminpanel;
 
-import chatpsit.common.Message;
-import chatpsit.common.gui.IController;
+import chatpsit.adminpanel.model.AdminPanelModel;
+import chatpsit.common.gui.BaseGlobalChatController;
 
-public class GlobalChatController implements IController
+public class GlobalChatController extends BaseGlobalChatController<AdminPanelModel>
 {
     @Override
-    public void notifyMessage(Message message) {
-        // TODO
+    public AdminPanelModel getModel()
+    {
+        return AdminPanelApp.getModel();
     }
 }

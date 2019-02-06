@@ -2,6 +2,7 @@ package chatpsit.adminpanel;
 
 import chatpsit.adminpanel.model.AdminPanelModel;
 import chatpsit.common.gui.IController;
+import chatpsit.common.gui.IMainWindowController;
 import chatpsit.common.gui.IModel;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -26,7 +27,7 @@ public class AdminPanelApp extends Application
 
     static void showLoginWindow()
     {
-        model.attachController(loginController);
+        loginController.bindToModel();
 
         Stage loginStage = new Stage();
         loginStage.setTitle("Pannello di amministrazione");
@@ -51,7 +52,7 @@ public class AdminPanelApp extends Application
             mainStage.setScene(new Scene(loader.load()));
 
             mainStage.setOnCloseRequest(event -> {
-                boolean logoutSuccessful = loader.<MainWindowController>getController().sendLogout();
+                boolean logoutSuccessful = loader.<IMainWindowController>getController().sendLogout();
                 if (!logoutSuccessful)
                     event.consume();    // annulla la chiusura della finestra
             });

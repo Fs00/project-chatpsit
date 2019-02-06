@@ -2,11 +2,12 @@ package chatpsit.common.gui;
 
 import chatpsit.common.Message;
 
-public interface IController
+public interface IController<M extends IModel>
 {
     void notifyMessage(Message message);
-    default void bindToModel(IModel model)
+    M getModel();
+    default void bindToModel()
     {
-        model.attachController(this);
+        getModel().attachController(this);
     }
 }

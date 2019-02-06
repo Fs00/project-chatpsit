@@ -3,24 +3,24 @@ package chatpsit.adminpanel;
 import chatpsit.adminpanel.model.AdminPanelModel;
 import chatpsit.common.Message;
 import chatpsit.common.gui.IController;
+import chatpsit.common.gui.IMainWindowController;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-public class MainWindowController implements IController
+public class MainWindowController implements IMainWindowController<AdminPanelModel>
 {
-    private AdminPanelModel model;
     private Map<String, Node> contentNodes = new HashMap<>();
     private List<IController> paneControllers = new ArrayList<>();
 
@@ -31,15 +31,12 @@ public class MainWindowController implements IController
 
     public MainWindowController()
     {
-        model = AdminPanelApp.getModel();
         loadContentNodes();
     }
 
     public void initialize()
     {
-        bindToModel(model);
-
-        sendReadyMessageToServer();
+        IMainWindowController.super.initialize();
 
         sidebarMenu.getSelectionModel().selectedItemProperty().addListener(((observable, oldValue, newValue) -> {
             if (newValue != null)   // evita di mostrare nulla in caso di deselezionamento della voce
@@ -47,39 +44,6 @@ public class MainWindowController implements IController
         }));
         // Select first sidebar element
         sidebarMenu.getSelectionModel().select(0);
-    }
-
-    /**
-     * Segnala al server che è pronto a ricevere messaggi
-     * Se l'invio del messaggio fallisce, l'utente è invitato a riprovare o a chiudere l'applicazione
-     */
-    private void sendReadyMessageToServer()
-    {
-        boolean messageSent = false;
-        while (!messageSent)
-        {
-            try
-            {
-                Message readyMessage = Message.createNew(Message.Type.Ready).build();
-                model.sendMessageToServer(readyMessage);
-                messageSent = true;
-            }
-            catch (Exception exc)
-            {
-                Alert errorAlert = new Alert(Alert.AlertType.ERROR);
-                errorAlert.setTitle("Errore di connessione");
-                errorAlert.setHeaderText("Impossibile mandare il messaggio 'READY' al server");
-                errorAlert.setContentText("Riprova o esci dall'applicazione.");
-
-                ButtonType retry = new ButtonType("Riprova", ButtonBar.ButtonData.BACK_PREVIOUS);
-                ButtonType quit = new ButtonType("Esci", ButtonBar.ButtonData.FINISH);
-                errorAlert.getButtonTypes().setAll(retry, quit);
-
-                Optional<ButtonType> choice = errorAlert.showAndWait();
-                if (!choice.isPresent() || choice.get() == quit)
-                    Platform.exit();
-            }
-        }
     }
 
     private void loadContentNodes()
@@ -104,32 +68,9 @@ public class MainWindowController implements IController
         }
         catch (Exception exc)
         {
-            System.err.println("FATAL: Missing layout assets for main window panes");
+            System.err.println("FATAL: Error when loading main window panes: " + exc.getMessage());
             Platform.exit();
         }
-    }
-
-    boolean sendLogout()
-    {
-        boolean logoutSuccessful = false;
-        try
-        {
-            Message logoutMessage = Message.createNew(Message.Type.Logout)
-                                    .lastMessage()
-                                    .build();
-            model.sendMessageToServer(logoutMessage);
-            model.detachControllers();
-            logoutSuccessful = true;
-        }
-        catch (Exception exc)
-        {
-            Alert errorDialog = new Alert(Alert.AlertType.ERROR);
-            errorDialog.setTitle("Errore di connessione");
-            errorDialog.setHeaderText("Logout fallito");
-            errorDialog.setContentText(exc.getMessage());
-            errorDialog.show();
-        }
-        return logoutSuccessful;
     }
 
     @FXML
@@ -138,25 +79,43 @@ public class MainWindowController implements IController
         return FXCollections.observableArrayList(contentNodes.keySet());
     }
 
-    @FXML
-    private void logoutAndCloseWindow()
-    {
-        boolean logoutSuccessful = sendLogout();
-        if (logoutSuccessful)
-            ((Stage) rootPane.getScene().getWindow()).close();
-    }
-
-    @FXML
-    private void logoutAndQuitToLogin()
-    {
-        logoutAndCloseWindow();
-        if (!rootPane.getScene().getWindow().isShowing())
-            AdminPanelApp.showLoginWindow();
-    }
-
     @Override
     public void notifyMessage(Message message)
     {
         paneControllers.forEach(controller -> Platform.runLater(() -> controller.notifyMessage(message)));
+    }
+
+    @Override
+    public Stage getCurrentWindow()
+    {
+        return (Stage) rootPane.getScene().getWindow();
+    }
+
+    @Override
+    public void showStartupWindow()
+    {
+        AdminPanelApp.showLoginWindow();
+    }
+
+    @Override
+    public AdminPanelModel getModel()
+    {
+        return AdminPanelApp.getModel();
+    }
+
+    /*
+       Fake overrides necessari siccome FXMLLoader non vede le default implementation
+     */
+    @FXML
+    @Override
+    public void logoutAndCloseWindow()
+    {
+        IMainWindowController.super.logoutAndCloseWindow();
+    }
+    @FXML
+    @Override
+    public void logoutAndQuitToLogin()
+    {
+        IMainWindowController.super.logoutAndQuitToLogin();
     }
 }

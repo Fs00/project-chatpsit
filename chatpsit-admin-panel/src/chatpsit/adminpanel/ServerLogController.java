@@ -1,12 +1,13 @@
 package chatpsit.adminpanel;
 
+import chatpsit.adminpanel.model.AdminPanelModel;
 import chatpsit.common.Message;
 import chatpsit.common.gui.IController;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 
-public class ServerLogController implements IController
+public class ServerLogController implements IController<AdminPanelModel>
 {
     @FXML
     private ListView<String> logList;
@@ -40,5 +41,11 @@ public class ServerLogController implements IController
                 logList.scrollTo(logList.getItems().size()-1);
                 break;
         }
+    }
+
+    @Override
+    public AdminPanelModel getModel()
+    {
+        return AdminPanelApp.getModel();
     }
 }

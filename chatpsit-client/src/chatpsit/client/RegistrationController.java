@@ -10,9 +10,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
-public class RegistrationController implements IController
+public class RegistrationController implements IController<UserClientModel>
 {
-    private UserClientModel model;
     @FXML
     private Button showLoginButton;
     @FXML
@@ -23,11 +22,6 @@ public class RegistrationController implements IController
     private PasswordField fieldPasswd;
     @FXML
     private ChoiceBox<ServerMode> serverChoiceBox;
-
-    public RegistrationController()
-    {
-        this.model = ClientApp.getModel();
-    }
 
     public ObservableList<ServerMode> getServerChoices()
     {
@@ -42,7 +36,7 @@ public class RegistrationController implements IController
     @FXML
     private void backToLogin()
     {
-        model.detachController(this);
+        getModel().detachController(this);
         ClientApp.setLoginScene((Stage) registerButton.getScene().getWindow());
     }
 
@@ -53,7 +47,7 @@ public class RegistrationController implements IController
 
         // Tenta connessione con il server
         try {
-            model.connectToServer(serverChoiceBox.getSelectionModel().getSelectedItem());
+            getModel().connectToServer(serverChoiceBox.getSelectionModel().getSelectedItem());
         }
         catch (Exception exc)
         {
@@ -74,7 +68,7 @@ public class RegistrationController implements IController
                 .build();
 
         try {
-            model.sendMessageToServer(registrationMessage);
+            getModel().sendMessageToServer(registrationMessage);
         }
         catch (Exception exc)
         {
@@ -123,5 +117,11 @@ public class RegistrationController implements IController
                 errAlert.show();
                 break;
         }
+    }
+
+    @Override
+    public UserClientModel getModel()
+    {
+        return ClientApp.getModel();
     }
 }

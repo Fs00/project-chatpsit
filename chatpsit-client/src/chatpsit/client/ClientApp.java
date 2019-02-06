@@ -2,6 +2,7 @@ package chatpsit.client;
 
 import chatpsit.client.model.UserClientModel;
 import chatpsit.common.gui.IController;
+import chatpsit.common.gui.IMainWindowController;
 import chatpsit.common.gui.IModel;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -48,7 +49,7 @@ public class ClientApp extends Application
             globalChatStage.setScene(new Scene(loader.load()));
 
             globalChatStage.setOnCloseRequest(event -> {
-                boolean logoutSuccessful = loader.<GlobalChatController>getController().sendLogout();
+                boolean logoutSuccessful = loader.<IMainWindowController>getController().sendLogout();
                 if (!logoutSuccessful)
                     event.consume();    // annulla la chiusura della finestra
             });
@@ -57,7 +58,7 @@ public class ClientApp extends Application
         }
         catch (Exception exc)
         {
-            System.err.println("FATAL: Missing layout assets for global chat window");
+            System.err.println("FATAL: Error when loading global chat window: " + exc.getMessage());
             Platform.exit();
         }
     }
@@ -68,7 +69,7 @@ public class ClientApp extends Application
      */
     static void setLoginScene(Stage startupStage)
     {
-        model.attachController(loginController);
+        loginController.bindToModel();
         startupStage.setTitle("Login");
         startupStage.setScene(loginScene);
         startupStage.setResizable(false);
@@ -76,7 +77,7 @@ public class ClientApp extends Application
 
     static void setRegisterScene(Stage startupStage)
     {
-        model.attachController(registrationController);
+        registrationController.bindToModel();
         startupStage.setTitle("Registrazione");
         startupStage.setScene(registerScene);
         startupStage.setResizable(false);
