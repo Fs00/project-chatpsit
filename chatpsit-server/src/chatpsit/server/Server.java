@@ -169,11 +169,12 @@ public class Server implements Runnable
                         // Notifica all'utente che il login è avvenuto con successo
                         connectionWriter.println(Message.createNew(Message.Type.NotifySuccess).build().serialize());
 
-                        // Notifica a tutti che l'utente si è connesso
-                        this.sendToAllClients(Message.createNew(Message.Type.UserConnected)
-                                .field("username", existingUser.getUsername())
-                                .build()
-                        );
+                        // Notifica a tutti che l'utente si è connesso se non è un admin panel
+                        if (message.getType() != Message.Type.AdminPanelLogin)
+                            this.sendToAllClients(Message.createNew(Message.Type.UserConnected)
+                                    .field("username", existingUser.getUsername())
+                                    .build()
+                            );
 
                         // Fai partire il gestore della connessione utente su un altro thread
                         UserConnectionHandler loggedInUserConn = new UserConnectionHandler(this, existingUser, clientSocket,
@@ -186,11 +187,14 @@ public class Server implements Runnable
                         for (UserConnectionHandler connection : currentUserClientConnections.values())
                         {
                             String connectedUserName = connection.getUser().getUsername();
-                            if (!connectedUserName.equals(username))
+                            // Se l'host è un admin panel, allora in lista può comparire il suo nome utente se è connesso con un client
+                            if (loggedInUserConn.isAdminPanelConnection() || !connectedUserName.equals(username))
+                            {
                                 loggedInUserConn.sendMessage(Message.createNew(Message.Type.UserConnected)
                                         .field("username", connectedUserName)
                                         .build()
                                 );
+                            }
                         }
                     }
                     break;
@@ -326,13 +330,15 @@ public class Server implements Runnable
         if (userConnection.isAdminPanelConnection())
             currentAdminPanelConnections.remove(userConnection.getUser().getUsername());
         else
+        {
             currentUserClientConnections.remove(userConnection.getUser().getUsername());
 
-        // Notifica a tutti i client connessi che l'utente si è disconnesso
-        this.sendToAllClients(Message.createNew(Message.Type.UserDisconnected)
-                .field("username", userConnection.getUser().getUsername())
-                .build()
-        );
+            // Notifica a tutti i client connessi che l'utente si è disconnesso
+            this.sendToAllClients(Message.createNew(Message.Type.UserDisconnected)
+                    .field("username", userConnection.getUser().getUsername())
+                    .build()
+            );
+        }
 
         Logger.logEvent(Logger.EventType.Info, "L'utente " + userConnection.getUser().getUsername() +
                 " ha effettuato il logout" + (userConnection.isAdminPanelConnection() ? " dal pannello di amministrazione" : ""));
