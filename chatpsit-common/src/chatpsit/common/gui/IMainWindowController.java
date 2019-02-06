@@ -38,7 +38,14 @@ public interface IMainWindowController<M extends IModel> extends IController<M>
             errorDialog.setTitle("Errore di connessione");
             errorDialog.setHeaderText("Logout fallito");
             errorDialog.setContentText(exc.getMessage());
-            errorDialog.show();
+
+            ButtonType quitAnyway = new ButtonType("Esci comunque", ButtonBar.ButtonData.LEFT);
+            ButtonType ok = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
+            errorDialog.getButtonTypes().setAll(quitAnyway, ok);
+
+            Optional<ButtonType> choice = errorDialog.showAndWait();
+            if (choice.isPresent() && choice.get() == quitAnyway)
+                Platform.exit();
         }
         return logoutSuccessful;
     }

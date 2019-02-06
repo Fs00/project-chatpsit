@@ -75,7 +75,8 @@ public class GlobalChatController extends BaseGlobalChatController<UserClientMod
             Alert errorAlert = new Alert(Alert.AlertType.ERROR);
             errorAlert.setTitle("Errore di connessione");
             errorAlert.setHeaderText("Impossibile mandare il messaggio al server");
-            errorAlert.setContentText("Riprova o esci dall'applicazione.");
+            errorAlert.setContentText(e.getMessage());
+            errorAlert.show();
         }
     }
 
