@@ -38,10 +38,10 @@ public class MainWindowController implements IMainWindowController<AdminPanelMod
     {
         IMainWindowController.super.initialize();
 
-        sidebarMenu.getSelectionModel().selectedItemProperty().addListener(((observable, oldValue, newValue) -> {
+        sidebarMenu.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null)   // evita di mostrare nulla in caso di deselezionamento della voce
                 rootPane.setCenter(contentNodes.get(newValue));
-        }));
+        });
         // Select first sidebar element
         sidebarMenu.getSelectionModel().select(0);
     }

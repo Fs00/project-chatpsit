@@ -1,9 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.AnchorPane?>
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="chatpsit.adminpanel.BanController"
-            prefHeight="471.0" prefWidth="540.0">
 
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<AnchorPane prefHeight="471.0" prefWidth="540.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chatpsit.adminpanel.BanController">
+   <children>
+      <TableView fx:id="usersTable" layoutX="14.0" layoutY="14.0" prefHeight="439.0" prefWidth="375.0" AnchorPane.bottomAnchor="16.0" AnchorPane.leftAnchor="16.0" AnchorPane.topAnchor="16.0">
+        <columns>
+          <TableColumn fx:id="usernameColumn" editable="false" prefWidth="214.0" resizable="false" text="Username" />
+          <TableColumn fx:id="isAdminColumn" editable="false" resizable="false" text="Admin" />
+            <TableColumn fx:id="isBannedColumn" editable="false" resizable="false" text="Bannato" />
+        </columns>
+      </TableView>
+      <Button fx:id="banButton" onAction="#banUser" disable="true" layoutX="419.0" layoutY="16.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="114.0" text="Banna" AnchorPane.rightAnchor="16.0" AnchorPane.topAnchor="16.0" />
+      <Button fx:id="unbanButton" onAction="#unbanUser" disable="true" layoutX="417.0" layoutY="52.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="114.0" text="Rimuovi ban" AnchorPane.rightAnchor="16.0" AnchorPane.topAnchor="52.0" />
+   </children>
 </AnchorPane>
