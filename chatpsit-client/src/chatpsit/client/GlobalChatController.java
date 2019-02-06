@@ -3,19 +3,14 @@ package chatpsit.client;
 import chatpsit.client.model.UserClientModel;
 import chatpsit.common.Message;
 import chatpsit.common.gui.BaseGlobalChatController;
-import chatpsit.common.gui.IController;
 import chatpsit.common.gui.IMainWindowController;
-import javafx.application.Platform;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
-import javafx.geometry.Pos;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-
-import java.util.Optional;
 
 public class GlobalChatController extends BaseGlobalChatController<UserClientModel> implements IMainWindowController<UserClientModel>
 {
@@ -142,5 +137,12 @@ public class GlobalChatController extends BaseGlobalChatController<UserClientMod
     public void logoutAndQuitToLogin()
     {
         IMainWindowController.super.logoutAndQuitToLogin();
+    }
+
+    @FXML
+    public void reportUser()
+    {
+        //tableViewUsers.getSelectionModel().getSelectedItem();
+        ClientApp.showReportWindow();
     }
 }
