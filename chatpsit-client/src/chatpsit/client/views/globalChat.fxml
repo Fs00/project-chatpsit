@@ -15,7 +15,7 @@
           </Menu>
           <Menu mnemonicParsing="false" text="?">
             <items>
-              <MenuItem mnemonicParsing="false" text="Info su" />
+              <MenuItem mnemonicParsing="false" onAction="#showInfoDialog" text="Info su" />
             </items>
           </Menu>
         </menus>

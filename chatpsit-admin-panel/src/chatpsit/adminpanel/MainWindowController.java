@@ -118,4 +118,10 @@ public class MainWindowController implements IMainWindowController<AdminPanelMod
     {
         IMainWindowController.super.logoutAndQuitToLogin();
     }
+    @FXML
+    @Override
+    public void showInfoDialog()
+    {
+        IMainWindowController.super.showInfoDialog();
+    }
 }

@@ -177,4 +177,10 @@ public class GlobalChatController extends BaseGlobalChatController<UserClientMod
     {
         IMainWindowController.super.logoutAndQuitToLogin();
     }
+    @FXML
+    @Override
+    public void showInfoDialog()
+    {
+        IMainWindowController.super.showInfoDialog();
+    }
 }

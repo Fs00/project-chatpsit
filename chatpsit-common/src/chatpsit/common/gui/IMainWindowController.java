@@ -2,9 +2,10 @@ package chatpsit.common.gui;
 
 import chatpsit.common.Message;
 import javafx.application.Platform;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
+import javafx.geometry.Pos;
+import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 import java.util.Optional;
@@ -62,6 +63,34 @@ public interface IMainWindowController<M extends IModel> extends IController<M>
         logoutAndCloseWindow();
         if (!getCurrentWindow().isShowing())
             showStartupWindow();
+    }
+
+    default void showInfoDialog()
+    {
+        Dialog infoDialog = new Dialog<>();
+        infoDialog.setTitle("Informazioni su");
+        infoDialog.setHeaderText(null);
+
+        VBox vbox = new VBox(8);
+        vbox.setAlignment(Pos.CENTER);
+        Label headerLabel = new Label("ChaTPSIT");
+        Label developedBy = new Label("Sviluppato da:");
+        headerLabel.setFont(new Font(26));
+        developedBy.setFont(new Font(16));
+        vbox.getChildren().addAll(
+            headerLabel,
+            developedBy,
+            new Label("Farina Samuel"),
+            new Label("Lorenzini Loris"),
+            new Label("Omodei Davide"),
+            new Label("Saltori Francesco"),
+            new Label("Valerio Matteo")
+        );
+
+        infoDialog.getDialogPane().setContent(vbox);
+        infoDialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK);
+        infoDialog.show();
+        infoDialog.setWidth(250);
     }
 
     /**
