@@ -6,13 +6,12 @@ import chatpsit.common.gui.BaseGlobalChatController;
 import chatpsit.common.gui.IMainWindowController;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
+
+import java.util.Optional;
 
 public class GlobalChatController extends BaseGlobalChatController<UserClientModel> implements IMainWindowController<UserClientModel>
 {
@@ -100,6 +99,33 @@ public class GlobalChatController extends BaseGlobalChatController<UserClientMod
         return logoutSuccessful;
     }
 
+    @FXML
+    public void reportUser()
+    {
+        String selectedUsername = tableViewUsers.getSelectionModel().getSelectedItem();
+
+        TextInputDialog inputDialog = new TextInputDialog();
+        inputDialog.setTitle("Segnala l'utente " + selectedUsername);
+        inputDialog.setGraphic(null);
+        inputDialog.setHeaderText("Inserisci il motivo della segnalazione:");
+
+        Optional<String> reportReason = inputDialog.showAndWait();
+        if (reportReason.isPresent())
+        {
+            if (reportReason.get().isEmpty())
+            {
+                Alert errAlert = new Alert(Alert.AlertType.ERROR);
+                errAlert.setHeaderText(null);
+                errAlert.setContentText("Non è stata inserita una motivazione.");
+                errAlert.show();
+            }
+            else
+            {
+                // TODO
+            }
+        }
+    }
+
     @Override
     public void notifyMessage(Message message)
     {
@@ -150,12 +176,5 @@ public class GlobalChatController extends BaseGlobalChatController<UserClientMod
     public void logoutAndQuitToLogin()
     {
         IMainWindowController.super.logoutAndQuitToLogin();
-    }
-
-    @FXML
-    public void reportUser()
-    {
-        //tableViewUsers.getSelectionModel().getSelectedItem();
-        ClientApp.showReportWindow();
     }
 }

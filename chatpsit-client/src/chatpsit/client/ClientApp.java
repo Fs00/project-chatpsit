@@ -101,27 +101,4 @@ public class ClientApp extends Application
     public static void main(String[] args) {
         launch(args);
     }
-
-    static void showReportWindow()
-    {
-        FXMLLoader loader = new FXMLLoader(ClientApp.class.getResource("views/report.fxml"));
-        try
-        {
-            Stage reportStage = new Stage();
-            reportStage.setTitle("Report");
-            reportStage.setResizable(false);
-            reportStage.setScene(new Scene(loader.load()));
-
-            reportStage.setOnCloseRequest(event -> {
-                reportStage.close();
-            });
-
-            reportStage.show();
-        }
-        catch (Exception exc)
-        {
-            System.err.println("FATAL: Error when loading report window: " + exc.getMessage());
-            Platform.exit();
-        }
-    }
 }
