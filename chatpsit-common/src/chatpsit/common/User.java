@@ -17,7 +17,7 @@ public class User
     public User(String username, String hashedPassword, boolean isAdmin, boolean isBanned)
     {
         if (!isValidUsername(username))
-            throw new IllegalArgumentException("Formato username non valido");
+            throw new IllegalArgumentException("Username contenente caratteri non validi o troppo lungo");
         else if (isAdmin && isBanned)
             throw new IllegalArgumentException("Un amministratore non può essere bannato");
         else
@@ -110,8 +110,8 @@ public class User
      */
     public static boolean isValidUsername(String username)
     {
-        return !(username == null || username.isEmpty() || username.contains(";") || username.contains("@") ||
-                 username.contains("!") || username.contains(" "));
+        return !(username == null || username.length() > 30 || username.isEmpty() ||
+                username.contains(";") || username.contains("@") || username.contains("!") || username.contains(" "));
     }
 
     /**
