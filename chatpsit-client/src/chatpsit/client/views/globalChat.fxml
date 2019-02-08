@@ -33,7 +33,7 @@
               </columns>
             </TableView>
             <ListView fx:id="globalChatList" layoutX="327.0" layoutY="8.0" prefHeight="385.0" prefWidth="373.0" />
-            <Button fx:id="sendPrivateButton" disable="true" layoutX="14.0" layoutY="410.0" mnemonicParsing="false" prefHeight="37.0" prefWidth="145.0" text="Messaggio privato" />
+            <Button fx:id="sendPrivateButton" disable="true" layoutX="14.0" layoutY="410.0" mnemonicParsing="false" prefHeight="37.0" prefWidth="145.0" text="Messaggio privato" onAction="#showPrivateChat"/>
             <Button fx:id="reportButton" disable="true" layoutX="175.0" layoutY="410.0" mnemonicParsing="false" prefHeight="37.0" prefWidth="120.0" text="Segnala" onAction="#reportUser"/>
             <Button fx:id="sendButton" disable="true" layoutX="600.0" layoutY="410.0" mnemonicParsing="false" onAction="#sendGlobalMessage" prefHeight="37.0" prefWidth="100.0" text="Invia" />
             <TextArea fx:id="messageTextArea" onKeyPressed="#sendMessageIfEnterPressed" layoutX="327.0" layoutY="409.0" prefHeight="37.0" prefWidth="254.0" wrapText="true" />

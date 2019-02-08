@@ -4,9 +4,12 @@ import chatpsit.client.model.UserClientModel;
 import chatpsit.common.Message;
 import chatpsit.common.gui.IController;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
+
+import java.util.List;
 
 public class PrivateChatController implements IController<UserClientModel>
 {
@@ -14,6 +17,21 @@ public class PrivateChatController implements IController<UserClientModel>
     private Button sendButton;
     @FXML
     private TextArea textArea;
+
+    private String user;
+
+    private List<String> messageList;
+
+    public void initialize()
+    {
+
+    }
+
+    public void setUser(String user)
+    {
+        this.user = user;
+        this.messageList = getModel().getPrivateMessagesListForUser(user);
+    }
 
     @Override
     public void notifyMessage(Message message)
@@ -27,7 +45,11 @@ public class PrivateChatController implements IController<UserClientModel>
                 // TODO
                 break;
             case NotifyError:
-                // TODO
+                Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+                errorAlert.setTitle("Errore di comunicazione");
+                errorAlert.setHeaderText("Impossibile mandare il messagio al server");
+                errorAlert.setContentText("Il sistema non è riuscito ad inviare il messaggio inserito al server");
+                errorAlert.show();
                 break;
         }
     }

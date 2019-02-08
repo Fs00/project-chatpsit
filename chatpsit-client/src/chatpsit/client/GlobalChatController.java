@@ -6,11 +6,14 @@ import chatpsit.common.gui.BaseGlobalChatController;
 import chatpsit.common.gui.IMainWindowController;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -25,7 +28,7 @@ public class GlobalChatController extends BaseGlobalChatController<UserClientMod
     @FXML
     private Button reportButton;
 
-    private Map<String, PrivateChatController> privateChatWindows;
+    private Map<String, PrivateChatController> privateChatWindows = new HashMap<>();
 
     @Override
     public void initialize()
@@ -207,5 +210,35 @@ public class GlobalChatController extends BaseGlobalChatController<UserClientMod
     public void showInfoDialog()
     {
         IMainWindowController.super.showInfoDialog();
+    }
+
+    @FXML
+    public void showPrivateChat()
+    {
+        String selectedUsername = tableViewUsers.getSelectionModel().getSelectedItem();
+        if (privateChatWindows.containsKey(selectedUsername))
+            privateChatWindows.get(selectedUsername).getStage().requestFocus();
+        else
+        {
+            FXMLLoader loader = new FXMLLoader(ClientApp.class.getResource("views/privateChat.fxml"));
+            try
+            {
+                Stage privateChatStage = new Stage();
+                privateChatStage.setTitle("Chat privata");
+                privateChatStage.setResizable(false);
+                privateChatStage.setScene(new Scene(loader.load()));
+
+                privateChatStage.show();
+                PrivateChatController privateChatController = loader.getController();
+                privateChatController.setUser(selectedUsername);
+                privateChatWindows.put(selectedUsername, privateChatController);
+            }
+            catch (Exception exc)
+            {
+                System.err.println("FATAL: Error when loading private chat window: " + exc.getMessage());
+                Platform.exit();
+            }
+
+        }
     }
 }
