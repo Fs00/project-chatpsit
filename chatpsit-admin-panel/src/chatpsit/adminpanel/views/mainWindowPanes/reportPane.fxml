@@ -2,13 +2,13 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<AnchorPane prefHeight="471.0" prefWidth="540.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chatpsit.adminpanel.ReportController">
+<AnchorPane prefHeight="471.0" prefWidth="540.0" xmlns="http://javafx.com/javafx/8.0.192" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chatpsit.adminpanel.ReportController">
    <children>
       <TableView fx:id="reportsTable" layoutX="34.0" layoutY="19.0" prefHeight="420.0" prefWidth="468.0" AnchorPane.bottomAnchor="16.0" AnchorPane.leftAnchor="16.0" AnchorPane.rightAnchor="16.0" AnchorPane.topAnchor="16.0">
          <columns>
-            <TableColumn fx:id="reportedUserColumn" editable="false" prefWidth="130.0" text="Utente" />
-            <TableColumn fx:id="senderUserColumn" editable="false" prefWidth="130.0" text="Segnalato da" />
-            <TableColumn fx:id="reasonColumn" editable="false" prefWidth="247.0" text="Motivo" />
+            <TableColumn fx:id="reportedUserColumn" editable="false" prefWidth="130.0" resizable="false" text="Utente" />
+            <TableColumn fx:id="senderUserColumn" editable="false" prefWidth="130.0" resizable="false" text="Segnalato da" />
+            <TableColumn fx:id="reasonColumn" editable="false" prefWidth="247.0" resizable="false" text="Motivo" />
          </columns>
          <placeholder>
             <Label text="Nessuna segnalazione" />

@@ -11,6 +11,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
+import java.util.Map;
 import java.util.Optional;
 
 public class GlobalChatController extends BaseGlobalChatController<UserClientModel> implements IMainWindowController<UserClientModel>
@@ -23,6 +24,8 @@ public class GlobalChatController extends BaseGlobalChatController<UserClientMod
     private Button sendPrivateButton;
     @FXML
     private Button reportButton;
+
+    private Map<String, PrivateChatController> privateChatWindows;
 
     @Override
     public void initialize()
@@ -95,7 +98,12 @@ public class GlobalChatController extends BaseGlobalChatController<UserClientMod
     public boolean sendLogout()
     {
         boolean logoutSuccessful = IMainWindowController.super.sendLogout();
-        //TODO chiudere finestre chat private
+        // Chiude le finestre delle chat private
+        if (logoutSuccessful)
+        {
+            for (PrivateChatController controller : privateChatWindows.values())
+                controller.getStage().close();
+        }
         return logoutSuccessful;
     }
 
@@ -121,7 +129,23 @@ public class GlobalChatController extends BaseGlobalChatController<UserClientMod
             }
             else
             {
-                // TODO
+                try
+                {
+                    getModel().sendMessageToServer(Message.createNew(Message.Type.Report)
+                            .field("sender", getModel().getLoggedInUsername())
+                            .field("reportedUser", selectedUsername)
+                            .field("reason", reportReason.get())
+                            .build()
+                    );
+                }
+                catch (Exception e)
+                {
+                    Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+                    errorAlert.setTitle("Errore di connessione");
+                    errorAlert.setHeaderText("Impossibile mandare il report al server");
+                    errorAlert.setContentText(e.getMessage());
+                    errorAlert.show();
+                }
             }
         }
     }
@@ -141,7 +165,8 @@ public class GlobalChatController extends BaseGlobalChatController<UserClientMod
         }
 
         super.notifyMessage(message);
-        // TODO eventuali altre azioni
+        // Notifica le finestre delle chat private del nuovo messaggio
+        privateChatWindows.values().forEach(controller -> Platform.runLater(() -> controller.notifyMessage(message)));
     }
 
     @Override
