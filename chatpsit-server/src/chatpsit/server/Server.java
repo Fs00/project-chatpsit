@@ -9,6 +9,8 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -63,13 +65,28 @@ public class Server implements Runnable
     public void shutdownServer()
     {
         Logger.logEvent(Logger.EventType.Info, "Chiusura del server in corso");
-        /*
-         deve:
-         - scrivere i dati degli utenti aggiornati sul file
-         - mandare a tutti i client connessi un messaggio per segnalare la chiusura
-         - chiudere tutte le connessioni
-         - chiudere il file di log
-         */
+
+        try
+        {
+            StringBuilder fileContent = new StringBuilder();
+            for (User user : registeredUsers)
+                fileContent.append(user.serialize()).append("\n");
+            Files.write(Paths.get(System.getProperty("user.dir"), "usersdata.txt"), fileContent.toString().getBytes());
+        }
+        catch (Exception exc)
+        {
+            Logger.logEvent(Logger.EventType.Error,"Errore nella scrittura del file" + exc.getMessage());
+        }
+
+        sendToAllClients(Message.createNew(Message.Type.ServerShutdown).lastMessage().build());
+
+        try {
+            serverSocket.close();
+        } catch (IOException e) {
+            Logger.logEvent(Logger.EventType.Error,"Errore nel chiudere il socket del server" + e.getMessage());
+        }
+
+        Logger.closeLogFile();
     }
 
     /**
