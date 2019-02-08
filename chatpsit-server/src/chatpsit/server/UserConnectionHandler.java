@@ -86,7 +86,7 @@ public class UserConnectionHandler
                                 server.performBanOrUnban(receivedMessage);
                             else
                                 Logger.logEvent(Logger.EventType.Warning, "L'utente non admin " + user.getUsername() +
-                                                " ha tentato il ban/unban dell'utente " + receivedMessage.getField("bannedUser"));
+                                                " ha tentato il ban/unban dell'utente " + receivedMessage.getField(Message.Field.Username));
                             break;
                     }
 

@@ -79,8 +79,8 @@ public class BanController implements IController<AdminPanelModel>
             else
             {
                 Message banMessage = Message.createNew(Message.Type.Ban)
-                                    .field("bannedUser", userToBeBanned.getUsername())
-                                    .field("reason", banReason.get())
+                                    .field(Message.Field.BannedUser, userToBeBanned.getUsername())
+                                    .field(Message.Field.Reason, banReason.get())
                                     .build();
 
                 try
@@ -107,7 +107,7 @@ public class BanController implements IController<AdminPanelModel>
     {
         User selectedUser = usersTable.getSelectionModel().getSelectedItem();
         Message unbanMessage = Message.createNew(Message.Type.Unban)
-                                .field("bannedUser", selectedUser.getUsername())
+                                .field(Message.Field.BannedUser, selectedUser.getUsername())
                                 .build();
 
         try
@@ -130,13 +130,13 @@ public class BanController implements IController<AdminPanelModel>
         switch (message.getType())
         {
             case UserData:
-                usersTable.getItems().add(User.deserialize(message.getField("serializedData")));
+                usersTable.getItems().add(User.deserialize(message.getField(Message.Field.Data)));
                 break;
 
             case UserUnbanned:
             case UserBanned:
                 User userTableEntry = usersTable.getItems().stream()
-                                      .filter(user -> user.getUsername().equals(message.getField("username")))
+                                      .filter(user -> user.getUsername().equals(message.getField(Message.Field.Username)))
                                       .findFirst().orElse(null);
 
                 if (userTableEntry != null)
@@ -155,7 +155,7 @@ public class BanController implements IController<AdminPanelModel>
                 break;
 
             case UserRegistered:
-                usersTable.getItems().add(new User(message.getField("username"), "", false, false));
+                usersTable.getItems().add(new User(message.getField(Message.Field.Username), "", false, false));
                 break;
         }
     }

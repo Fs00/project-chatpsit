@@ -66,8 +66,8 @@ public class GlobalChatController extends BaseGlobalChatController<UserClientMod
         try
         {
             getModel().sendMessageToServer(Message.createNew(Message.Type.GlobalMessage)
-                    .field("sender", getModel().getLoggedInUsername())
-                    .field("message", messageTextArea.getText())
+                    .field(Message.Field.Sender, getModel().getLoggedInUsername())
+                    .field(Message.Field.Data, messageTextArea.getText())
                     .build()
             );
             messageTextArea.setText("");
@@ -135,9 +135,9 @@ public class GlobalChatController extends BaseGlobalChatController<UserClientMod
                 try
                 {
                     getModel().sendMessageToServer(Message.createNew(Message.Type.Report)
-                            .field("sender", getModel().getLoggedInUsername())
-                            .field("reportedUser", selectedUsername)
-                            .field("reason", reportReason.get())
+                            .field(Message.Field.Sender, getModel().getLoggedInUsername())
+                            .field(Message.Field.ReportedUser, selectedUsername)
+                            .field(Message.Field.Reason, reportReason.get())
                             .build()
                     );
                 }
@@ -161,7 +161,7 @@ public class GlobalChatController extends BaseGlobalChatController<UserClientMod
             Alert banAlert = new Alert(Alert.AlertType.ERROR);
             banAlert.setTitle("Utente bannato");
             banAlert.setHeaderText("Sei stato bannato");
-            banAlert.setContentText("Motivo: " + message.getField("reason"));
+            banAlert.setContentText("Motivo: " + message.getField(Message.Field.Reason));
             banAlert.getButtonTypes().setAll(new ButtonType("Esci dall'applicazione"));
             banAlert.showAndWait();
             Platform.exit();

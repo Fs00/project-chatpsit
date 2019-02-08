@@ -37,7 +37,7 @@ public abstract class ClientModel implements IModel
             clientSocket.close();
 
         if (request.getType() == Message.Type.UserLogin || request.getType() == Message.Type.AdminPanelLogin)
-            loggedInUsername = request.getField("username");
+            loggedInUsername = request.getField(Message.Field.Username);
     }
 
     /**

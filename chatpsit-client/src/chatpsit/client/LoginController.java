@@ -63,8 +63,8 @@ public class LoginController implements IController<UserClientModel>
 
         // Procedi con il login se la connessione è andata a buon fine
         Message loginMessage = Message.createNew(Message.Type.UserLogin)
-                                .field("username", fieldUsername.getText().trim())
-                                .field("password", fieldPasswd.getText())
+                                .field(Message.Field.Username, fieldUsername.getText().trim())
+                                .field(Message.Field.Password, fieldPasswd.getText())
                                 .build();
         try {
             getModel().sendMessageToServer(loginMessage);
@@ -106,7 +106,7 @@ public class LoginController implements IController<UserClientModel>
             case NotifyError:
                 Alert errAlert = new Alert(Alert.AlertType.ERROR);
                 errAlert.setHeaderText("Login fallito");
-                errAlert.setContentText(message.getField("description"));
+                errAlert.setContentText(message.getField(Message.Field.Data));
                 errAlert.show();
                 break;
         }

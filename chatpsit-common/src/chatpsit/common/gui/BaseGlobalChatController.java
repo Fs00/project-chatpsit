@@ -37,17 +37,17 @@ public abstract class BaseGlobalChatController<M extends ClientModel> implements
                     switch (msg.getType())
                     {
                         case GlobalMessage:
-                            if (msg.getField("sender").equals(getModel().getLoggedInUsername()))
+                            if (msg.getField(Message.Field.Sender).equals(getModel().getLoggedInUsername()))
                             {
                                 setAlignment(Pos.CENTER_RIGHT);
                                 setStyle("-fx-font-weight: bold");
-                                setText(msg.getField("message"));
+                                setText(msg.getField(Message.Field.Data));
                             }
                             else
                             {
                                 setAlignment(Pos.CENTER_LEFT);
                                 setStyle("-fx-font-weight: normal");
-                                setText(msg.getField("sender") + ": " + msg.getField("message"));
+                                setText(msg.getField(Message.Field.Sender) + ": " + msg.getField(Message.Field.Data));
                             }
                             break;
 
@@ -58,7 +58,7 @@ public abstract class BaseGlobalChatController<M extends ClientModel> implements
                             setAlignment(Pos.CENTER);
                             setStyle("-fx-font-style: italic");
 
-                            String messageText = "L'utente " + msg.getField("username");
+                            String messageText = "L'utente " + msg.getField(Message.Field.Username);
                             if (msg.getType() == Message.Type.UserBanned)
                                 messageText += " è stato bannato";
                             else if (msg.getType() == Message.Type.UserUnbanned)
@@ -87,11 +87,11 @@ public abstract class BaseGlobalChatController<M extends ClientModel> implements
                 globalChatList.getItems().add(message);
                 break;
             case UserConnected:
-                tableViewUsers.getItems().add(message.getField("username"));
+                tableViewUsers.getItems().add(message.getField(Message.Field.Username));
                 globalChatList.getItems().add(message);
                 break;
             case UserDisconnected:
-                tableViewUsers.getItems().remove(message.getField("username"));
+                tableViewUsers.getItems().remove(message.getField(Message.Field.Username));
                 globalChatList.getItems().add(message);
                 break;
         }

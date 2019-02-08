@@ -111,7 +111,8 @@ public class Server implements Runnable
                 message.getType() != Message.Type.Register)
             {
                 Message errMessage = Message.createNew(Message.Type.NotifyError)
-                                    .field("description", "Tipo di messaggio inappropriato")
+                                    .field(Message.Field.Action, "connection")
+                                    .field(Message.Field.Data, "Tipo di messaggio inappropriato")
                                     .lastMessage()
                                     .build();
                 connectionWriter.println(errMessage.serialize());
@@ -120,8 +121,8 @@ public class Server implements Runnable
             }
 
             // Estrapola username e password dal messaggio e cerca se esiste un utente con lo stesso nome
-            String username = message.getField("username");
-            String password = message.getField("password");
+            String username = message.getField(Message.Field.Username);
+            String password = message.getField(Message.Field.Password);
             User existingUser = registeredUsers.stream().filter(user -> user.getUsername().equals(username)).findFirst().orElse(null);
 
             switch (message.getType())
@@ -132,7 +133,8 @@ public class Server implements Runnable
                     if (existingUser == null || !existingUser.passwordMatches(password))
                     {
                         Message errMessage = Message.createNew(Message.Type.NotifyError)
-                                            .field("description", ServerConstants.WRONG_CREDENTIALS_ERR)
+                                            .field(Message.Field.Action, "login")
+                                            .field(Message.Field.Data, ServerConstants.WRONG_CREDENTIALS_ERR)
                                             .lastMessage()
                                             .build();
                         connectionWriter.println(errMessage.serialize());
@@ -144,7 +146,8 @@ public class Server implements Runnable
                     if (message.getType() == Message.Type.AdminPanelLogin && !existingUser.isAdmin())
                     {
                         Message errMessage = Message.createNew(Message.Type.NotifyError)
-                                            .field("description", ServerConstants.ONLY_ADMIN_CAN_ERR)
+                                            .field(Message.Field.Action, "login")
+                                            .field(Message.Field.Data, ServerConstants.ONLY_ADMIN_CAN_ERR)
                                             .lastMessage()
                                             .build();
                         connectionWriter.println(errMessage.serialize());
@@ -156,7 +159,8 @@ public class Server implements Runnable
                     if (existingUser.isBanned())
                     {
                         Message errMessage = Message.createNew(Message.Type.NotifyError)
-                                            .field("description", ServerConstants.USER_BANNED_ERR)
+                                            .field(Message.Field.Action, "login")
+                                            .field(Message.Field.Data, ServerConstants.USER_BANNED_ERR)
                                             .lastMessage()
                                             .build();
                         connectionWriter.println(errMessage.serialize());
@@ -175,7 +179,8 @@ public class Server implements Runnable
                     if (connectionsMap.containsKey(existingUser.getUsername()))
                     {
                         Message errMessage = Message.createNew(Message.Type.NotifyError)
-                                            .field("description", ServerConstants.ALREADY_LOGGED_IN_MSG_ERR)
+                                            .field(Message.Field.Action, "login")
+                                            .field(Message.Field.Data, ServerConstants.ALREADY_LOGGED_IN_MSG_ERR)
                                             .lastMessage()
                                             .build();
                         connectionWriter.println(errMessage.serialize());
@@ -185,12 +190,17 @@ public class Server implements Runnable
                     else
                     {
                         // Notifica all'utente che il login è avvenuto con successo
-                        connectionWriter.println(Message.createNew(Message.Type.NotifySuccess).build().serialize());
+                        connectionWriter.println(Message.createNew(Message.Type.NotifySuccess)
+                                .field(Message.Field.Action, "login")
+                                .field(Message.Field.Data, "")
+                                .build()
+                                .serialize()
+                        );
 
                         // Notifica a tutti che l'utente si è connesso se non è un admin panel
                         if (message.getType() != Message.Type.AdminPanelLogin)
                             this.sendToAllClients(Message.createNew(Message.Type.UserConnected)
-                                    .field("username", existingUser.getUsername())
+                                    .field(Message.Field.Username, existingUser.getUsername())
                                     .build()
                             );
 
@@ -209,7 +219,7 @@ public class Server implements Runnable
                             if (loggedInUserConnection.isAdminPanelConnection() || !connectedUserName.equals(username))
                             {
                                 loggedInUserConnection.sendMessage(Message.createNew(Message.Type.UserConnected)
-                                        .field("username", connectedUserName)
+                                        .field(Message.Field.Username, connectedUserName)
                                         .build()
                                 );
                             }
@@ -221,7 +231,7 @@ public class Server implements Runnable
                             for (User user : registeredUsers)
                             {
                                 Message userDataMessage = Message.createNew(Message.Type.UserData)
-                                                           .field("serializedData", user.serialize())
+                                                           .field(Message.Field.Data, user.serialize())
                                                            .build();
                                 loggedInUserConnection.sendMessage(userDataMessage);
                             }
@@ -233,7 +243,8 @@ public class Server implements Runnable
                     if (existingUser != null)
                     {
                         Message errMessage = Message.createNew(Message.Type.NotifyError)
-                                            .field("description", ServerConstants.ALREADY_REGISTERED_ERR)
+                                            .field(Message.Field.Action, "register")
+                                            .field(Message.Field.Data, ServerConstants.ALREADY_REGISTERED_ERR)
                                             .lastMessage()
                                             .build();
                         connectionWriter.println(errMessage.serialize());
@@ -250,7 +261,8 @@ public class Server implements Runnable
                         catch (Exception e)
                         {
                             Message errMessage = Message.createNew(Message.Type.NotifyError)
-                                                .field("description", ServerConstants.WRONG_USERNAME_FORMAT_ERR)
+                                                .field(Message.Field.Action, "register")
+                                                .field(Message.Field.Data, ServerConstants.WRONG_USERNAME_FORMAT_ERR)
                                                 .lastMessage()
                                                 .build();
                             connectionWriter.println(errMessage.serialize());
@@ -258,13 +270,18 @@ public class Server implements Runnable
 
                         if (registrationSuccessful)
                         {
-                            Message successMessage = Message.createNew(Message.Type.NotifySuccess).lastMessage().build();
+                            Message successMessage = Message.createNew(Message.Type.NotifySuccess)
+                                                     .field(Message.Field.Action, "register")
+                                                     .field(Message.Field.Data, "")
+                                                     .lastMessage()
+                                                     .build();
+
                             connectionWriter.println(successMessage.serialize());
                             Logger.logEvent(Logger.EventType.Info, "Nuovo utente registrato: " + username);
 
                             // Notifica gli admin panel che un nuovo utente si è registrato
                             sendToAdminPanelsOnly(Message.createNew(Message.Type.UserRegistered)
-                                    .field("username", username)
+                                    .field(Message.Field.Username, username)
                                     .build()
                             );
                         }
@@ -302,8 +319,8 @@ public class Server implements Runnable
                 // Invia un nuovo messaggio all'utente bannato con gli stessi campi del messaggio di ban ricevuto dall'admin panel
                 // e il terminatore di connessione presente
                 Message banAndKickMessage = Message.createNew(Message.Type.Ban)
-                                            .field("bannedUser", userToBeBanned.getUsername())
-                                            .field("reason", reason)
+                                            .field(Message.Field.BannedUser, userToBeBanned.getUsername())
+                                            .field(Message.Field.Reason, reason)
                                             .lastMessage()
                                             .build();
                 bannedUserConnection.sendMessage(banAndKickMessage);
@@ -311,7 +328,7 @@ public class Server implements Runnable
 
             // Notifica tutti gli utenti che l'utente è stato bannato
             sendToAllClients(Message.createNew(Message.Type.UserBanned)
-                    .field("username", userToBeBanned.getUsername())
+                    .field(Message.Field.Username, userToBeBanned.getUsername())
                     .build()
             );
         }
@@ -330,7 +347,7 @@ public class Server implements Runnable
 
             // Notifica tutti gli utenti che l'utente è stato bannato
             sendToAllClients(Message.createNew(Message.Type.UserUnbanned)
-                    .field("username", bannedUser.getUsername())
+                    .field(Message.Field.Username, bannedUser.getUsername())
                     .build()
             );
         }
@@ -345,7 +362,7 @@ public class Server implements Runnable
     public void performBanOrUnban(Message message)
     {
         User existingUser = registeredUsers.stream()
-                            .filter(user -> user.getUsername().equals(message.getField("bannedUser")))
+                            .filter(user -> user.getUsername().equals(message.getField(Message.Field.BannedUser)))
                             .findFirst().orElse(null);
 
         if (existingUser != null)
@@ -353,14 +370,14 @@ public class Server implements Runnable
             try
             {
                 if (message.getType() == Message.Type.Ban)
-                    banUser(existingUser, message.getField("reason"));
+                    banUser(existingUser, message.getField(Message.Field.Reason));
                 else
                     unbanUser(existingUser);
             }
             catch (Exception exc)
             {
                 Logger.logEvent(Logger.EventType.Error, "Errore durante il ban/unban dell'utente " +
-                                message.getField("bannedUser") + ": " + exc.getMessage());
+                                message.getField(Message.Field.BannedUser) + ": " + exc.getMessage());
             }
         }
         else
@@ -368,25 +385,31 @@ public class Server implements Runnable
     }
 
     /**
-     * Recapita il messaggio privato al destinatario specificato all'interno del messaggio
+     * Recapita il messaggio privato al destinatario specificato all'interno del messaggio.
+     * L'esito della consegna viene notificato al client che lo ha inviato; nel campo dati del messaggio di notifica viene
+     * inserito il nome del destinatario, in modo che il client possa capire a quale chat privata la notifica si riferisce
      * @param messageToDeliver messaggio di tipo PrivateMessage
      */
     public void deliverPrivateMessage(Message messageToDeliver, UserConnectionHandler sender)
     {
-        UserConnectionHandler recipientConnection = currentUserClientConnections.getOrDefault(messageToDeliver.getField("recipient"), null);
+        UserConnectionHandler recipientConnection = currentUserClientConnections.getOrDefault(messageToDeliver.getField(Message.Field.Recipient), null);
         if (recipientConnection != null)
         {
             recipientConnection.sendMessage(messageToDeliver);
-            Message successMessage = Message.createNew(Message.Type.NotifySuccess).build();
+            Message successMessage = Message.createNew(Message.Type.NotifySuccess)
+                                     .field(Message.Field.Action, "privateMsg")
+                                     .field(Message.Field.Data, messageToDeliver.getField(Message.Field.Recipient))
+                                     .build();
             sender.sendMessage(successMessage);
 
-            Logger.logEvent(Logger.EventType.Info, messageToDeliver.getField("sender") +
-                            " ha inviato un messaggio privato a " + messageToDeliver.getField("recipient"));
+            Logger.logEvent(Logger.EventType.Info, messageToDeliver.getField(Message.Field.Sender) +
+                            " ha inviato un messaggio privato a " + messageToDeliver.getField(Message.Field.Recipient));
         }
         else
         {
             Message errorMessage = Message.createNew(Message.Type.NotifyError)
-                                    .field("description", "Destinatario non connesso")
+                                    .field(Message.Field.Action, "privateMsg")
+                                    .field(Message.Field.Data, messageToDeliver.getField(Message.Field.Recipient))
                                     .build();
             sender.sendMessage(errorMessage);
         }
@@ -429,7 +452,7 @@ public class Server implements Runnable
 
             // Notifica a tutti i client connessi che l'utente si è disconnesso
             this.sendToAllClients(Message.createNew(Message.Type.UserDisconnected)
-                    .field("username", userConnection.getUser().getUsername())
+                    .field(Message.Field.Username, userConnection.getUser().getUsername())
                     .build()
             );
         }

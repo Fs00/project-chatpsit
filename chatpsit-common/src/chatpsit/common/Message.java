@@ -3,7 +3,7 @@ package chatpsit.common;
 import com.sun.istack.internal.NotNull;
 
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 
 /**
@@ -22,7 +22,7 @@ public class Message
     public static class Builder
     {
         private Type messageType;
-        private Map<String, String> messageFields = new HashMap<>();
+        private Map<Field, String> messageFields = new EnumMap<>(Field.class);
         private boolean isLastMessage = false;
 
         private Builder(Type type)
@@ -30,7 +30,7 @@ public class Message
             messageType = type;
         }
 
-        public Builder field(String name, String value)
+        public Builder field(Field name, String value)
         {
             messageFields.put(name, value);
             return this;
@@ -61,7 +61,7 @@ public class Message
      * Attributi di Message
      */
     private Type type;
-    private Map<String, String> fields;
+    private Map<Field, String> fields;
     private boolean isLastMessage;
 
     /**
@@ -71,22 +71,22 @@ public class Message
      * @param fields una Map contenente i campi del messaggio
      * @param isLastMessage indica se dopo l'invio del messaggio la connessione verrà chiusa
      */
-    private Message(Type type, @NotNull Map<String, String> fields, boolean isLastMessage)
+    private Message(Type type, @NotNull Map<Field, String> fields, boolean isLastMessage)
     {
         if (type == null)
             throw new IllegalArgumentException("Il tipo del messaggio non può essere null.");
 
-        String[] typeFieldNames = messageTypeFields.get(type);
-        if (typeFieldNames.length != fields.size())
+        Field[] typeFields = type.fields();
+        if (typeFields.length != fields.size())
             throw new IllegalArgumentException("Il numero di campi del messaggio non è conforme al suo tipo.");
 
-        for (int i = 0; i < typeFieldNames.length; i++)
+        for (Field typeField : typeFields)
         {
-            if (!fields.containsKey(typeFieldNames[i]))
+            if (!fields.containsKey(typeField))
                 throw new IllegalArgumentException("È presente un campo del messaggio non conforme al suo tipo.");
 
-            if (fields.get(typeFieldNames[i]) == null)
-                throw new IllegalArgumentException("Il campo " + typeFieldNames[i] + " del messaggio non è valorizzato.");
+            if (fields.get(typeField) == null)
+                throw new IllegalArgumentException("Il campo " + typeField + " del messaggio non è valorizzato.");
         }
 
         this.fields = fields;
@@ -104,9 +104,9 @@ public class Message
         return isLastMessage;
     }
 
-    public String getField(String fieldName)
+    public String getField(Field name)
     {
-        return fields.get(fieldName);
+        return fields.get(name);
     }
 
     /**
@@ -118,11 +118,11 @@ public class Message
      */
     public String serialize()
     {
-        String message = messageTypeStrings.get(type);
-        String[] typeFieldNames = messageTypeFields.get(type);
+        String message = type.serializedString();
+        Field[] typeFields = type.fields();
 
-        for (int i = 0; i < typeFieldNames.length; i++)
-            message += DELIMITER_CHAR + this.fields.get(typeFieldNames[i]);
+        for (Field typeField : typeFields)
+            message += DELIMITER_CHAR + this.fields.get(typeField);
 
         if (isLastMessage)
             message += END_OF_TRANSMISSION_CHAR;
@@ -146,18 +146,18 @@ public class Message
 
         // Il parametro -1 indica di mantenere i campi vuoti nell'array se ci fossero due delimitatori vicini
         String[] rawMessageFields = rawMessage.split(Character.toString(DELIMITER_CHAR), -1);
-        Type rawMessageType = getMessageTypeFromString(rawMessageFields[0]);
+        Type rawMessageType = Type.fromSerializedString(rawMessageFields[0]);
         if (rawMessageType == null)
             throw new IllegalArgumentException("Il tipo di messaggio " + rawMessageFields[0] + " non esiste.");
 
         // Ottengo i nomi dei campi corrispondenti al tipo di messaggio dato
-        String[] rawMessageTypeFieldNames = messageTypeFields.get(rawMessageType);
+        Field[] rawMessageTypeFields = rawMessageType.fields();
         // rawMessageFields ha un campo in più rispetto all'array in messageTypeFields, che è il tipo di messaggio
-        if (rawMessageTypeFieldNames.length == (rawMessageFields.length - 1))
+        if (rawMessageTypeFields.length == (rawMessageFields.length - 1))
         {
             Builder messageBuilder = Message.createNew(rawMessageType);
-            for (int i = 0; i < rawMessageTypeFieldNames.length; i++)
-                messageBuilder.field(rawMessageTypeFieldNames[i], rawMessageFields[i+1]);
+            for (int i = 0; i < rawMessageTypeFields.length; i++)
+                messageBuilder.field(rawMessageTypeFields[i], rawMessageFields[i+1]);
 
             if (isLastMessage)
                 messageBuilder.lastMessage();
@@ -171,98 +171,104 @@ public class Message
     /**
      * Definisce i tipi possibili di messaggio
      */
-    public enum Type {
-        UserLogin,
-        AdminPanelLogin,
-        Ready,
-        PrivateMessage,
-        GlobalMessage,
-        Report,
-        Register,
-        Logout,
-        NotifySuccess,
-        NotifyError,
-        Ban,
-        Unban,
-        LogEvent,
-        UserData,
-        UserConnected,
-        UserDisconnected,
-        UserBanned,
-        UserUnbanned,
-        UserRegistered,
-        ServerShutdown
+    public enum Type
+    {
+        UserLogin("ULGIN"),
+        AdminPanelLogin("ALGIN"),
+        Ready("READY"),
+        PrivateMessage("PRMSG"),
+        GlobalMessage("GLMSG"),
+        Report("REPRT"),
+        Register("RGSTR"),
+        Logout("LGOUT"),
+        NotifySuccess("SUCSS"),
+        NotifyError("ERROR"),
+        Ban("BANHR"),
+        Unban("UNBAN"),
+        LogEvent("LGEVT"),
+        UserData("UDATA"),
+        UserConnected("USRCT"),
+        UserDisconnected("USRDC"),
+        UserBanned("USRBN"),
+        UserUnbanned("USRUB"),
+        UserRegistered("USRRG"),
+        ServerShutdown("SHUTD");
+
+        private final String serializedString;
+        Type(String serializedString)
+        {
+            this.serializedString = serializedString;
+        }
+
+        String serializedString()
+        {
+            return serializedString;
+        }
+        Field[] fields()
+        {
+            return messageTypeFields.get(this);
+        }
+
+        /**
+         * Data la rappresentazione in forma di stringa di un tipo di messaggio, restituisce il corrispondente valore
+         * dell'enumerazione
+         */
+        static Type fromSerializedString(String serializedString)
+        {
+            for (Type messageType : Type.values())
+            {
+                if (messageType.serializedString.equals(serializedString))
+                    return messageType;
+            }
+            return null;
+        }
+    }
+
+    /**
+     * Elenca i possibili campi presenti in un messaggio
+     */
+    public enum Field
+    {
+        Username,
+        Password,
+        Sender,
+        Recipient,
+        Reason,
+        BannedUser,
+        ReportedUser,
+        Data,
+        Action
     }
 
     // Caratteri usati nella serializzazione del messaggio
     private static char DELIMITER_CHAR = 31;
     private static char END_OF_TRANSMISSION_CHAR = 4;
 
-    // Contiene le stringhe del protocollo corrispondenti al tipo di messaggio
-    private static Map<Type, String> messageTypeStrings;
     // Contiene i nomi dei campi per ogni tipo di messaggio e il loro ordine
-    private static Map<Type, String[]> messageTypeFields;
+    private static Map<Type, Field[]> messageTypeFields;
     static {
-        messageTypeFields = new HashMap<>();
-        messageTypeFields.put(Type.UserLogin, new String[] {"username", "password"});
-        messageTypeFields.put(Type.AdminPanelLogin, new String[] {"username", "password"});
-        messageTypeFields.put(Type.Ready, new String[] {});
-        messageTypeFields.put(Type.PrivateMessage, new String[] {"sender", "recipient", "message"});
-        messageTypeFields.put(Type.GlobalMessage, new String[] {"sender", "message"});
-        messageTypeFields.put(Type.Report, new String[] {"sender", "reportedUser", "reason"});
-        messageTypeFields.put(Type.Ban, new String[] {"bannedUser", "reason"});
-        messageTypeFields.put(Type.Unban, new String[] {"bannedUser"});
-        messageTypeFields.put(Type.Register, new String[] {"username", "password"});
-        messageTypeFields.put(Type.Logout, new String[] {});
-        messageTypeFields.put(Type.NotifySuccess, new String[] {});
-        messageTypeFields.put(Type.NotifyError, new String[]{ "description" });
-        messageTypeFields.put(Type.LogEvent, new String[] { "text" });
-        messageTypeFields.put(Type.UserData, new String[] { "serializedData" });
-        messageTypeFields.put(Type.UserConnected, new String[] {"username"});
-        messageTypeFields.put(Type.UserDisconnected, new String[] {"username"});
-        messageTypeFields.put(Type.UserBanned, new String[] {"username"});
-        messageTypeFields.put(Type.UserUnbanned, new String[] {"username"});
-        messageTypeFields.put(Type.UserRegistered, new String[] {"username"});
-        messageTypeFields.put(Type.ServerShutdown, new String[] {});
+        messageTypeFields = new EnumMap<>(Type.class);
+        messageTypeFields.put(Type.UserLogin, new Field[] { Field.Username, Field.Password });
+        messageTypeFields.put(Type.AdminPanelLogin, new Field[] { Field.Username, Field.Password});
+        messageTypeFields.put(Type.Ready, new Field[] {});
+        messageTypeFields.put(Type.PrivateMessage, new Field[] { Field.Sender, Field.Recipient, Field.Data });
+        messageTypeFields.put(Type.GlobalMessage, new Field[] { Field.Sender, Field.Data });
+        messageTypeFields.put(Type.Report, new Field[] { Field.Sender, Field.ReportedUser, Field.Reason });
+        messageTypeFields.put(Type.Ban, new Field[] { Field.BannedUser, Field.Reason });
+        messageTypeFields.put(Type.Unban, new Field[] { Field.BannedUser });
+        messageTypeFields.put(Type.Register, new Field[] { Field.Username, Field.Password});
+        messageTypeFields.put(Type.Logout, new Field[] {});
+        messageTypeFields.put(Type.NotifySuccess, new Field[] { Field.Action, Field.Data });
+        messageTypeFields.put(Type.NotifyError, new Field[] { Field.Action, Field.Data });
+        messageTypeFields.put(Type.LogEvent, new Field[] { Field.Data });
+        messageTypeFields.put(Type.UserData, new Field[] { Field.Data });
+        messageTypeFields.put(Type.UserConnected, new Field[] { Field.Username });
+        messageTypeFields.put(Type.UserDisconnected, new Field[] { Field.Username });
+        messageTypeFields.put(Type.UserBanned, new Field[] { Field.Username });
+        messageTypeFields.put(Type.UserUnbanned, new Field[] { Field.Username });
+        messageTypeFields.put(Type.UserRegistered, new Field[] { Field.Username });
+        messageTypeFields.put(Type.ServerShutdown, new Field[] {});
         // blocca la map in modo che non sia più modificabile
         messageTypeFields = Collections.unmodifiableMap(messageTypeFields);
-
-        messageTypeStrings = new HashMap<>();
-        messageTypeStrings.put(Type.UserLogin, "ULGIN");
-        messageTypeStrings.put(Type.AdminPanelLogin, "ALGIN");
-        messageTypeStrings.put(Type.Ready, "READY");
-        messageTypeStrings.put(Type.PrivateMessage, "PRMSG");
-        messageTypeStrings.put(Type.GlobalMessage, "GLMSG");
-        messageTypeStrings.put(Type.Report, "REPRT");
-        messageTypeStrings.put(Type.Ban, "BANHR");
-        messageTypeStrings.put(Type.Unban, "UNBAN");
-        messageTypeStrings.put(Type.Register, "RGSTR");
-        messageTypeStrings.put(Type.Logout, "LGOUT");
-        messageTypeStrings.put(Type.NotifySuccess, "SUCSS");
-        messageTypeStrings.put(Type.NotifyError, "ERROR");
-        messageTypeStrings.put(Type.LogEvent, "LGEVT");
-        messageTypeStrings.put(Type.UserData, "UDATA");
-        messageTypeStrings.put(Type.UserConnected, "USRCT");
-        messageTypeStrings.put(Type.UserDisconnected, "USRDC");
-        messageTypeStrings.put(Type.UserBanned, "USRBN");
-        messageTypeStrings.put(Type.UserUnbanned, "USRUB");
-        messageTypeStrings.put(Type.UserRegistered, "USRRG");
-        messageTypeStrings.put(Type.ServerShutdown, "SHUTD");
-        messageTypeStrings = Collections.unmodifiableMap(messageTypeStrings);
-    }
-
-    /**
-     * Data la rappresentazione in forma di stringa di un tipo di messaggio, restituisce il corrispondente valore
-     * dell'enumerazione Message.Type
-     * @param typeAsString stringa di 5 caratteri
-     */
-    private static Type getMessageTypeFromString(String typeAsString)
-    {
-        for (Map.Entry<Type, String> entry : messageTypeStrings.entrySet())
-        {
-            if (entry.getValue().equals(typeAsString))
-                return entry.getKey();
-        }
-        return null;
     }
 }
