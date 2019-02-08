@@ -121,7 +121,23 @@ public class GlobalChatController extends BaseGlobalChatController<UserClientMod
             }
             else
             {
-                // TODO
+                try
+                {
+                    getModel().sendMessageToServer(Message.createNew(Message.Type.Report)
+                            .field("sender", getModel().getLoggedInUsername())
+                            .field("reportedUser", selectedUsername)
+                            .field("reason", reportReason.get())
+                            .build()
+                    );
+                }
+                catch (Exception e)
+                {
+                    Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+                    errorAlert.setTitle("Errore di connessione");
+                    errorAlert.setHeaderText("Impossibile mandare il report al server");
+                    errorAlert.setContentText(e.getMessage());
+                    errorAlert.show();
+                }
             }
         }
     }

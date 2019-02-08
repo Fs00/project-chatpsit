@@ -5,9 +5,12 @@ import chatpsit.common.Message;
 import chatpsit.common.gui.IController;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
+import javafx.scene.control.Control;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.text.Text;
+
 
 public class ReportController implements IController<AdminPanelModel>
 {
@@ -26,20 +29,14 @@ public class ReportController implements IController<AdminPanelModel>
         reportedUserColumn.setCellValueFactory(item -> new SimpleStringProperty(item.getValue().getField("reportedUser")));
         reasonColumn.setCellValueFactory(item -> new SimpleStringProperty(item.getValue().getField("reason")));
 
-        reasonColumn.setCellFactory(column -> new TableCell<Message, String>() {
-            @Override
-            protected void updateItem(String text, boolean empty) {
-                super.updateItem(text, empty);
-
-                if (text == null || empty)
-                    setText(null);
-                else
-                {
-                    setWrapText(true);
-                    setPrefWidth(column.getWidth()-20);
-                    setText(text);
-                }
-            }
+        reasonColumn.setCellFactory(column -> {
+            TableCell<Message, String> cell = new TableCell<>();
+            Text text = new Text();
+            cell.setGraphic(text);
+            cell.setPrefHeight(Control.USE_COMPUTED_SIZE);
+            text.wrappingWidthProperty().bind(reasonColumn.widthProperty());
+            text.textProperty().bind(cell.itemProperty());
+            return cell;
         });
     }
 
