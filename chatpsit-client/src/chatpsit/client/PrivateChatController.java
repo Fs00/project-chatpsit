@@ -3,10 +3,10 @@ package chatpsit.client;
 import chatpsit.client.model.UserClientModel;
 import chatpsit.common.Message;
 import chatpsit.common.gui.IController;
-import chatpsit.common.gui.IModel;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
+import javafx.stage.Stage;
 
 public class PrivateChatController implements IController<UserClientModel>
 {
@@ -16,8 +16,20 @@ public class PrivateChatController implements IController<UserClientModel>
     private TextArea textArea;
 
     @Override
-    public void notifyMessage(Message message) {
-
+    public void notifyMessage(Message message)
+    {
+        switch (message.getType())
+        {
+            case PrivateMessage:
+                // TODO
+                break;
+            case NotifySuccess:
+                // TODO
+                break;
+            case NotifyError:
+                // TODO
+                break;
+        }
     }
 
     @FXML
@@ -27,6 +39,11 @@ public class PrivateChatController implements IController<UserClientModel>
             sendButton.setDisable(false);
         else
             sendButton.setDisable(true);
+    }
+
+    public Stage getStage()
+    {
+        return (Stage) sendButton.getScene().getWindow();
     }
 
     @Override
