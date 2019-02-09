@@ -156,6 +156,8 @@ public class GlobalChatController extends BaseGlobalChatController<UserClientMod
     @Override
     public void notifyMessage(Message message)
     {
+        IMainWindowController.super.notifyMessage(message);
+
         if (message.getType() == Message.Type.Ban)
         {
             Alert banAlert = new Alert(Alert.AlertType.ERROR);

@@ -10,6 +10,8 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
@@ -79,9 +81,34 @@ public class MainWindowController implements IMainWindowController<AdminPanelMod
         return FXCollections.observableArrayList(contentNodes.keySet());
     }
 
+    @FXML
+    private void shutdownServer()
+    {
+        try {
+            getModel().sendMessageToServer(Message.createNew(Message.Type.ServerShutdown).lastMessage().build());
+
+            Alert errorDialog = new Alert(Alert.AlertType.INFORMATION);
+            errorDialog.setTitle("Operazione riuscita");
+            errorDialog.setHeaderText(null);
+            errorDialog.setContentText("Arresto del server richiesto.");
+            errorDialog.getButtonTypes().setAll(new ButtonType("Esci dall'applicazione"));
+            errorDialog.showAndWait();
+            Platform.exit();
+        }
+        catch (Exception exc)
+        {
+            Alert errorDialog = new Alert(Alert.AlertType.ERROR);
+            errorDialog.setTitle("Errore di connessione");
+            errorDialog.setHeaderText("Impossibile richiedere l'arresto del server");
+            errorDialog.setContentText(exc.getMessage());
+            errorDialog.show();
+        }
+    }
+
     @Override
     public void notifyMessage(Message message)
     {
+        IMainWindowController.super.notifyMessage(message);
         paneControllers.forEach(controller -> Platform.runLater(() -> controller.notifyMessage(message)));
     }
 

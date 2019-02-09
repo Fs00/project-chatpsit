@@ -88,6 +88,16 @@ public class UserConnectionHandler
                                 Logger.logEvent(Logger.EventType.Warning, "L'utente non admin " + user.getUsername() +
                                                 " ha tentato il ban/unban dell'utente " + receivedMessage.getField("bannedUser"));
                             break;
+                        case ServerShutdown:
+                            if (isAdminPanelConnection)
+                            {
+                                Logger.logEvent(Logger.EventType.Info, "L'admin " + user.getUsername() +
+                                                " ha iniziato la procedura di arresto del server");
+                                server.shutdownServer();
+                            }
+                            else
+                                Logger.logEvent(Logger.EventType.Warning, "L'utente non admin " + user.getUsername() +
+                                                " ha tentato di richiedere l'arresto del server");
                     }
 
                     if (receivedMessage.isLastMessage())

@@ -44,7 +44,7 @@ public class Server implements Runnable
             Logger.logEvent(Logger.EventType.Error, "Errore nell'apertura del socket del server: " + exc.getMessage());
         }
 
-        while (true)
+        while (!serverSocket.isClosed())
         {
             try
             {
@@ -53,7 +53,7 @@ public class Server implements Runnable
             }
             catch (SocketException exc)
             {
-                Logger.logEvent(Logger.EventType.Info, "Richiesta chiusura del server");
+                Logger.logEvent(Logger.EventType.Info, "Socket del server chiuso.");
             }
             catch (IOException exc)
             {
@@ -62,9 +62,12 @@ public class Server implements Runnable
         }
     }
 
+    /**
+     * Effettua l'arresto del server
+     */
     public void shutdownServer()
     {
-        Logger.logEvent(Logger.EventType.Info, "Chiusura del server in corso");
+        Logger.logEvent(Logger.EventType.Info, "Arresto del server in corso");
 
         try
         {
@@ -75,7 +78,7 @@ public class Server implements Runnable
         }
         catch (Exception exc)
         {
-            Logger.logEvent(Logger.EventType.Error,"Errore nella scrittura del file" + exc.getMessage());
+            Logger.logEvent(Logger.EventType.Error,"Errore nella scrittura del file dei dati degli utenti: " + exc.getMessage());
         }
 
         sendToAllClients(Message.createNew(Message.Type.ServerShutdown).lastMessage().build());

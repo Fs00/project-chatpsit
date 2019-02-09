@@ -125,4 +125,19 @@ public interface IMainWindowController<M extends IModel> extends IController<M>
             }
         }
     }
+
+    @Override
+    default void notifyMessage(Message message)
+    {
+        if (message.getType() == Message.Type.ServerShutdown)
+        {
+            Alert banAlert = new Alert(Alert.AlertType.INFORMATION);
+            banAlert.setTitle("");
+            banAlert.setHeaderText("Il server è stato arrestato");
+            banAlert.setContentText("Grazie per aver usufruito del servizio.");
+            banAlert.getButtonTypes().setAll(new ButtonType("Esci dall'applicazione"));
+            banAlert.showAndWait();
+            Platform.exit();
+        }
+    }
 }
