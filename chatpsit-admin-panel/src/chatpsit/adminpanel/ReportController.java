@@ -25,9 +25,9 @@ public class ReportController implements IController<AdminPanelModel>
 
     public void initialize()
     {
-        senderUserColumn.setCellValueFactory(item -> new SimpleStringProperty(item.getValue().getField("sender")));
-        reportedUserColumn.setCellValueFactory(item -> new SimpleStringProperty(item.getValue().getField("reportedUser")));
-        reasonColumn.setCellValueFactory(item -> new SimpleStringProperty(item.getValue().getField("reason")));
+        senderUserColumn.setCellValueFactory(item -> new SimpleStringProperty(item.getValue().getField(Message.Field.Sender)));
+        reportedUserColumn.setCellValueFactory(item -> new SimpleStringProperty(item.getValue().getField(Message.Field.ReportedUser)));
+        reasonColumn.setCellValueFactory(item -> new SimpleStringProperty(item.getValue().getField(Message.Field.Reason)));
 
         reasonColumn.setCellFactory(column -> {
             TableCell<Message, String> cell = new TableCell<>();

@@ -90,7 +90,7 @@ public final class Logger
             System.out.println(logString);
 
         if (server != null)
-            server.sendToAdminPanelsOnly(Message.createNew(Message.Type.LogEvent).field("text", logString).build());
+            server.sendToAdminPanelsOnly(Message.createNew(Message.Type.LogEvent).field(Message.Field.Data, logString).build());
 
         if (logOnFile)
             asyncLogFileWriter.appendText(logString);

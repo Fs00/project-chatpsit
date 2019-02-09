@@ -37,7 +37,7 @@ public class ServerLogController implements IController<AdminPanelModel>
         switch (message.getType())
         {
             case LogEvent:
-                logList.getItems().add(message.getField("text"));
+                logList.getItems().add(message.getField(Message.Field.Data));
                 logList.scrollTo(logList.getItems().size()-1);
                 break;
         }

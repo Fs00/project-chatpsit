@@ -2,16 +2,14 @@ package chatpsit.client;
 
 import chatpsit.client.model.UserClientModel;
 import chatpsit.common.Message;
-import chatpsit.common.gui.IController;
+import chatpsit.common.gui.BaseChatController;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
 
-import java.util.List;
-
-public class PrivateChatController implements IController<UserClientModel>
+public class PrivateChatController extends BaseChatController<UserClientModel>
 {
     @FXML
     private Button sendButton;
@@ -19,37 +17,48 @@ public class PrivateChatController implements IController<UserClientModel>
     private TextArea textArea;
 
     private String user;
+    private String lastSentMessage;
 
-    private List<String> messageList;
+    public PrivateChatController()
+    {
+        super(true);
+    }
 
+    @Override
     public void initialize()
     {
-
+        super.initialize();
     }
 
     public void setUser(String user)
     {
         this.user = user;
-        this.messageList = getModel().getPrivateMessagesListForUser(user);
     }
 
     @Override
     public void notifyMessage(Message message)
     {
+        super.notifyMessage(message);
         switch (message.getType())
         {
-            case PrivateMessage:
-                // TODO
-                break;
             case NotifySuccess:
                 // TODO
                 break;
             case NotifyError:
                 Alert errorAlert = new Alert(Alert.AlertType.ERROR);
-                errorAlert.setTitle("Errore di comunicazione");
-                errorAlert.setHeaderText("Impossibile mandare il messagio al server");
-                errorAlert.setContentText("Il sistema non è riuscito ad inviare il messaggio inserito al server");
+                errorAlert.setTitle("Messaggio non inviato");
+                errorAlert.setHeaderText("Impossibile recapitare il messaggio");
+                errorAlert.setContentText("Il destinatario non è connesso.");
                 errorAlert.show();
+                break;
+            case UserDisconnected:
+                textArea.setText("");
+                textArea.setDisable(true);
+                textArea.setPromptText("Destinatario non connesso");
+                break;
+            case UserConnected:
+                textArea.setDisable(false);
+                textArea.setPromptText("");
                 break;
         }
     }

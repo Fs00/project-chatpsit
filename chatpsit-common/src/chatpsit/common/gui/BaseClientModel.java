@@ -13,7 +13,7 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public abstract class ClientModel implements IModel
+public abstract class BaseClientModel implements IModel
 {
     private CopyOnWriteArrayList<IController> attachedControllers = new CopyOnWriteArrayList<>();
 
@@ -37,7 +37,7 @@ public abstract class ClientModel implements IModel
             clientSocket.close();
 
         if (request.getType() == Message.Type.UserLogin || request.getType() == Message.Type.AdminPanelLogin)
-            loggedInUsername = request.getField("username");
+            loggedInUsername = request.getField(Message.Field.Username);
     }
 
     /**
