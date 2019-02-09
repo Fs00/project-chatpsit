@@ -47,7 +47,7 @@ public class AdminPanelApp extends Application
         try
         {
             Stage mainStage = new Stage();
-            mainStage.setTitle("Pannello di amministrazione");
+            mainStage.setTitle("Pannello di amministrazione - " + getModel().getLoggedInUsername());
             mainStage.setResizable(false);
             mainStage.setScene(new Scene(loader.load()));
 

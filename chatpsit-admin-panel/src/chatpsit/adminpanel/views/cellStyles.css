@@ -1,0 +1,16 @@
+.list-cell {
+  -fx-background-color: white;
+}
+
+.sidebar .list-cell {
+  -fx-padding: 8px;
+}
+
+.list-cell:selected {
+  -fx-background-color: #0096C9;
+  -fx-text-fill: white;
+}
+
+.table-cell {
+  -fx-background-color: white;
+}

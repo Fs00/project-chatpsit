@@ -44,7 +44,7 @@ public class ClientApp extends Application
         try
         {
             Stage globalChatStage = new Stage();
-            globalChatStage.setTitle("Chat globale");
+            globalChatStage.setTitle("Chat globale - " + getModel().getLoggedInUsername());
             globalChatStage.setResizable(false);
             globalChatStage.setScene(new Scene(loader.load()));
 

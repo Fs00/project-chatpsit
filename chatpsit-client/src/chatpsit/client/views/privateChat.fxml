@@ -4,7 +4,7 @@
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.AnchorPane?>
-<AnchorPane prefHeight="456.0" prefWidth="402.0" xmlns="http://javafx.com/javafx/8.0.192" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chatpsit.client.PrivateChatController">
+<AnchorPane stylesheets="@cellStyles.css" prefHeight="456.0" prefWidth="402.0" xmlns="http://javafx.com/javafx/8.0.192" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chatpsit.client.PrivateChatController">
    <children>
       <ListView fx:id="chatList" layoutX="27.0" layoutY="20.0" prefHeight="375.0" prefWidth="350.0" />
       <TextArea fx:id="textArea" layoutX="27.0" layoutY="405.0" onKeyTyped="#checkEmptyMessageText" prefHeight="37.0" prefWidth="254.0" wrapText="true" />

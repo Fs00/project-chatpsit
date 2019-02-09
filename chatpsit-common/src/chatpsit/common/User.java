@@ -110,7 +110,7 @@ public class User
      */
     public static boolean isValidUsername(String username)
     {
-        return !(username == null || username.length() > 30 || username.isEmpty() ||
+        return !(username == null || username.length() > ServerConstants.MAX_USERNAME_LENGTH || username.isEmpty() ||
                 username.contains(";") || username.contains("@") || username.contains("!") || username.contains(" "));
     }
 

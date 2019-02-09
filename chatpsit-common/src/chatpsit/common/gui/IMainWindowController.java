@@ -2,6 +2,7 @@ package chatpsit.common.gui;
 
 import chatpsit.common.Message;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
@@ -75,8 +76,13 @@ public interface IMainWindowController<M extends IModel> extends IController<M>
         vbox.setAlignment(Pos.CENTER);
         Label headerLabel = new Label("ChaTPSIT");
         Label developedBy = new Label("Sviluppato da:");
+        Label schoolYear = new Label("I.T.T. Buonarroti-Pozzo, a.s. 2018/2019");
         headerLabel.setFont(new Font(26));
         developedBy.setFont(new Font(16));
+        developedBy.setPadding(new Insets(6, 0, 4, 0));
+        schoolYear.setStyle("-fx-font-style: italic");
+        schoolYear.setPadding(new Insets(6, 0, 0, 0));
+
         vbox.getChildren().addAll(
             headerLabel,
             developedBy,
@@ -84,13 +90,13 @@ public interface IMainWindowController<M extends IModel> extends IController<M>
             new Label("Lorenzini Loris"),
             new Label("Omodei Davide"),
             new Label("Saltori Francesco"),
-            new Label("Valerio Matteo")
+            new Label("Valerio Matteo"),
+            schoolYear
         );
 
         infoDialog.getDialogPane().setContent(vbox);
         infoDialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK);
         infoDialog.show();
-        infoDialog.setWidth(250);
     }
 
     /**

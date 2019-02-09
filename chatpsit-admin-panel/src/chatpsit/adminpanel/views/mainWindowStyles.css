@@ -1,8 +1,0 @@
-.list-cell {
-  -fx-background-color: white;
-  -fx-padding: 8px;
-}
-
-.list-cell:selected {
-  -fx-background-color: #0093ff;
-}

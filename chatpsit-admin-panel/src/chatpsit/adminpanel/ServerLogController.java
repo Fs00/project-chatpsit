@@ -1,11 +1,12 @@
 package chatpsit.adminpanel;
 
-import chatpsit.common.gui.ClientModel;
 import chatpsit.common.Message;
+import chatpsit.common.gui.ClientModel;
 import chatpsit.common.gui.IController;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.paint.Color;
 
 public class ServerLogController implements IController<ClientModel>
 {
@@ -16,16 +17,24 @@ public class ServerLogController implements IController<ClientModel>
     {
         logList.setCellFactory(listView -> new ListCell<String>() {
             @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
+            protected void updateItem(String text, boolean empty) {
+                super.updateItem(text, empty);
 
-                if (empty || item == null)
+                if (empty || text == null)
                     setText(null);
                 else
                 {
                     setWrapText(true);
                     setPrefWidth(listView.getWidth()-20);
-                    setText(item);
+
+                    if (text.contains("ERR"))
+                        setTextFill(Color.RED);
+                    else if (text.contains("WARN"))
+                        setTextFill(Color.GOLDENROD);
+                    else
+                        setTextFill(Color.BLACK);
+
+                    setText(text);
                 }
             }
         });
