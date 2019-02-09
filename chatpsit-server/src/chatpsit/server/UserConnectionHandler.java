@@ -6,7 +6,6 @@ import chatpsit.common.User;
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Date;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
@@ -17,7 +16,6 @@ public class UserConnectionHandler
 {
     private final User user;
     private final Server server;
-    private Date lastActivity;
     private final boolean isAdminPanelConnection;
 
     private final Socket clientSocket;
@@ -36,7 +34,6 @@ public class UserConnectionHandler
         this.connectionReader = connectionReader;
         this.connectionWriter = connectionWriter;
         this.isAdminPanelConnection = isAdminPanelConnection;
-        this.lastActivity = new Date();
     }
 
     /**
@@ -63,7 +60,6 @@ public class UserConnectionHandler
             {
                 try
                 {
-                    lastActivity = new Date();
                     Message receivedMessage = Message.deserialize(rawMessage);
 
                     switch (receivedMessage.getType())
@@ -98,11 +94,13 @@ public class UserConnectionHandler
                             else
                                 Logger.logEvent(Logger.EventType.Warning, "L'utente non admin " + user.getUsername() +
                                                 " ha tentato di richiedere l'arresto del server");
+                            break;
                     }
 
                     if (receivedMessage.isLastMessage())
                         closeAndStopProcessing();
                 }
+                // Gestisce errori di deserializzazione dei messaggi e durante le operazioni richieste
                 catch (Exception exc)
                 {
                     Logger.logEvent(Logger.EventType.Error, "Errore nell'elaborazione del messaggio ricevuto " +
@@ -140,7 +138,7 @@ public class UserConnectionHandler
                 Message messageToSend = messageQueue.take();
                 connectionWriter.println(messageToSend.serialize());
 
-                if (messageToSend.isLastMessage())
+                if (messageToSend.isLastMessage() && !clientSocket.isClosed())
                     closeAndStopProcessing();
             }
         }
@@ -178,23 +176,12 @@ public class UserConnectionHandler
      */
     public void sendMessage(Message message)
     {
-        try {
-            messageQueue.put(message);
-        }
-        catch (InterruptedException e) {
-            Logger.logEvent(Logger.EventType.Warning, "Tentato invio di un messaggio " + message.getType() +
-                            " all'utente " + user.getUsername() + " quando il thread di invio è già stato interrotto.");
-        }
+        messageQueue.add(message);
     }
 
     public User getUser()
     {
         return user;
-    }
-
-    public Date getLastActivity()
-    {
-        return lastActivity;
     }
 
     public boolean isAdminPanelConnection() {
