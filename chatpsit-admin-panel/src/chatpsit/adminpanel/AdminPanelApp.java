@@ -1,6 +1,6 @@
 package chatpsit.adminpanel;
 
-import chatpsit.adminpanel.model.AdminPanelModel;
+import chatpsit.common.gui.ClientModel;
 import chatpsit.common.gui.IController;
 import chatpsit.common.gui.IMainWindowController;
 import chatpsit.common.gui.IModel;
@@ -16,7 +16,7 @@ public class AdminPanelApp extends Application
 {
     private static Scene loginScene;
     private static IController loginController;
-    private static IModel model = new AdminPanelModel();
+    private static IModel model = new ClientModel();
 
     @Override
     public void start(Stage primaryStage) throws Exception
@@ -73,8 +73,8 @@ public class AdminPanelApp extends Application
         loginController = loader.getController();
     }
 
-    static AdminPanelModel getModel() {
-        return (AdminPanelModel) model;
+    static ClientModel getModel() {
+        return (ClientModel) model;
     }
 
     public static void main(String[] args) {

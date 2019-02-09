@@ -1,6 +1,6 @@
 package chatpsit.adminpanel;
 
-import chatpsit.adminpanel.model.AdminPanelModel;
+import chatpsit.common.gui.ClientModel;
 import chatpsit.common.Message;
 import chatpsit.common.ServerMode;
 import chatpsit.common.gui.IController;
@@ -10,7 +10,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
-public class LoginController implements IController<AdminPanelModel>
+public class LoginController implements IController<ClientModel>
 {
     @FXML
     private Button loginButton;
@@ -101,7 +101,7 @@ public class LoginController implements IController<AdminPanelModel>
     }
 
     @Override
-    public AdminPanelModel getModel()
+    public ClientModel getModel()
     {
         return AdminPanelApp.getModel();
     }

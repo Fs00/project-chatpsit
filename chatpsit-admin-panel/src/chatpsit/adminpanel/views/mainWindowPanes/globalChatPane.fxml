@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.*?>
 <AnchorPane prefHeight="471.0" prefWidth="540.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chatpsit.adminpanel.GlobalChatController">
    <children>
-      <ListView fx:id="globalChatList" layoutX="14.0" layoutY="31.0" prefHeight="439.0" prefWidth="297.0" AnchorPane.bottomAnchor="16.0" AnchorPane.leftAnchor="16.0" AnchorPane.topAnchor="16.0" />
+      <ListView fx:id="chatList" layoutX="14.0" layoutY="31.0" prefHeight="439.0" prefWidth="297.0" AnchorPane.bottomAnchor="16.0" AnchorPane.leftAnchor="16.0" AnchorPane.topAnchor="16.0" />
       <TableView fx:id="tableViewUsers" layoutX="332.0" layoutY="16.0" prefHeight="439.0" prefWidth="193.0" AnchorPane.bottomAnchor="16.0" AnchorPane.rightAnchor="16.0" AnchorPane.topAnchor="16.0">
          <placeholder>
             <Label text="Nessun utente connesso" />

@@ -1,6 +1,6 @@
 package chatpsit.client;
 
-import chatpsit.client.model.UserClientModel;
+import chatpsit.common.gui.ClientModel;
 import chatpsit.common.Message;
 import chatpsit.common.gui.BaseChatController;
 import javafx.fxml.FXML;
@@ -9,7 +9,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
 
-public class PrivateChatController extends BaseChatController<UserClientModel>
+public class PrivateChatController extends BaseChatController<ClientModel>
 {
     @FXML
     private Button sendButton;
@@ -78,7 +78,7 @@ public class PrivateChatController extends BaseChatController<UserClientModel>
     }
 
     @Override
-    public UserClientModel getModel()
+    public ClientModel getModel()
     {
         return ClientApp.getModel();
     }

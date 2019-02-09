@@ -1,6 +1,6 @@
 package chatpsit.client;
 
-import chatpsit.client.model.UserClientModel;
+import chatpsit.common.gui.ClientModel;
 import chatpsit.common.Message;
 import chatpsit.common.gui.BaseGlobalChatController;
 import chatpsit.common.gui.IMainWindowController;
@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public class GlobalChatController extends BaseGlobalChatController<UserClientModel> implements IMainWindowController<UserClientModel>
+public class GlobalChatController extends BaseGlobalChatController<ClientModel> implements IMainWindowController<ClientModel>
 {
     @FXML
     private Button sendButton;
@@ -268,7 +268,7 @@ public class GlobalChatController extends BaseGlobalChatController<UserClientMod
     }
 
     @Override
-    public UserClientModel getModel()
+    public ClientModel getModel()
     {
         return ClientApp.getModel();
     }

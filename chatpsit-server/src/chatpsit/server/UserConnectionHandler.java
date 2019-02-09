@@ -59,7 +59,7 @@ public class UserConnectionHandler
         try
         {
             String rawMessage;
-            while ((rawMessage = connectionReader.readLine()) != null)
+            while (!clientSocket.isClosed() && (rawMessage = connectionReader.readLine()) != null)
             {
                 try
                 {
@@ -110,10 +110,14 @@ public class UserConnectionHandler
                 }
             }
         }
-        catch (Exception exc) {
-            if (!exc.getMessage().equalsIgnoreCase("Socket closed"))
-                Logger.logEvent(Logger.EventType.Error, "Errore fatale del thread di ricezione dei messaggi dall'utente " +
-                            user.getUsername() + ": " + exc.getMessage());
+        // Essendo l'errore molto probabilmente causato da una chiusura improvvisa del socket lato client, chiudiamo la connessione
+        // ed effettuiamo il logout dell'utente
+        catch (Exception exc)
+        {
+            Logger.logEvent(Logger.EventType.Error, "Chiusura inattesa della connessione dell'utente " +
+                    user.getUsername() + ": " + exc.getMessage());
+
+            closeAndStopProcessing();
         }
     }
 

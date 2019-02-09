@@ -1,6 +1,6 @@
 package chatpsit.adminpanel;
 
-import chatpsit.adminpanel.model.AdminPanelModel;
+import chatpsit.common.gui.ClientModel;
 import chatpsit.common.Message;
 import chatpsit.common.gui.IController;
 import chatpsit.common.gui.IMainWindowController;
@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MainWindowController implements IMainWindowController<AdminPanelModel>
+public class MainWindowController implements IMainWindowController<ClientModel>
 {
     private Map<String, Node> contentNodes = new HashMap<>();
     private List<IController> paneControllers = new ArrayList<>();
@@ -125,7 +125,7 @@ public class MainWindowController implements IMainWindowController<AdminPanelMod
     }
 
     @Override
-    public AdminPanelModel getModel()
+    public ClientModel getModel()
     {
         return AdminPanelApp.getModel();
     }

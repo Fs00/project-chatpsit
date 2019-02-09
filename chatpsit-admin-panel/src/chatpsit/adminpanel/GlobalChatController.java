@@ -1,12 +1,12 @@
 package chatpsit.adminpanel;
 
-import chatpsit.adminpanel.model.AdminPanelModel;
+import chatpsit.common.gui.ClientModel;
 import chatpsit.common.gui.BaseGlobalChatController;
 
-public class GlobalChatController extends BaseGlobalChatController<AdminPanelModel>
+public class GlobalChatController extends BaseGlobalChatController<ClientModel>
 {
     @Override
-    public AdminPanelModel getModel()
+    public ClientModel getModel()
     {
         return AdminPanelApp.getModel();
     }

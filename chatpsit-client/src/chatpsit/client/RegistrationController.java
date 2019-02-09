@@ -1,6 +1,6 @@
 package chatpsit.client;
 
-import chatpsit.client.model.UserClientModel;
+import chatpsit.common.gui.ClientModel;
 import chatpsit.common.Message;
 import chatpsit.common.ServerMode;
 import chatpsit.common.gui.IController;
@@ -10,7 +10,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
-public class RegistrationController implements IController<UserClientModel>
+public class RegistrationController implements IController<ClientModel>
 {
     @FXML
     private Button showLoginButton;
@@ -120,7 +120,7 @@ public class RegistrationController implements IController<UserClientModel>
     }
 
     @Override
-    public UserClientModel getModel()
+    public ClientModel getModel()
     {
         return ClientApp.getModel();
     }

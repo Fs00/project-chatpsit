@@ -1,6 +1,6 @@
 package chatpsit.client;
 
-import chatpsit.client.model.UserClientModel;
+import chatpsit.common.gui.ClientModel;
 import chatpsit.common.gui.IController;
 import chatpsit.common.gui.IMainWindowController;
 import chatpsit.common.gui.IModel;
@@ -16,7 +16,7 @@ public class ClientApp extends Application
 {
     private static Scene loginScene, registerScene;
     private static IController loginController, registrationController;
-    private static IModel model = new UserClientModel();
+    private static IModel model = new ClientModel();
 
     @Override
     public void start(Stage primaryStage) throws IOException
@@ -94,8 +94,8 @@ public class ClientApp extends Application
         registrationController = loader.getController();
     }
 
-    static UserClientModel getModel() {
-        return (UserClientModel) model;
+    static ClientModel getModel() {
+        return (ClientModel) model;
     }
 
     public static void main(String[] args) {

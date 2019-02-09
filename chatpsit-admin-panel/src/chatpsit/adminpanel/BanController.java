@@ -1,6 +1,6 @@
 package chatpsit.adminpanel;
 
-import chatpsit.adminpanel.model.AdminPanelModel;
+import chatpsit.common.gui.ClientModel;
 import chatpsit.common.Message;
 import chatpsit.common.User;
 import chatpsit.common.gui.IController;
@@ -10,7 +10,7 @@ import javafx.scene.control.*;
 
 import java.util.Optional;
 
-public class BanController implements IController<AdminPanelModel>
+public class BanController implements IController<ClientModel>
 {
     @FXML
     private TableView<User> usersTable;
@@ -161,7 +161,7 @@ public class BanController implements IController<AdminPanelModel>
     }
 
     @Override
-    public AdminPanelModel getModel()
+    public ClientModel getModel()
     {
         return AdminPanelApp.getModel();
     }

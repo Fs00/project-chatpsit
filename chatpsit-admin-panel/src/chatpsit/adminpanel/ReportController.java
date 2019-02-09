@@ -1,6 +1,6 @@
 package chatpsit.adminpanel;
 
-import chatpsit.adminpanel.model.AdminPanelModel;
+import chatpsit.common.gui.ClientModel;
 import chatpsit.common.Message;
 import chatpsit.common.gui.IController;
 import javafx.beans.property.SimpleStringProperty;
@@ -12,7 +12,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.text.Text;
 
 
-public class ReportController implements IController<AdminPanelModel>
+public class ReportController implements IController<ClientModel>
 {
     @FXML
     private TableView<Message> reportsTable;
@@ -48,7 +48,7 @@ public class ReportController implements IController<AdminPanelModel>
     }
 
     @Override
-    public AdminPanelModel getModel()
+    public ClientModel getModel()
     {
         return AdminPanelApp.getModel();
     }

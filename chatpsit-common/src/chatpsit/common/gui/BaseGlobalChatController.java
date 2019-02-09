@@ -6,7 +6,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 
-public abstract class BaseGlobalChatController<M extends BaseClientModel> extends BaseChatController<M>
+public abstract class BaseGlobalChatController<M extends ClientModel> extends BaseChatController<M>
 {
     @FXML
     protected TableView<String> tableViewUsers;

@@ -6,7 +6,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 
-public abstract class BaseChatController<M extends BaseClientModel> implements IController<M>
+public abstract class BaseChatController<M extends ClientModel> implements IController<M>
 {
     @FXML
     protected ListView<Message> chatList;
