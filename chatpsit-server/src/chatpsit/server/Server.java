@@ -317,6 +317,14 @@ public class Server implements Runnable
             userToBeBanned.ban();
 
             UserConnectionHandler bannedUserConnection = currentUserClientConnections.getOrDefault(userToBeBanned.getUsername(), null);
+            // Notifica tutti gli utenti che l'utente è stato bannato.
+            // La effettuo prima di disconnettere l'utente bannato in modo di evitare che il messaggio di notifica venga aggiunto alla
+            // coda dell'utente bannato quando il suo thread di invio è già stato interrotto, ma lo UserConnectionHandler è ancora nella map
+            sendToAllClients(Message.createNew(Message.Type.UserBanned)
+                    .field(Message.Field.Username, userToBeBanned.getUsername())
+                    .build()
+            );
+
             if (bannedUserConnection != null)
             {
                 // Invia un nuovo messaggio all'utente bannato con gli stessi campi del messaggio di ban ricevuto dall'admin panel
@@ -328,12 +336,6 @@ public class Server implements Runnable
                                             .build();
                 bannedUserConnection.sendMessage(banAndKickMessage);
             }
-
-            // Notifica tutti gli utenti che l'utente è stato bannato
-            sendToAllClients(Message.createNew(Message.Type.UserBanned)
-                    .field(Message.Field.Username, userToBeBanned.getUsername())
-                    .build()
-            );
         }
         else
             Logger.logEvent(Logger.EventType.Error, "Ban fallito: l'utente " + userToBeBanned.getUsername() + " è già bannato");

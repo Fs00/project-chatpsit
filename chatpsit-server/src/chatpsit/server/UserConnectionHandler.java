@@ -182,7 +182,8 @@ public class UserConnectionHandler
             messageQueue.put(message);
         }
         catch (InterruptedException e) {
-            e.printStackTrace();
+            Logger.logEvent(Logger.EventType.Warning, "Tentato invio di un messaggio " + message.getType() +
+                            " all'utente " + user.getUsername() + " quando il thread di invio è già stato interrotto.");
         }
     }
 
