@@ -1,12 +1,8 @@
-.list-cell {
+.list-cell, .table-row-cell {
   -fx-background-color: white;
 }
 
-.list-cell:selected {
+.list-cell:selected, .table-row-cell:selected {
   -fx-background-color: #0096C9;
   -fx-text-fill: white;
-}
-
-.table-cell {
-  -fx-background-color: white;
 }
