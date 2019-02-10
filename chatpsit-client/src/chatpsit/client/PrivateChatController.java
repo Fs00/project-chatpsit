@@ -7,6 +7,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
 public class PrivateChatController extends BaseChatController<ClientModel>
@@ -112,6 +114,18 @@ public class PrivateChatController extends BaseChatController<ClientModel>
             errorAlert.setHeaderText("Impossibile mandare il messaggio al server");
             errorAlert.setContentText(e.getMessage());
             errorAlert.show();
+        }
+    }
+
+    @FXML
+    private void sendMessageIfEnterPressed(KeyEvent event)
+    {
+        if (event.getCode() == KeyCode.ENTER)
+        {
+            if (!sendButton.isDisabled())
+                sendPrivateMessage();
+
+            event.consume();
         }
     }
 }
