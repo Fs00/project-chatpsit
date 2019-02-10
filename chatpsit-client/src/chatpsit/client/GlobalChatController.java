@@ -1,8 +1,8 @@
 package chatpsit.client;
 
-import chatpsit.common.gui.ClientModel;
 import chatpsit.common.Message;
 import chatpsit.common.gui.BaseGlobalChatController;
+import chatpsit.common.gui.ClientModel;
 import chatpsit.common.gui.IMainWindowController;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -240,17 +240,16 @@ public class GlobalChatController extends BaseGlobalChatController<ClientModel> 
                 break;
 
             case PrivateMessage:
-                String recipient = message.getField(Message.Field.Recipient);
+                String sender = message.getField(Message.Field.Sender);
                 // Crea la finestra e il relativo controller per memorizzare il messaggio ricevuto
                 // (vedi commento sopra alla map dei controller)
-                if (!privateChatControllers.containsKey(recipient))
+                if (!privateChatControllers.containsKey(sender))
                 {
-                    PrivateChatController controller = createPrivateChatWindowAndController(recipient);
+                    PrivateChatController controller = createPrivateChatWindowAndController(sender);
                     Platform.runLater(() -> controller.notifyMessage(message));
                 }
-
-                if (privateChatControllers.containsKey(recipient))
-                    Platform.runLater(() -> privateChatControllers.get(recipient).notifyMessage(message));
+                else
+                    Platform.runLater(() -> privateChatControllers.get(sender).notifyMessage(message));
                 break;
         }
     }

@@ -36,6 +36,7 @@ public abstract class BaseChatController<M extends ClientModel> implements ICont
 
                     switch (msg.getType())
                     {
+                        case PrivateMessage:
                         case GlobalMessage:
                             if (msg.getField(Message.Field.Sender).equals(getModel().getLoggedInUsername()))
                             {
@@ -50,6 +51,7 @@ public abstract class BaseChatController<M extends ClientModel> implements ICont
                                 setText(msg.getField(Message.Field.Sender) + ": " + msg.getField(Message.Field.Data));
                             }
                             break;
+
                         case UserDisconnected:
                         case UserConnected:
                         case UserBanned:

@@ -14,10 +14,10 @@ public class PrivateChatController extends BaseChatController<ClientModel>
     @FXML
     private Button sendButton;
     @FXML
-    private TextArea textArea;
+    private TextArea messageTextArea;
 
     private String user;
-    private String lastSentMessage;
+    private Message lastSentMessage;
 
     public PrivateChatController()
     {
@@ -29,8 +29,8 @@ public class PrivateChatController extends BaseChatController<ClientModel>
     {
         super.initialize();
         // Listener per abilitare bottone Invia messaggio se il testo non è vuoto e non contiene spazi
-        textArea.textProperty().addListener(text -> {
-            if (!textArea.getText().trim().isEmpty())
+        messageTextArea.textProperty().addListener(text -> {
+            if (!messageTextArea.getText().trim().isEmpty())
                 sendButton.setDisable(false);
             else
                 sendButton.setDisable(true);
@@ -49,7 +49,7 @@ public class PrivateChatController extends BaseChatController<ClientModel>
         switch (message.getType())
         {
             case NotifySuccess:
-
+                chatList.getItems().add(lastSentMessage);
                 break;
             case NotifyError:
                 Alert errorAlert = new Alert(Alert.AlertType.ERROR);
@@ -59,13 +59,13 @@ public class PrivateChatController extends BaseChatController<ClientModel>
                 errorAlert.show();
                 break;
             case UserDisconnected:
-                textArea.setText("");
-                textArea.setDisable(true);
-                textArea.setPromptText("Destinatario non connesso");
+                messageTextArea.setText("");
+                messageTextArea.setDisable(true);
+                messageTextArea.setPromptText("Destinatario non connesso");
                 break;
             case UserConnected:
-                textArea.setDisable(false);
-                textArea.setPromptText("");
+                messageTextArea.setDisable(false);
+                messageTextArea.setPromptText("");
                 break;
         }
     }
@@ -73,7 +73,7 @@ public class PrivateChatController extends BaseChatController<ClientModel>
     @FXML
     private void checkEmptyMessageText()
     {
-        if (!textArea.getText().trim().isEmpty())
+        if (!messageTextArea.getText().trim().isEmpty())
             sendButton.setDisable(false);
         else
             sendButton.setDisable(true);
@@ -95,14 +95,15 @@ public class PrivateChatController extends BaseChatController<ClientModel>
     {
         try
         {
-            getModel().sendMessageToServer(Message.createNew(Message.Type.PrivateMessage)
+            Message privateMessage = Message.createNew(Message.Type.PrivateMessage)
                     .field(Message.Field.Sender, getModel().getLoggedInUsername())
                     .field(Message.Field.Recipient, user)
-                    .field(Message.Field.Data, textArea.getText())
-                    .build()
-            );
-            lastSentMessage = textArea.getText();
-            textArea.setText("");
+                    .field(Message.Field.Data, messageTextArea.getText())
+                    .build();
+
+            lastSentMessage = privateMessage;
+            getModel().sendMessageToServer(privateMessage);
+            messageTextArea.setText("");
         }
         catch (Exception e)
         {
