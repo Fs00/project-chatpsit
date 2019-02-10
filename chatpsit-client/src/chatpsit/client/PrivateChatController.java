@@ -1,8 +1,8 @@
 package chatpsit.client;
 
-import chatpsit.common.gui.ClientModel;
 import chatpsit.common.Message;
 import chatpsit.common.gui.BaseChatController;
+import chatpsit.common.gui.ClientModel;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -28,6 +28,13 @@ public class PrivateChatController extends BaseChatController<ClientModel>
     public void initialize()
     {
         super.initialize();
+        // Listener per abilitare bottone Invia messaggio se il testo non è vuoto e non contiene spazi
+        textArea.textProperty().addListener(text -> {
+            if (!textArea.getText().trim().isEmpty())
+                sendButton.setDisable(false);
+            else
+                sendButton.setDisable(true);
+        });
     }
 
     public void setUser(String user)
@@ -42,7 +49,7 @@ public class PrivateChatController extends BaseChatController<ClientModel>
         switch (message.getType())
         {
             case NotifySuccess:
-                // TODO
+
                 break;
             case NotifyError:
                 Alert errorAlert = new Alert(Alert.AlertType.ERROR);
@@ -81,5 +88,29 @@ public class PrivateChatController extends BaseChatController<ClientModel>
     public ClientModel getModel()
     {
         return ClientApp.getModel();
+    }
+
+    @FXML
+    private void sendPrivateMessage()
+    {
+        try
+        {
+            getModel().sendMessageToServer(Message.createNew(Message.Type.PrivateMessage)
+                    .field(Message.Field.Sender, getModel().getLoggedInUsername())
+                    .field(Message.Field.Recipient, user)
+                    .field(Message.Field.Data, textArea.getText())
+                    .build()
+            );
+            lastSentMessage = textArea.getText();
+            textArea.setText("");
+        }
+        catch (Exception e)
+        {
+            Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+            errorAlert.setTitle("Errore di connessione");
+            errorAlert.setHeaderText("Impossibile mandare il messaggio al server");
+            errorAlert.setContentText(e.getMessage());
+            errorAlert.show();
+        }
     }
 }

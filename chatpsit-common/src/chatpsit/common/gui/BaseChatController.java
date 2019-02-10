@@ -50,7 +50,6 @@ public abstract class BaseChatController<M extends ClientModel> implements ICont
                                 setText(msg.getField(Message.Field.Sender) + ": " + msg.getField(Message.Field.Data));
                             }
                             break;
-
                         case UserDisconnected:
                         case UserConnected:
                         case UserBanned:
