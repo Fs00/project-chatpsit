@@ -462,8 +462,8 @@ public class Server implements Runnable
             );
         }
 
-        Logger.logEvent(Logger.EventType.Info, "L'utente " + userConnection.getUser().getUsername() +
-                " ha effettuato il logout" + (userConnection.isAdminPanelConnection() ? " dal pannello di amministrazione" : ""));
+        Logger.logEvent(Logger.EventType.Info, "È stato effettuato il logout dell'utente " + userConnection.getUser().getUsername() +
+                        (userConnection.isAdminPanelConnection() ? " dal pannello di amministrazione" : ""));
     }
 
 

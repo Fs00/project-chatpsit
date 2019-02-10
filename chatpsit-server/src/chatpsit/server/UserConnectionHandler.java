@@ -56,66 +56,77 @@ public class UserConnectionHandler
         try
         {
             String rawMessage;
-            while (!clientSocket.isClosed() && (rawMessage = connectionReader.readLine()) != null)
+            while (!clientSocket.isClosed())
             {
-                try
+                if ((rawMessage = connectionReader.readLine()) != null)
                 {
-                    Message receivedMessage = Message.deserialize(rawMessage);
-
-                    switch (receivedMessage.getType())
+                    try
                     {
-                        case Ready:
-                            startMessageSenderThread();
-                            break;
-                        case PrivateMessage:
-                            server.deliverPrivateMessage(receivedMessage, this);
-                            break;
-                        case GlobalMessage:
-                            server.sendToAllClients(receivedMessage);
-                            break;
-                        case Report:
-                            server.sendToAdminPanelsOnly(receivedMessage);
-                            break;
-                        case Ban:
-                        case Unban:
-                            if (isAdminPanelConnection)
-                                server.performBanOrUnban(receivedMessage);
-                            else
-                                Logger.logEvent(Logger.EventType.Warning, "L'utente non admin " + user.getUsername() +
-                                                " ha tentato il ban/unban dell'utente " + receivedMessage.getField(Message.Field.BannedUser));
-                            break;
-                        case ServerShutdown:
-                            if (isAdminPanelConnection)
-                            {
-                                Logger.logEvent(Logger.EventType.Info, "L'admin " + user.getUsername() +
-                                                " ha iniziato la procedura di arresto del server");
-                                server.shutdownServer();
-                            }
-                            else
-                                Logger.logEvent(Logger.EventType.Warning, "L'utente non admin " + user.getUsername() +
-                                                " ha tentato di richiedere l'arresto del server");
-                            break;
-                    }
+                        Message receivedMessage = Message.deserialize(rawMessage);
 
-                    if (receivedMessage.isLastMessage())
-                        closeAndStopProcessing();
+                        switch (receivedMessage.getType())
+                        {
+                            case Ready:
+                                startMessageSenderThread();
+                                break;
+                            case PrivateMessage:
+                                server.deliverPrivateMessage(receivedMessage, this);
+                                break;
+                            case GlobalMessage:
+                                server.sendToAllClients(receivedMessage);
+                                break;
+                            case Report:
+                                server.sendToAdminPanelsOnly(receivedMessage);
+                                break;
+                            case Ban:
+                            case Unban:
+                                if (isAdminPanelConnection)
+                                    server.performBanOrUnban(receivedMessage);
+                                else
+                                    Logger.logEvent(Logger.EventType.Warning, "L'utente non admin " + user.getUsername() +
+                                            " ha tentato il ban/unban dell'utente " + receivedMessage.getField(Message.Field.BannedUser));
+                                break;
+                            case ServerShutdown:
+                                if (isAdminPanelConnection)
+                                {
+                                    Logger.logEvent(Logger.EventType.Info, "L'admin " + user.getUsername() +
+                                            " ha iniziato la procedura di arresto del server");
+                                    server.shutdownServer();
+                                }
+                                else
+                                    Logger.logEvent(Logger.EventType.Warning, "L'utente non admin " + user.getUsername() +
+                                            " ha tentato di richiedere l'arresto del server");
+                                break;
+                        }
+
+                        if (receivedMessage.isLastMessage())
+                            closeAndStopProcessing();
+                    }
+                    // Gestisce errori di deserializzazione dei messaggi e durante le operazioni richieste
+                    catch (Exception exc)
+                    {
+                        Logger.logEvent(Logger.EventType.Error, "Errore nell'elaborazione del messaggio ricevuto " +
+                                "dall'utente " + user.getUsername() + ": " + exc.getMessage());
+                    }
                 }
-                // Gestisce errori di deserializzazione dei messaggi e durante le operazioni richieste
-                catch (Exception exc)
+                // readLine() ritorna null quando il client chiude la connessione
+                else
                 {
-                    Logger.logEvent(Logger.EventType.Error, "Errore nell'elaborazione del messaggio ricevuto " +
-                                    "dall'utente " + user.getUsername() + ": " + exc.getMessage());
+                    Logger.logEvent(Logger.EventType.Warning, "Chiusura inattesa della connessione dell'utente " + user.getUsername());
+                    closeAndStopProcessing();
                 }
             }
         }
-        // Essendo l'errore molto probabilmente causato da una chiusura improvvisa del socket lato client, chiudiamo la connessione
-        // ed effettuiamo il logout dell'utente
+        // Cattura eccezioni provenienti da readLine()
         catch (Exception exc)
         {
-            Logger.logEvent(Logger.EventType.Error, "Chiusura inattesa della connessione dell'utente " +
-                    user.getUsername() + ": " + exc.getMessage());
+            Logger.logEvent(Logger.EventType.Info, "Interruzione della connessione dell'utente " +
+                            user.getUsername() + " per il motivo: " + exc.getMessage());
 
-            closeAndStopProcessing();
+            // Normalmente le eccezioni del metodo readLine() sono causate dalla chiusura del socket da un altro thread,
+            // but you never know...
+            if (!clientSocket.isClosed())
+                closeAndStopProcessing();
         }
     }
 
@@ -138,7 +149,7 @@ public class UserConnectionHandler
                 Message messageToSend = messageQueue.take();
                 connectionWriter.println(messageToSend.serialize());
 
-                if (messageToSend.isLastMessage() && !clientSocket.isClosed())
+                if (messageToSend.isLastMessage())
                     closeAndStopProcessing();
             }
         }
