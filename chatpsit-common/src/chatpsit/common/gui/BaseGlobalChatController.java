@@ -13,11 +13,6 @@ public abstract class BaseGlobalChatController<M extends ClientModel> extends Ba
     @FXML
     protected TableColumn<String, String> connectedUsersColumn;
 
-    @FXML
-    protected TableView<String> tablePrivateChat;
-    @FXML
-    protected  TableColumn<String, String> privateChatColumn;
-
     protected BaseGlobalChatController()
     {
         super(false);
@@ -28,7 +23,6 @@ public abstract class BaseGlobalChatController<M extends ClientModel> extends Ba
     {
         super.initialize();
         connectedUsersColumn.setCellValueFactory(item -> new SimpleStringProperty(item.getValue()));
-        privateChatColumn.setCellValueFactory(item -> new SimpleStringProperty(item.getValue()));
     }
 
     @Override
@@ -42,15 +36,6 @@ public abstract class BaseGlobalChatController<M extends ClientModel> extends Ba
                 break;
             case UserDisconnected:
                 tableViewUsers.getItems().remove(message.getField(Message.Field.Username));
-                break;
-            case PrivateMessage:
-                if (!tablePrivateChat.getItems().contains(message.getField(Message.Field.Sender)))
-                    tablePrivateChat.getItems().add(0, message.getField(Message.Field.Sender));
-                else
-                {
-                    tablePrivateChat.getItems().remove(message.getField(Message.Field.Sender));
-                    tablePrivateChat.getItems().add(0, message.getField(Message.Field.Sender));
-                }
                 break;
         }
     }

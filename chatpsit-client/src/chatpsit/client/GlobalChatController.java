@@ -5,6 +5,7 @@ import chatpsit.common.gui.BaseGlobalChatController;
 import chatpsit.common.gui.ClientModel;
 import chatpsit.common.gui.IMainWindowController;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -27,6 +28,12 @@ public class GlobalChatController extends BaseGlobalChatController<ClientModel> 
     private Button sendPrivateButton;
     @FXML
     private Button reportButton;
+
+    @FXML
+    protected TableView<String> tablePrivateChat;
+    @FXML
+    protected  TableColumn<String, String> privateChatColumn;
+
 
     /**
      * Contiene i controller relativi alle finestre delle chat private.
@@ -64,6 +71,8 @@ public class GlobalChatController extends BaseGlobalChatController<ClientModel> 
             else
                 sendButton.setDisable(true);
         });
+
+        privateChatColumn.setCellValueFactory(item -> new SimpleStringProperty(item.getValue()));
     }
 
     @FXML
@@ -240,6 +249,13 @@ public class GlobalChatController extends BaseGlobalChatController<ClientModel> 
                 break;
 
             case PrivateMessage:
+                if (!tablePrivateChat.getItems().contains(message.getField(Message.Field.Sender)))
+                    tablePrivateChat.getItems().add(0, message.getField(Message.Field.Sender));
+                else
+                {
+                    tablePrivateChat.getItems().remove(message.getField(Message.Field.Sender));
+                    tablePrivateChat.getItems().add(0, message.getField(Message.Field.Sender));
+                }
                 String sender = message.getField(Message.Field.Sender);
                 // Crea la finestra e il relativo controller per memorizzare il messaggio ricevuto
                 // (vedi commento sopra alla map dei controller)
