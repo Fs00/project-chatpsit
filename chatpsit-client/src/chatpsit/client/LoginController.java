@@ -2,10 +2,7 @@ package chatpsit.client;
 
 import chatpsit.common.gui.ClientModel;
 import chatpsit.common.Message;
-import chatpsit.common.ServerMode;
 import chatpsit.common.gui.IController;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
@@ -21,18 +18,8 @@ public class LoginController implements IController<ClientModel>
     @FXML
     private PasswordField fieldPasswd;
     @FXML
-    private ChoiceBox<ServerMode> serverChoiceBox;
+    private TextField serverAddressField;
 
-    @FXML
-    public ObservableList<ServerMode> getServerChoices()
-    {
-        return FXCollections.observableArrayList(ServerMode.Local, ServerMode.Remote);
-    }
-    @FXML
-    public ServerMode getDefaultServerChoice()
-    {
-        return ServerMode.Local;
-    }
     @FXML
     private void showRegistrationScene()
     {
@@ -47,7 +34,7 @@ public class LoginController implements IController<ClientModel>
 
         // Tenta connessione con il server
         try {
-            getModel().connectToServer(serverChoiceBox.getSelectionModel().getSelectedItem());
+            getModel().connectToServer(serverAddressField.getText());
         }
         catch (Exception exc)
         {
@@ -87,7 +74,7 @@ public class LoginController implements IController<ClientModel>
         fieldPasswd.setDisable(disable);
         loginButton.setDisable(disable);
         registerButton.setDisable(disable);
-        serverChoiceBox.setDisable(disable);
+        serverAddressField.setDisable(disable);
     }
 
     /**

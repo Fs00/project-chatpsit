@@ -2,13 +2,13 @@ package chatpsit.common.gui;
 
 import chatpsit.common.Message;
 import chatpsit.common.ServerConstants;
-import chatpsit.common.ServerMode;
 import javafx.application.Platform;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -91,9 +91,11 @@ public class ClientModel implements IModel
         }).start();
     }
 
-    public void connectToServer(ServerMode serverMode) throws IOException
+    // Se serverUrl è null o vuota, verrà utilizzato l'indirizzo localhost (non sono necessari controlli)
+    public void connectToServer(String serverUrl) throws IOException
     {
-        clientSocket = new Socket(serverMode.getCorrespondingUrl(), ServerConstants.SERVER_PORT);
+        clientSocket = new Socket();
+        clientSocket.connect(new InetSocketAddress(serverUrl, ServerConstants.SERVER_PORT), 10000);
         connectionReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         connectionWriter = new PrintWriter(clientSocket.getOutputStream(), true);
 

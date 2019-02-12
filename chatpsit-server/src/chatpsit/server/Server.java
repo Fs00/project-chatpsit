@@ -2,18 +2,13 @@ package chatpsit.server;
 
 import chatpsit.common.Message;
 import chatpsit.common.ServerConstants;
-import chatpsit.common.ServerMode;
 import chatpsit.common.User;
 
 import java.io.*;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketException;
+import java.net.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -24,10 +19,12 @@ public class Server implements Runnable
     private final Map<String, UserConnectionHandler> currentAdminPanelConnections = new ConcurrentHashMap<>();
     private final List<User> registeredUsers = new CopyOnWriteArrayList<>();
 
-    public Server(ServerMode mode) throws Exception
+    public Server(boolean logOnFile) throws Exception
     {
-        Logger.setMode(mode, this);
-        //Logger.startLoggingOnFile();
+        Logger.setServer(this);
+        if (logOnFile)
+            Logger.startLoggingOnFile();
+
         loadUserData();
     }
 
@@ -36,8 +33,27 @@ public class Server implements Runnable
     {
         try
         {
+            // Apri socket del server
             serverSocket = new ServerSocket(ServerConstants.SERVER_PORT);
-            Logger.logEvent(Logger.EventType.Info, "Server avviato");
+
+            // Elenca gli indirizzi IPv4 della macchina sulle sue interfacce di rete
+            System.out.println("-- Indirizzi IP del server --");
+            for (NetworkInterface netInterface : Collections.list(NetworkInterface.getNetworkInterfaces()))
+            {
+                if (!netInterface.isLoopback() && netInterface.isUp())
+                {
+                    System.out.print("   " + netInterface.getName() + ": ");
+                    for (InetAddress address : Collections.list(netInterface.getInetAddresses()))
+                    {
+                        if (address instanceof Inet4Address)
+                            System.out.print(address.getHostAddress() + " ");
+                    }
+
+                    System.out.println();
+                }
+            }
+
+            Logger.logEvent(Logger.EventType.Info, "Server avviato sulla porta " + ServerConstants.SERVER_PORT);
         }
         catch (Exception exc)
         {
@@ -86,7 +102,7 @@ public class Server implements Runnable
         try {
             serverSocket.close();
         } catch (IOException e) {
-            Logger.logEvent(Logger.EventType.Error,"Errore nel chiudere il socket del server" + e.getMessage());
+            Logger.logEvent(Logger.EventType.Error,"Errore nella chiusura del socket del server" + e.getMessage());
         }
 
         Logger.closeLogFile();

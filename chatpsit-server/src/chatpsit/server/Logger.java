@@ -1,7 +1,6 @@
 package chatpsit.server;
 
 import chatpsit.common.Message;
-import chatpsit.common.ServerMode;
 
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
@@ -13,36 +12,27 @@ import java.util.Date;
  * oppure in modalità remota per l'esecuzione sul cloud, salvando quindi i messaggi su un file di testo e inviandoli
  * al client del pannello di amministrazione.
  */
-public final class Logger
+/*package*/ final class Logger
 {
-    public enum EventType {
+    enum EventType {
         Info,
         Warning,
         Error
     }
 
-    // Utilizzato per creare una stringa partendo dalla data attuale
-    private final static SimpleDateFormat dateFormatter = new SimpleDateFormat("[dd/MM/yyyy HH:mm:ss]");
-
-    private static ServerMode mode = ServerMode.Local;
     private static Server server;
     private static boolean logOnFile = false;
     private static QueueFileWriter asyncLogFileWriter;
 
-    /**
-     * Modifica la modalità di logging (locale o remota)
-     * @param mode la modalità scelta
-     */
-    public static void setMode(ServerMode mode, Server server)
-    {
-        Logger.mode = mode;
-        Logger.server = server;
+    // Utilizzato per creare una stringa partendo dalla data attuale
+    private final static SimpleDateFormat dateFormatter = new SimpleDateFormat("[dd/MM/yyyy HH:mm:ss]");
 
-        if (mode == ServerMode.Remote)
-            startLoggingOnFile();
+    static void setServer(Server server)
+    {
+        Logger.server = server;
     }
 
-    public static void startLoggingOnFile()
+    static void startLoggingOnFile()
     {
         try
         {
@@ -56,7 +46,7 @@ public final class Logger
         }
     }
 
-    public static void closeLogFile()
+    static void closeLogFile()
     {
         if (asyncLogFileWriter != null)
             asyncLogFileWriter.stopProcessingAndClose();
@@ -69,7 +59,7 @@ public final class Logger
      * @param type Tipo dell'evento (info, warning, errore)
      * @param message Messaggio di log
      */
-    public static void logEvent(EventType type, String message)
+    static void logEvent(EventType type, String message)
     {
         String logString = dateFormatter.format(new Date());
         switch (type)
@@ -86,8 +76,7 @@ public final class Logger
         }
         logString += message;
 
-        if (mode == ServerMode.Local)
-            System.out.println(logString);
+        System.out.println(logString);
 
         if (server != null)
             server.sendToAdminPanelsOnly(Message.createNew(Message.Type.LogEvent).field(Message.Field.Data, logString).build());

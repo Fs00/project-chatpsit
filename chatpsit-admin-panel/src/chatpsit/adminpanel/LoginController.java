@@ -1,13 +1,13 @@
 package chatpsit.adminpanel;
 
-import chatpsit.common.gui.ClientModel;
 import chatpsit.common.Message;
-import chatpsit.common.ServerMode;
+import chatpsit.common.gui.ClientModel;
 import chatpsit.common.gui.IController;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 public class LoginController implements IController<ClientModel>
@@ -19,18 +19,7 @@ public class LoginController implements IController<ClientModel>
     @FXML
     private PasswordField fieldPasswd;
     @FXML
-    private ChoiceBox<ServerMode> serverChoiceBox;
-
-    @FXML
-    public ObservableList<ServerMode> getServerChoices()
-    {
-        return FXCollections.observableArrayList(ServerMode.Local, ServerMode.Remote);
-    }
-    @FXML
-    public ServerMode getDefaultServerChoice()
-    {
-        return ServerMode.Local;
-    }
+    private TextField serverAddressField;
 
     @FXML
     private void attemptLogin()
@@ -39,7 +28,7 @@ public class LoginController implements IController<ClientModel>
 
         // Tenta connessione con il server
         try {
-            getModel().connectToServer(serverChoiceBox.getSelectionModel().getSelectedItem());
+            getModel().connectToServer(serverAddressField.getText());
         }
         catch (Exception exc)
         {
@@ -78,7 +67,7 @@ public class LoginController implements IController<ClientModel>
         fieldUsername.setDisable(disable);
         fieldPasswd.setDisable(disable);
         loginButton.setDisable(disable);
-        serverChoiceBox.setDisable(disable);
+        serverAddressField.setDisable(disable);
     }
 
     @Override

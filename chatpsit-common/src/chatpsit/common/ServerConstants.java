@@ -3,8 +3,6 @@ package chatpsit.common;
 public class ServerConstants
 {
     public final static int SERVER_PORT = 7777;
-    public final static String REMOTE_SERVER_ADDRESS = "TODO"; // TODO
-    public final static String LOCAL_SERVER_ADDRESS = "localhost";
 
     public final static int MAX_USERNAME_LENGTH = 30;
 
