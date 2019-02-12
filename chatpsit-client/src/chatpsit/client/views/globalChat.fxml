@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.BorderPane?>
-<BorderPane prefHeight="480.0" prefWidth="923.0" stylesheets="@cellStyles.css" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chatpsit.client.GlobalChatController">
+<?import javafx.scene.layout.*?>
+<BorderPane prefHeight="484.0" prefWidth="874.0" stylesheets="@cellStyles.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chatpsit.client.GlobalChatController">
    <top>
       <MenuBar BorderPane.alignment="CENTER">
         <menus>
@@ -22,27 +21,27 @@
       </MenuBar>
    </top>
    <bottom>
-      <AnchorPane prefHeight="455.0" prefWidth="923.0" BorderPane.alignment="CENTER">
+      <AnchorPane prefHeight="455.0" prefWidth="869.0" BorderPane.alignment="CENTER">
          <children>
-            <TableView fx:id="tableViewUsers" layoutX="14.0" layoutY="8.0" prefHeight="385.0" prefWidth="283.0">
+            <TableView fx:id="tableViewUsers" layoutX="14.0" layoutY="8.0" prefHeight="373.0" prefWidth="220.0" AnchorPane.leftAnchor="16.0" AnchorPane.topAnchor="16.0">
                 <placeholder>
                     <Label text="Nessun utente connesso" />
                 </placeholder>
               <columns>
-                <TableColumn fx:id="connectedUsersColumn" prefWidth="282.0" text="Utenti connessi" />
+                <TableColumn fx:id="connectedUsersColumn" prefWidth="219.0" text="Utenti connessi" />
               </columns>
             </TableView>
-            <ListView fx:id="chatList" layoutX="327.0" layoutY="8.0" prefHeight="385.0" prefWidth="373.0" />
-            <Button fx:id="sendPrivateButton" disable="true" layoutX="14.0" layoutY="410.0" mnemonicParsing="false" onAction="#showPrivateChatFromButton" prefHeight="37.0" prefWidth="145.0" text="Messaggio privato" />
-            <Button fx:id="reportButton" disable="true" layoutX="175.0" layoutY="410.0" mnemonicParsing="false" onAction="#reportUser" prefHeight="37.0" prefWidth="120.0" text="Segnala" />
-            <Button fx:id="sendButton" disable="true" layoutX="600.0" layoutY="410.0" mnemonicParsing="false" onAction="#sendGlobalMessage" prefHeight="37.0" prefWidth="100.0" text="Invia" />
-            <TextArea fx:id="messageTextArea" layoutX="327.0" layoutY="409.0" onKeyPressed="#sendMessageIfEnterPressed" prefHeight="37.0" prefWidth="254.0" wrapText="true" />
-            <TableView fx:id="tablePrivateChat" layoutX="724.0" layoutY="9.0" prefHeight="437.0" prefWidth="184.0" onMouseClicked="#showPrivateChatFromPrivateChatList">
+            <ListView fx:id="chatList" layoutX="255.0" layoutY="16.0" prefHeight="374.0" prefWidth="373.0" AnchorPane.topAnchor="16.0" />
+            <Button fx:id="sendPrivateButton" disable="true" layoutX="14.0" layoutY="410.0" mnemonicParsing="false" onAction="#showPrivateChatFromButton" prefHeight="37.0" prefWidth="116.0" text="Chat privata" AnchorPane.bottomAnchor="16.0" />
+            <Button fx:id="reportButton" disable="true" layoutX="143.0" layoutY="402.0" mnemonicParsing="false" onAction="#reportUser" prefHeight="37.0" prefWidth="93.0" text="Segnala" AnchorPane.bottomAnchor="16.0" />
+            <Button fx:id="sendButton" disable="true" layoutX="528.0" layoutY="402.0" mnemonicParsing="false" onAction="#sendGlobalMessage" prefHeight="37.0" prefWidth="100.0" text="Invia" AnchorPane.bottomAnchor="16.0" />
+            <TextArea fx:id="messageTextArea" layoutX="255.0" layoutY="400.0" onKeyPressed="#sendMessageIfEnterPressed" prefHeight="42.0" prefWidth="262.0" wrapText="true" AnchorPane.bottomAnchor="13.0" />
+            <TableView fx:id="privateChatsTable" layoutX="643.0" layoutY="16.0" onMouseClicked="#showPrivateChatFromList" prefHeight="423.0" prefWidth="210.0" AnchorPane.bottomAnchor="16.0" AnchorPane.rightAnchor="16.0" AnchorPane.topAnchor="16.0">
                <placeholder>
                   <Label text="Nessuna chat privata presente" />
                </placeholder>
                <columns>
-                  <TableColumn fx:id="privateChatColumn" prefWidth="183.0" text="Chat private" />
+                  <TableColumn fx:id="privateChatColumn" styleClass="private-chat-list" prefWidth="209.0" sortable="false" text="Chat private" />
                </columns>
             </TableView>
          </children></AnchorPane>

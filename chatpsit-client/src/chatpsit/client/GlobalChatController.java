@@ -30,9 +30,9 @@ public class GlobalChatController extends BaseGlobalChatController<ClientModel> 
     private Button reportButton;
 
     @FXML
-    protected TableView<String> tablePrivateChat;
+    private TableView<String> privateChatsTable;
     @FXML
-    protected  TableColumn<String, String> privateChatColumn;
+    private TableColumn<String, String> privateChatColumn;
 
 
     /**
@@ -72,7 +72,14 @@ public class GlobalChatController extends BaseGlobalChatController<ClientModel> 
                 sendButton.setDisable(true);
         });
 
-        privateChatColumn.setCellValueFactory(item -> new SimpleStringProperty(item.getValue()));
+        // Mostra il numero di messaggi non letti nella colonna delle chat private, qualora ce ne fossero
+        privateChatColumn.setCellValueFactory(item -> {
+            int unreadMessagesCount = privateChatControllers.get(item.getValue()).getUnreadMessagesCount();
+            if (unreadMessagesCount == 0)
+                return new SimpleStringProperty(item.getValue());
+
+            return new SimpleStringProperty(item.getValue() + " (" + unreadMessagesCount + ")");
+        });
     }
 
     @FXML
@@ -169,10 +176,49 @@ public class GlobalChatController extends BaseGlobalChatController<ClientModel> 
         }
     }
 
-    @FXML
-    public void showPrivateChatFromButton()
+    /**
+     * Crea il controller relativo alla finestra di chat privata dell'utente dato e inizializza la finestra senza mostrarla.
+     * Aggiunge inoltre il nome utente all'elenco delle chat private.
+     * Viene invocato quando viene ricevuto per la prima volta un messaggio di chat privata da un determinato utente o
+     * subito prima che venga aperta per la prima volta la finestra di chat privata di un utente.
+     */
+    private PrivateChatController createPrivateChatWindowAndController(String username)
     {
-        String selectedUsername = tableViewUsers.getSelectionModel().getSelectedItem();
+        FXMLLoader loader = new FXMLLoader(ClientApp.class.getResource("views/privateChat.fxml"));
+        try
+        {
+            Stage privateChatStage = new Stage();
+            privateChatStage.setTitle("Chat privata con " + username);
+            privateChatStage.setResizable(false);
+            privateChatStage.setScene(new Scene(loader.load()));
+
+            PrivateChatController privateChatController = loader.getController();
+            privateChatController.setUser(username);
+            privateChatControllers.put(username, privateChatController);
+            privateChatsTable.getItems().add(username);
+
+            // Ogni qualvolta la finestra di chat privata viene messa in primo piano, refresha la lista delle chat
+            // private per aggiornare i contatori di messaggi non letti
+            privateChatController.getStage().focusedProperty().addListener((__, ___, isFocused) -> {
+                if (isFocused)
+                    privateChatsTable.refresh();
+            });
+
+            return privateChatController;
+        }
+        catch (Exception exc)
+        {
+            System.err.println("FATAL: Error when loading private chat window: " + exc.getMessage());
+            Platform.exit();
+            throw new RuntimeException();
+        }
+    }
+
+    /**
+     * Mostra la finestra di chat privata per l'utente selezionato, creando il rispettivo controller se necessario
+     */
+    private void showPrivateChatWindow(String selectedUsername)
+    {
         if (privateChatControllers.containsKey(selectedUsername))
         {
             Stage privateChatWindow = privateChatControllers.get(selectedUsername).getStage();
@@ -188,28 +234,20 @@ public class GlobalChatController extends BaseGlobalChatController<ClientModel> 
         }
     }
 
-    private PrivateChatController createPrivateChatWindowAndController(String username)
+    @FXML
+    private void showPrivateChatFromButton()
     {
-        FXMLLoader loader = new FXMLLoader(ClientApp.class.getResource("views/privateChat.fxml"));
-        try
-        {
-            Stage privateChatStage = new Stage();
-            privateChatStage.setTitle("Chat privata con " + username);
-            privateChatStage.setResizable(false);
-            privateChatStage.setScene(new Scene(loader.load()));
+        String selectedUsername = tableViewUsers.getSelectionModel().getSelectedItem();
+        showPrivateChatWindow(selectedUsername);
+    }
 
-            PrivateChatController privateChatController = loader.getController();
-            privateChatController.setUser(username);
-            privateChatControllers.put(username, privateChatController);
-
-            return privateChatController;
-        }
-        catch (Exception exc)
-        {
-            System.err.println("FATAL: Error when loading private chat window: " + exc.getMessage());
-            Platform.exit();
-            throw new RuntimeException();
-        }
+    @FXML
+    private void showPrivateChatFromList()
+    {
+        String selectedUsername = privateChatsTable.getSelectionModel().getSelectedItem();
+        if (selectedUsername != null)
+            showPrivateChatWindow(selectedUsername);
+        privateChatsTable.getSelectionModel().clearSelection();
     }
 
     @Override
@@ -249,13 +287,6 @@ public class GlobalChatController extends BaseGlobalChatController<ClientModel> 
                 break;
 
             case PrivateMessage:
-                if (!tablePrivateChat.getItems().contains(message.getField(Message.Field.Sender)))
-                    tablePrivateChat.getItems().add(0, message.getField(Message.Field.Sender));
-                else
-                {
-                    tablePrivateChat.getItems().remove(message.getField(Message.Field.Sender));
-                    tablePrivateChat.getItems().add(0, message.getField(Message.Field.Sender));
-                }
                 String sender = message.getField(Message.Field.Sender);
                 // Crea la finestra e il relativo controller per memorizzare il messaggio ricevuto
                 // (vedi commento sopra alla map dei controller)
@@ -265,27 +296,13 @@ public class GlobalChatController extends BaseGlobalChatController<ClientModel> 
                     Platform.runLater(() -> controller.notifyMessage(message));
                 }
                 else
+                {
                     Platform.runLater(() -> privateChatControllers.get(sender).notifyMessage(message));
+                    // Posiziona la chat in cima alla lista
+                    privateChatsTable.getItems().remove(message.getField(Message.Field.Sender));
+                    privateChatsTable.getItems().add(0, message.getField(Message.Field.Sender));
+                }
                 break;
-        }
-    }
-
-    @FXML
-    public void showPrivateChatFromPrivateChatList()
-    {
-        String selectedUsername = tablePrivateChat.getSelectionModel().getSelectedItem();
-        if (privateChatControllers.containsKey(selectedUsername))
-        {
-            Stage privateChatWindow = privateChatControllers.get(selectedUsername).getStage();
-            if (privateChatWindow.isShowing())
-                privateChatWindow.requestFocus();
-            else
-                privateChatWindow.show();
-        }
-        else
-        {
-            PrivateChatController controller = createPrivateChatWindowAndController(selectedUsername);
-            controller.getStage().show();
         }
     }
 

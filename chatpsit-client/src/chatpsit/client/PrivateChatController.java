@@ -19,6 +19,7 @@ public class PrivateChatController extends BaseChatController<ClientModel>
     private TextArea messageTextArea;
 
     private String user;
+    private int unreadMessages = 0;
     private Message lastSentMessage;
 
     public PrivateChatController()
@@ -42,6 +43,14 @@ public class PrivateChatController extends BaseChatController<ClientModel>
     public void setUser(String user)
     {
         this.user = user;
+
+        // Azzera i messaggi non letti quando la finestra viene messa in primo piano.
+        // Questo event handler non viene registrato in initialize dato che quando FXMLLoader richiama tale metodo
+        // la finestra non è ancora stata creata, mentre questo metodo viene richiamato successivamente
+        getStage().focusedProperty().addListener((__, ___, isWindowFocused) -> {
+            if (isWindowFocused)
+                unreadMessages = 0;
+        });
     }
 
     @Override
@@ -50,6 +59,10 @@ public class PrivateChatController extends BaseChatController<ClientModel>
         super.notifyMessage(message);
         switch (message.getType())
         {
+            case PrivateMessage:
+                if (!getStage().isFocused())
+                    unreadMessages++;
+                break;
             case NotifySuccess:
                 chatList.getItems().add(lastSentMessage);
                 break;
@@ -70,26 +83,6 @@ public class PrivateChatController extends BaseChatController<ClientModel>
                 messageTextArea.setPromptText("");
                 break;
         }
-    }
-
-    @FXML
-    private void checkEmptyMessageText()
-    {
-        if (!messageTextArea.getText().trim().isEmpty())
-            sendButton.setDisable(false);
-        else
-            sendButton.setDisable(true);
-    }
-
-    public Stage getStage()
-    {
-        return (Stage) sendButton.getScene().getWindow();
-    }
-
-    @Override
-    public ClientModel getModel()
-    {
-        return ClientApp.getModel();
     }
 
     @FXML
@@ -127,5 +120,33 @@ public class PrivateChatController extends BaseChatController<ClientModel>
 
             event.consume();
         }
+    }
+
+    @FXML
+    private void checkEmptyMessageText()
+    {
+        if (!messageTextArea.getText().trim().isEmpty())
+            sendButton.setDisable(false);
+        else
+            sendButton.setDisable(true);
+    }
+
+    public int getUnreadMessagesCount()
+    {
+        return unreadMessages;
+    }
+
+    public Stage getStage()
+    {
+        if (user == null)
+            throw new UnsupportedOperationException("È necessario prima impostare l'utente della chat privata.");
+
+        return (Stage) sendButton.getScene().getWindow();
+    }
+
+    @Override
+    public ClientModel getModel()
+    {
+        return ClientApp.getModel();
     }
 }
