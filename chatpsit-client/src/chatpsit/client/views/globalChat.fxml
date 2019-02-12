@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
-<BorderPane stylesheets="@cellStyles.css" prefHeight="473.0" prefWidth="714.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chatpsit.client.GlobalChatController">
+<BorderPane prefHeight="480.0" prefWidth="923.0" stylesheets="@cellStyles.css" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="chatpsit.client.GlobalChatController">
    <top>
       <MenuBar BorderPane.alignment="CENTER">
         <menus>
@@ -22,7 +22,7 @@
       </MenuBar>
    </top>
    <bottom>
-      <AnchorPane prefHeight="455.0" prefWidth="714.0" BorderPane.alignment="CENTER">
+      <AnchorPane prefHeight="455.0" prefWidth="923.0" BorderPane.alignment="CENTER">
          <children>
             <TableView fx:id="tableViewUsers" layoutX="14.0" layoutY="8.0" prefHeight="385.0" prefWidth="283.0">
                 <placeholder>
@@ -33,10 +33,18 @@
               </columns>
             </TableView>
             <ListView fx:id="chatList" layoutX="327.0" layoutY="8.0" prefHeight="385.0" prefWidth="373.0" />
-            <Button fx:id="sendPrivateButton" disable="true" layoutX="14.0" layoutY="410.0" mnemonicParsing="false" prefHeight="37.0" prefWidth="145.0" text="Messaggio privato" onAction="#showPrivateChat"/>
-            <Button fx:id="reportButton" disable="true" layoutX="175.0" layoutY="410.0" mnemonicParsing="false" prefHeight="37.0" prefWidth="120.0" text="Segnala" onAction="#reportUser"/>
+            <Button fx:id="sendPrivateButton" disable="true" layoutX="14.0" layoutY="410.0" mnemonicParsing="false" onAction="#showPrivateChatFromButton" prefHeight="37.0" prefWidth="145.0" text="Messaggio privato" />
+            <Button fx:id="reportButton" disable="true" layoutX="175.0" layoutY="410.0" mnemonicParsing="false" onAction="#reportUser" prefHeight="37.0" prefWidth="120.0" text="Segnala" />
             <Button fx:id="sendButton" disable="true" layoutX="600.0" layoutY="410.0" mnemonicParsing="false" onAction="#sendGlobalMessage" prefHeight="37.0" prefWidth="100.0" text="Invia" />
-            <TextArea fx:id="messageTextArea" onKeyPressed="#sendMessageIfEnterPressed" layoutX="327.0" layoutY="409.0" prefHeight="37.0" prefWidth="254.0" wrapText="true" />
+            <TextArea fx:id="messageTextArea" layoutX="327.0" layoutY="409.0" onKeyPressed="#sendMessageIfEnterPressed" prefHeight="37.0" prefWidth="254.0" wrapText="true" />
+            <TableView fx:id="tablePrivateChat" layoutX="724.0" layoutY="9.0" prefHeight="437.0" prefWidth="184.0" onMouseClicked="#showPrivateChatFromPrivateChatList">
+               <placeholder>
+                  <Label text="Nessuna chat privata presente" />
+               </placeholder>
+               <columns>
+                  <TableColumn fx:id="privateChatColumn" prefWidth="183.0" text="Chat private" />
+               </columns>
+            </TableView>
          </children></AnchorPane>
    </bottom>
 </BorderPane>

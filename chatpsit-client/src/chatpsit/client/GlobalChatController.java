@@ -161,7 +161,7 @@ public class GlobalChatController extends BaseGlobalChatController<ClientModel> 
     }
 
     @FXML
-    public void showPrivateChat()
+    public void showPrivateChatFromButton()
     {
         String selectedUsername = tableViewUsers.getSelectionModel().getSelectedItem();
         if (privateChatControllers.containsKey(selectedUsername))
@@ -251,6 +251,25 @@ public class GlobalChatController extends BaseGlobalChatController<ClientModel> 
                 else
                     Platform.runLater(() -> privateChatControllers.get(sender).notifyMessage(message));
                 break;
+        }
+    }
+
+    @FXML
+    public void showPrivateChatFromPrivateChatList()
+    {
+        String selectedUsername = tablePrivateChat.getSelectionModel().getSelectedItem();
+        if (privateChatControllers.containsKey(selectedUsername))
+        {
+            Stage privateChatWindow = privateChatControllers.get(selectedUsername).getStage();
+            if (privateChatWindow.isShowing())
+                privateChatWindow.requestFocus();
+            else
+                privateChatWindow.show();
+        }
+        else
+        {
+            PrivateChatController controller = createPrivateChatWindowAndController(selectedUsername);
+            controller.getStage().show();
         }
     }
 
