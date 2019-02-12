@@ -44,8 +44,13 @@ public abstract class BaseGlobalChatController<M extends ClientModel> extends Ba
                 tableViewUsers.getItems().remove(message.getField(Message.Field.Username));
                 break;
             case PrivateMessage:
-                if(!tablePrivateChat.getItems().contains(message.getField(Message.Field.Sender)))
-                    tablePrivateChat.getItems().add(message.getField(Message.Field.Sender));
+                if (!tablePrivateChat.getItems().contains(message.getField(Message.Field.Sender)))
+                    tablePrivateChat.getItems().add(0, message.getField(Message.Field.Sender));
+                else
+                {
+                    tablePrivateChat.getItems().remove(message.getField(Message.Field.Sender));
+                    tablePrivateChat.getItems().add(0, message.getField(Message.Field.Sender));
+                }
                 break;
         }
     }
