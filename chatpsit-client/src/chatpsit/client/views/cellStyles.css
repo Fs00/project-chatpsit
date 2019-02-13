@@ -4,5 +4,13 @@
 
 .list-cell:selected, .table-row-cell:selected {
   -fx-background-color: #0096C9;
-  -fx-text-fill: white;
+  -fx-text-fill: white;  /* non funziona con la table-row-cell, per questo c'è la regola sottostante */
+}
+
+.table-row-cell:selected .text {
+  -fx-fill: white;
+}
+
+.table-cell-hover {
+  -fx-background-color: #e2e2e2;
 }

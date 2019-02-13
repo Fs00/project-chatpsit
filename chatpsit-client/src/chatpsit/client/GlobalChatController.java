@@ -74,37 +74,35 @@ public class GlobalChatController extends BaseGlobalChatController<ClientModel> 
 
         // Mostra il numero di messaggi non letti nella colonna delle chat private, qualora ce ne fossero
         privateChatColumn.setCellValueFactory(item -> new SimpleStringProperty(item.getValue()));
-        privateChatColumn.setCellFactory(column -> {
-            return new TableCell<String, String>() {
-                @Override
-                protected void updateItem(String username, boolean empty) {
-                    super.updateItem(username, empty);
+        privateChatColumn.setCellFactory(column -> new TableCell<String, String>() {
+            @Override
+            protected void updateItem(String username, boolean empty) {
+                super.updateItem(username, empty);
 
-                    if (username == null || empty) {
-                        setText(null);
+                if (username == null || empty) {
+                    setText(null);
+                    setStyle("");
+                }
+                else
+                {
+                    // Event handler per cambiare il colore di sfondo della cella quando si muove il mouse sopra
+                    setOnMouseEntered(__ -> getStyleClass().add("table-cell-hover"));
+                    setOnMouseExited(__ -> getStyleClass().remove("table-cell-hover"));
+                    setOnMousePressed(__ -> getStyleClass().remove("table-cell-hover"));
+
+                    int unreadMessagesCount = privateChatControllers.get(username).getUnreadMessagesCount();
+                    if (unreadMessagesCount == 0)
+                    {
+                        setText(username);
                         setStyle("");
                     }
                     else
                     {
-                        // Event handler per cambiare il colore di sfondo della cella quando si muove il mouse sopra
-                        // FIXME: rimuovono il grassetto in quanto sovrascrivono le regole CSS
-                        setOnMouseEntered(event -> setStyle("-fx-background-color: #e0e0e0;"));
-                        setOnMouseExited(event -> setStyle("-fx-background-color: white;"));
-
-                        int unreadMessagesCount = privateChatControllers.get(username).getUnreadMessagesCount();
-                        if (unreadMessagesCount == 0)
-                        {
-                            setText(username);
-                            setStyle("");
-                        }
-                        else
-                        {
-                            setText(username + " (" + unreadMessagesCount + ")");
-                            setStyle("-fx-font-weight: bold;");
-                        }
+                        setText(username + " (" + unreadMessagesCount + ")");
+                        setStyle("-fx-font-weight: bold;");
                     }
                 }
-            };
+            }
         });
     }
 
