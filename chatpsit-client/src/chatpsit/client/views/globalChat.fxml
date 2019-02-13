@@ -27,8 +27,9 @@
                 <placeholder>
                     <Label text="Nessun utente connesso" />
                 </placeholder>
+                <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
               <columns>
-                <TableColumn fx:id="connectedUsersColumn" prefWidth="219.0" text="Utenti connessi" />
+                <TableColumn fx:id="connectedUsersColumn" text="Utenti connessi" />
               </columns>
             </TableView>
             <ListView fx:id="chatList" layoutX="255.0" layoutY="16.0" prefHeight="374.0" prefWidth="373.0" AnchorPane.topAnchor="16.0" />
@@ -40,8 +41,9 @@
                <placeholder>
                   <Label text="Nessuna chat privata presente" />
                </placeholder>
+                <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
                <columns>
-                  <TableColumn fx:id="privateChatColumn" styleClass="private-chat-list" prefWidth="209.0" sortable="false" text="Chat private" />
+                  <TableColumn fx:id="privateChatColumn" styleClass="private-chat-list" sortable="false" text="Chat private" />
                </columns>
             </TableView>
          </children></AnchorPane>

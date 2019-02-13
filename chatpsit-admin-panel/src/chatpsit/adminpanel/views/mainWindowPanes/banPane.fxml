@@ -7,7 +7,7 @@
    <children>
       <TableView fx:id="usersTable" layoutX="14.0" layoutY="14.0" prefHeight="439.0" prefWidth="375.0" AnchorPane.bottomAnchor="16.0" AnchorPane.leftAnchor="16.0" AnchorPane.topAnchor="16.0">
         <columns>
-          <TableColumn fx:id="usernameColumn" editable="false" prefWidth="214.0" resizable="false" text="Username" />
+          <TableColumn fx:id="usernameColumn" editable="false" prefWidth="213.0" resizable="false" text="Username" />
           <TableColumn fx:id="isAdminColumn" editable="false" resizable="false" text="Admin" />
             <TableColumn fx:id="isBannedColumn" editable="false" resizable="false" text="Bannato" />
         </columns>

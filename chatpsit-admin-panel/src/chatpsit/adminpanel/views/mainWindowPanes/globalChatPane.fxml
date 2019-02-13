@@ -14,7 +14,7 @@
             <Label text="Nessun utente connesso" />
          </placeholder>
          <columns>
-            <TableColumn fx:id="connectedUsersColumn" prefWidth="192.0" resizable="false" text="Utenti connessi" />
+            <TableColumn fx:id="connectedUsersColumn" prefWidth="191.0" resizable="false" text="Utenti connessi" />
          </columns>
       </TableView>
    </children>
