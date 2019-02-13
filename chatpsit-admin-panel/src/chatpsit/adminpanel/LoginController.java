@@ -59,6 +59,7 @@ public class LoginController implements IController<ClientModel>
             errAlert.show();
         }
 
+        fieldPasswd.setText("");
         changeControlsDisable(false);
     }
 
