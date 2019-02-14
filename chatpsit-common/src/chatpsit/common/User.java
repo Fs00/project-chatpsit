@@ -60,15 +60,18 @@ public class User
     /**
      * Verifica che la password inserita dall'utente sia l'equivalente della password hashata registrata
      * @param plainPassword password in chiaro inserita dall'utente
-     * @return true o false in base all'equivalnza o meno
+     * @return true o false in base all'equivalenza o meno
      */
     public boolean passwordMatches(String plainPassword)
     {
-        return hashedPassword.equals(User.hashPassword(plainPassword));
+        return hashedPassword.equals(hashPassword(plainPassword));
     }
 
     /**
      * Crea una stringa contenente i dati dell'istanza corrente per poterli salvare sul file
+     * Gli utenti nel file sono salvati uno per riga, nel seguente formato:
+     *   [!@]username;hashedPassword
+     * dove ! indica un utente bannato, mentre @ indica un utente admin
      */
     public String serialize()
     {
@@ -78,7 +81,7 @@ public class User
         else if (isBanned)
             fileRecord = "!";
         return fileRecord + username + ";" + hashedPassword;
-}
+    }
 
     /**
      * Crea una nuova istanza della classe partendo da una stringa trasmessa

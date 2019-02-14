@@ -492,10 +492,9 @@ public class Server implements Runnable
 
     /**
      * Carica i dati degli utenti da un file locale chiamato usersdata.txt; se il file non esiste, viene creato
-     * Gli utenti nel file sono salvati uno per riga, nel seguente formato:
-     *   [!@]username;hashedPassword
-     * dove ! indica un utente bannato, mentre @ indica un utente admin
-     * @throws Exception le eccezioni legate alla lettura del file devono far saltare l'avvio del server
+     * Eventuali entry malformate o duplicate vengono ignorate
+     * Vedi il metodo User.serialize() per informazioni sul formato di salvataggio
+     * @throws Exception le eccezioni legate all'apertura del file devono far saltare l'avvio del server
      */
     private void loadUserData() throws Exception
     {
@@ -525,13 +524,17 @@ public class Server implements Runnable
                     String userAsString = scanner.nextLine();
                     try
                     {
-                        User user = User.deserialize(userAsString);
-                        registeredUsers.add(user);
+                        User deserializedUser = User.deserialize(userAsString);
+                        if (registeredUsers.stream().anyMatch(user -> user.getUsername().equals(deserializedUser.getUsername())))
+                            Logger.logEvent(Logger.EventType.Warning, "Utente duplicato " + deserializedUser.getUsername() +
+                                            " alla riga " + currentLine + ", l'entry verrà ignorata");
+                        else
+                            registeredUsers.add(deserializedUser);
                     }
                     catch (Exception exc)
                     {
-                        Logger.logEvent(Logger.EventType.Error, "Dati dell'utente malformati alla riga " + currentLine +
-                                ": " + exc.getMessage());
+                        Logger.logEvent(Logger.EventType.Warning, "Dati dell'utente malformati alla riga " + currentLine +
+                                        ", l'entry verrà ignorata");
                     }
                     currentLine++;
                 }
