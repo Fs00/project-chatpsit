@@ -37,28 +37,24 @@ public class QueueFileWriter
         if (isClosed)
             throw new UnsupportedOperationException("Il file è già chiuso o in fase di chiusura.");
 
-        try {
-            textQueue.put(text);
-        }
-        catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        textQueue.offer(text);
     }
 
     private void processQueue()
     {
         // Ciclo di elaborazione della coda
-        while (!Thread.interrupted())
+        while (!Thread.currentThread().isInterrupted())
         {
-            try {
+            try
+            {
+                // FIXME: rimane fermo anche dopo che interrupt() viene chiamato sull'altro thread
                 String textToWrite = textQueue.take();
                 fileWriter.write(textToWrite + "\n");
             }
-            catch (InterruptedException exc) {
-                exc.printStackTrace();
-            }
-            catch (IOException exc) {
-                System.out.println("Impossibile scrivere il messaggio di log su file: " + exc.getMessage());
+            catch (Exception exc)
+            {
+                if (!(exc instanceof InterruptedException))
+                    System.out.println("Impossibile scrivere il messaggio di log su file: " + exc.getMessage());
             }
         }
 
@@ -81,7 +77,7 @@ public class QueueFileWriter
             fileWriter.close();
         }
         catch (IOException e) {
-            System.out.println("Impossibile chiudere il file di log.");
+            System.out.println("Impossibile chiudere il file di log: " + e.getMessage());
         }
     }
 

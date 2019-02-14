@@ -91,6 +91,7 @@ public class Server implements Runnable
     public void shutdownServer()
     {
         Logger.logEvent(Logger.EventType.Info, "Arresto del server in corso");
+        sendToAllClients(Message.createNew(Message.Type.ServerShutdown).lastMessage().build());
 
         try
         {
@@ -104,11 +105,13 @@ public class Server implements Runnable
             Logger.logEvent(Logger.EventType.Error,"Errore nella scrittura del file dei dati degli utenti: " + exc.getMessage());
         }
 
-        sendToAllClients(Message.createNew(Message.Type.ServerShutdown).lastMessage().build());
-
-        try {
+        try
+        {
+            // Attendi finché tutti i client non si sono disconnessi
+            while (currentAdminPanelConnections.size() > 0 || currentUserClientConnections.size() > 0) {}
             serverSocket.close();
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             Logger.logEvent(Logger.EventType.Error,"Errore nella chiusura del socket del server" + e.getMessage());
         }
 
