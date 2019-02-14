@@ -4,11 +4,18 @@ import chatpsit.common.Message;
 import chatpsit.common.ServerConstants;
 import chatpsit.common.User;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -484,7 +491,7 @@ public class Server implements Runnable
 
 
     /**
-     * Carica i dati degli utenti da un file locale chiamato usersdata.txt
+     * Carica i dati degli utenti da un file locale chiamato usersdata.txt; se il file non esiste, viene creato
      * Gli utenti nel file sono salvati uno per riga, nel seguente formato:
      *   [!@]username;hashedPassword
      * dove ! indica un utente bannato, mentre @ indica un utente admin
@@ -492,32 +499,49 @@ public class Server implements Runnable
      */
     private void loadUserData() throws Exception
     {
-        File file = new File(System.getProperty("user.dir"), "usersdata.txt");
-        try
+        Path usersDataFilePath = Paths.get(System.getProperty("user.dir"), "usersdata.txt");
+        if (Files.notExists(usersDataFilePath))
         {
-            int currentLine = 1;
-            Scanner scanner = new Scanner(file);
-            while (scanner.hasNextLine())
+            try
             {
-                String userAsString = scanner.nextLine();
-                try
-                {
-                    User user = User.deserialize(userAsString);
-                    registeredUsers.add(user);
-                }
-                catch (Exception exc)
-                {
-                    Logger.logEvent(Logger.EventType.Error, "Dati dell'utente malformati alla riga " + currentLine +
-                                    ": " + exc.getMessage());
-                }
-                currentLine++;
+                Files.createFile(usersDataFilePath);
+                Logger.logEvent(Logger.EventType.Info, "Dati degli utenti non trovati: creato file usersdata.txt vuoto");
+            }
+            catch (Exception exc)
+            {
+                Logger.logEvent(Logger.EventType.Error, "Impossibile creare il file per i dati degli utenti: " + exc.getMessage() +
+                                "\nIl server non può avviarsi.");
+                throw exc;
             }
         }
-        catch (Exception e)
+        else
         {
-            Logger.logEvent(Logger.EventType.Error, "Impossibile leggere i dati degli utenti: " + e.getMessage() +
-                            "\nIl server non può avviarsi.");
-            throw e;
+            try
+            {
+                int currentLine = 1;
+                Scanner scanner = new Scanner(usersDataFilePath);
+                while (scanner.hasNextLine())
+                {
+                    String userAsString = scanner.nextLine();
+                    try
+                    {
+                        User user = User.deserialize(userAsString);
+                        registeredUsers.add(user);
+                    }
+                    catch (Exception exc)
+                    {
+                        Logger.logEvent(Logger.EventType.Error, "Dati dell'utente malformati alla riga " + currentLine +
+                                ": " + exc.getMessage());
+                    }
+                    currentLine++;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.logEvent(Logger.EventType.Error, "Impossibile leggere i dati degli utenti: " + e.getMessage() +
+                        "\nIl server non può avviarsi.");
+                throw e;
+            }
         }
     }
 }
